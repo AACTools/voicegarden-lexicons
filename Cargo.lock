@@ -185,8 +185,8 @@ dependencies = [
 
 [[package]]
 name = "floravox-g2p"
-version = "0.5.0"
-source = "git+https://github.com/AACTools/floravox?tag=v0.5.0#39dd844c01057a5f466ecc6f7aa5f0e504e5484d"
+version = "0.5.1"
+source = "git+https://github.com/AACTools/floravox?tag=v0.5.1#a14508d08ececda4584dd6e1ea794fb76f67413e"
 dependencies = [
  "fst",
  "memmap2",
