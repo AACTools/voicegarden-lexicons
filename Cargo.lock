@@ -186,7 +186,8 @@ dependencies = [
 [[package]]
 name = "floravox-g2p"
 version = "0.5.1"
-source = "git+https://github.com/AACTools/floravox?tag=v0.5.1#a14508d08ececda4584dd6e1ea794fb76f67413e"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7cad41e4b897872489b52aa30f14d264ae181e1d512001e136136be4583c781"
 dependencies = [
  "fst",
  "memmap2",
