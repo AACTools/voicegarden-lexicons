@@ -130,7 +130,10 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def build_lang(lang: str, work: Path, dist: Path, version: str) -> dict | None:
+def build_lang(
+    lang: str, work: Path, dist: Path, version: str, train: bool = True,
+    train_iters: int | None = None,
+) -> dict | None:
     meta = LANGUAGES.get(lang)
     print(f"== {lang}")
     with tempfile.TemporaryDirectory(dir=work) as td:
@@ -199,6 +202,27 @@ def build_lang(lang: str, work: Path, dist: Path, version: str) -> dict | None:
             stem.with_suffix(".pho"),
             lexicon_txt,
         ]
+
+        # Per-language Phonetisaurus model trained on this lexicon, so
+        # OOV output uses the bundle's own alphabet by construction.
+        phonetisaurus_meta = None
+        if train and shutil.which("floravox-train-phonetisaurus"):
+            model_out = td / "phonetisaurus.fst"
+            metrics_out = td / "metrics.json"
+            cmd = ["floravox-train-phonetisaurus", str(tsv), str(model_out),
+                   "--metrics", str(metrics_out)]
+            if train_iters:
+                cmd += ["--iters", str(train_iters)]
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            if r.returncode != 0:
+                print(f"  !! training failed: {r.stderr.strip()[-500:]}")
+                return None
+            bundle_files.append(model_out)
+            phonetisaurus_meta = json.loads(metrics_out.read_text())
+            print(f"  phonetisaurus: exact {phonetisaurus_meta['exact_match']:.1%}, "
+                  f"PER {phonetisaurus_meta['per']:.1%}")
+        elif train:
+            print("  !! floravox-train-phonetisaurus not on PATH; skipping WFST")
         ph_license = None
 
         # package tar.gz
@@ -220,7 +244,7 @@ def build_lang(lang: str, work: Path, dist: Path, version: str) -> dict | None:
             "entries": n,
             "license": license_,
             "source": source,
-            "phonetisaurus": ph_license,
+            "phonetisaurus": phonetisaurus_meta,
             "file": f"{lang}.tar.gz",
             "sha256": sha256(tar_path),
             "size_bytes": tar_path.stat().st_size,
@@ -235,6 +259,10 @@ def main() -> int:
     ap.add_argument("--langs", help="comma-separated subset")
     ap.add_argument("--out", default="dist")
     ap.add_argument("--version", default="dev")
+    ap.add_argument("--no-train", action="store_true",
+                    help="skip Phonetisaurus training (fast CI mode)")
+    ap.add_argument("--train-iters", type=int, default=None,
+                    help="override EM iterations (quick smoke runs)")
     args = ap.parse_args()
 
     dist = Path(args.out)
@@ -244,7 +272,10 @@ def main() -> int:
     langs = args.langs.split(",") if args.langs else list(LANGUAGES) + list(EXTRAS)
     entries = []
     for lang in langs:
-        entry = build_lang(lang.strip(), work, dist, args.version)
+        entry = build_lang(
+            lang.strip(), work, dist, args.version,
+            train=not args.no_train, train_iters=args.train_iters,
+        )
         if entry:
             entries.append(entry)
 

@@ -39,6 +39,20 @@ use std::time::Duration;
 pub const DEFAULT_BASE: &str =
     "https://github.com/AACTools/voicegarden-lexicons/releases/latest/download";
 
+/// Holdout evaluation of a bundled Phonetisaurus model (trained on the
+/// other 95% of the lexicon, decoded through the shipped file).
+#[derive(Debug, Clone, Deserialize)]
+pub struct PhonetisaurusEval {
+    /// Fraction of held-out words phonemized exactly right.
+    pub exact_match: f64,
+    /// Mean phoneme error rate over decoded words.
+    pub per: f64,
+    /// Fraction of held-out words that decoded at all.
+    pub coverage: f64,
+    /// N-gram order of the model.
+    pub order: u8,
+}
+
 /// One language entry from the archive manifest.
 #[derive(Debug, Clone, Deserialize)]
 pub struct LanguageEntry {
@@ -54,8 +68,8 @@ pub struct LanguageEntry {
     pub license: String,
     /// Provenance string (e.g. `PyPI:gruut-lang-de`).
     pub source: String,
-    /// License of the bundled Phonetisaurus WFST, if any.
-    pub phonetisaurus: Option<String>,
+    /// The bundled Phonetisaurus OOV model and its holdout evaluation.
+    pub phonetisaurus: Option<PhonetisaurusEval>,
     /// Bundle file name within the release.
     pub file: String,
     /// SHA-256 of the bundle tarball.

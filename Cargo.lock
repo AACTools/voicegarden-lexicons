@@ -185,9 +185,9 @@ dependencies = [
 
 [[package]]
 name = "floravox-g2p"
-version = "0.5.1"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7cad41e4b897872489b52aa30f14d264ae181e1d512001e136136be4583c781"
+checksum = "72819d54e070ac7941ad989a0d89a79ff5961ad445de90b6c28c91dc621bc441"
 dependencies = [
  "fst",
  "memmap2",
@@ -951,7 +951,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "voicegarden-lexicons"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "flate2",

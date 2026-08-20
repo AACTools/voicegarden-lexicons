@@ -16,8 +16,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
 
-      - name: Install floravox-fst-compile
-        run: cargo install -q --git https://github.com/AACTools/floravox --tag v0.5.1 floravox-g2p --bin floravox-fst-compile
+      - name: Install floravox tools
+        run: |
+          cargo install -q --git https://github.com/AACTools/floravox --tag v0.6.0 floravox-g2p --bin floravox-fst-compile --bin floravox-train-phonetisaurus
 
       - name: Fetcher crate tests
         run: cargo test
@@ -25,8 +26,11 @@ jobs:
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
 
-      - name: Build all bundles
-        run: python3 build.py --out dist --version "${GITHUB_SHA::7}"
+      - name: Build all bundles (fast, no WFST training)
+        run: python3 build.py --out dist --version "${GITHUB_SHA::7}" --no-train
+
+      - name: Train one small language (trainer smoke)
+        run: python3 build.py --langs sv --out dist-smoke --version smoke --train-iters 3
 
       - name: Validate manifest against schema
         run: |
@@ -44,7 +48,7 @@ jobs:
           set -euxo pipefail
           mkdir -p /tmp/smoke && tar xzf dist/de.tar.gz -C /tmp/smoke
           # direct lookup through the floravox CLI
-          cargo install -q --git https://github.com/AACTools/floravox --tag v0.5.1 floravox-cli --bin floravox
+          cargo install -q --git https://github.com/AACTools/floravox --tag v0.6.0 floravox-cli --bin floravox
           floravox g2p --lexicon /tmp/smoke/de guten tag welt
 
       - uses: actions/upload-artifact@v4
@@ -60,10 +64,22 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: bundles
-          path: dist
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install floravox tools
+        run: |
+          cargo install -q --git https://github.com/AACTools/floravox --tag v0.6.0 floravox-g2p --bin floravox-fst-compile --bin floravox-train-phonetisaurus
+      # Rebuild WITH per-language WFST training (the per-push build job
+      # skips it): ~3 h across all languages, release tags only.
+      - name: Build all bundles (with training)
+        run: python3 build.py --out dist --version "${GITHUB_REF_NAME}"
+      - name: Validate manifest against schema
+        run: |
+          python3 -m pip install jsonschema
+          python3 - <<'EOF2'
+          import json, jsonschema
+          jsonschema.validate(json.load(open("dist/lexicons.json")), json.load(open("schema.json")))
+          print("manifest OK")
+          EOF2
       - name: Release
         uses: softprops/action-gh-release@v2
         with:

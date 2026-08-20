@@ -19,7 +19,29 @@
           "entries": {"type": "integer", "minimum": 1},
           "license": {"type": "string"},
           "source": {"type": "string"},
-          "phonetisaurus": {"type": ["string", "null"], "description": "license of the bundled OOV WFST, if any"},
+          "phonetisaurus": {
+            "oneOf": [
+              {"type": "null"},
+              {
+                "type": "object",
+                "description": "bundled OOV WFST trained on this lexicon + its holdout evaluation",
+                "required": ["exact_match", "per", "coverage", "order"],
+                "properties": {
+                  "exact_match": {"type": "number", "minimum": 0, "maximum": 1},
+                  "per": {"type": "number", "minimum": 0},
+                  "coverage": {"type": "number", "minimum": 0, "maximum": 1},
+                  "order": {"type": "integer", "minimum": 2},
+                  "train": {"type": "integer"},
+                  "holdout": {"type": "integer"},
+                  "iters": {"type": "integer"},
+                  "gmax": {"type": "integer"},
+                  "pmax": {"type": "integer"},
+                  "states": {"type": "integer"},
+                  "arcs": {"type": "integer"}
+                }
+              }
+            ]
+          },
           "file": {"type": "string", "pattern": "^[a-z0-9-]+\\.tar\\.gz$"},
           "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
           "size_bytes": {"type": "integer"},
