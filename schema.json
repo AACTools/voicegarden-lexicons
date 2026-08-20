@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "voicegarden-lexicons manifest",
+  "type": "object",
+  "required": ["version", "format", "languages"],
+  "properties": {
+    "version": {"type": "string"},
+    "format": {"const": "voicegarden-lexicons/1"},
+    "generator": {"type": "string"},
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["lang", "bcp47", "entries", "license", "file", "sha256"],
+        "properties": {
+          "lang": {"type": "string", "description": "bundle id, e.g. de or en-cmudict"},
+          "name": {"type": "string"},
+          "bcp47": {"type": "string", "description": "primary language tag; join key for voice model registries"},
+          "entries": {"type": "integer", "minimum": 1},
+          "license": {"type": "string"},
+          "source": {"type": "string"},
+          "phonetisaurus": {"type": ["string", "null"], "description": "license of the bundled OOV WFST, if any"},
+          "file": {"type": "string", "pattern": "^[a-z0-9-]+\\.tar\\.gz$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer"},
+          "format": {"const": "floravox-fst-lexicon/1"},
+          "floravox_tag": {"type": "string"},
+          "version": {"type": "string"}
+        }
+      }
+    }
+  }
+}

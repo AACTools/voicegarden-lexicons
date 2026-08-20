@@ -1,0 +1,70 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install floravox-fst-compile
+        run: cargo install --git https://github.com/AACTools/floravox --tag v0.5.0 --bin floravox-fst-compile
+
+      - name: Fetcher crate tests
+        run: cargo test
+
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Build all bundles
+        run: python3 build.py --out dist --version "${GITHUB_SHA::7}"
+
+      - name: Validate manifest against schema
+        run: |
+          python3 -m pip install jsonschema
+          python3 - <<'EOF'
+          import json, jsonschema
+          schema = json.load(open("schema.json"))
+          manifest = json.load(open("dist/lexicons.json"))
+          jsonschema.validate(manifest, schema)
+          print("manifest OK:", len(manifest["languages"]), "languages")
+          EOF
+
+      - name: Smoke a bundle end-to-end (floravox lookup)
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/smoke && tar xzf dist/de.tar.gz -C /tmp/smoke
+          # direct lookup through the floravox CLI
+          cargo install -q --git https://github.com/AACTools/floravox --tag v0.5.0 floravox-cli --bin floravox
+          floravox g2p --lexicon /tmp/smoke/de guten tag welt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bundles
+          path: dist/
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bundles
+          path: dist
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

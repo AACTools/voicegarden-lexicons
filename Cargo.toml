@@ -1,0 +1,27 @@
+[package]
+name = "voicegarden-lexicons"
+description = "Fetch permissively-licensed pronunciation lexicons (the espeak-ng replacement) for TTS — MIT/BSD bundles keyed by language"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/AACTools/voicegarden-lexicons"
+keywords = ["tts", "g2p", "lexicon", "phonemizer", "accessibility"]
+categories = ["accessibility", "text-processing"]
+
+[dependencies]
+floravox-g2p = { git = "https://github.com/AACTools/floravox", tag = "v0.5.0" }
+memmap2 = "0.9"
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ureq = { version = "2", features = ["tls"] }
+sha2 = "0.10"
+flate2 = "1"
+tar = "0.4"
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"
