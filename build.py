@@ -188,7 +188,17 @@ def build_lang(lang: str, work: Path, dist: Path, version: str) -> dict | None:
             return None
         print(f"  entries: {n}")
 
-        bundle_files = [stem.with_suffix(".fst"), stem.with_suffix(".pho")]
+        # sherpa-onnx 2.0 lexicon.txt format: `word\tp1 p2 p3`
+        # (their Alternative 1 for the espeak-ng removal,
+        # k2-fsa/sherpa-onnx#3731) — same data, consumable by every
+        # sherpa-onnx binding with zero code.
+        lexicon_txt = td / "lexicon.txt"
+        shutil.copyfile(tsv, lexicon_txt)
+        bundle_files = [
+            stem.with_suffix(".fst"),
+            stem.with_suffix(".pho"),
+            lexicon_txt,
+        ]
         ph_license = None
 
         # package tar.gz
