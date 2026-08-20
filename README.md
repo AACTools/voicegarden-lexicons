@@ -75,7 +75,7 @@ make LANG=de      # one language
 cargo test        # fetcher-crate tests (offline, fixtures)
 ```
 
-Requires: python3, curl, and `cargo install --git https://github.com/AACTools/floravox --tag v0.5.0 --bin floravox-fst-compile`.
+Requires: python3, curl, and `cargo install --git https://github.com/AACTools/floravox --tag v0.5.1 --bin floravox-fst-compile`.
 
 ## License
 

@@ -16,7 +16,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Install floravox-fst-compile
-        run: cargo install -q --git https://github.com/AACTools/floravox --tag v0.5.0 floravox-g2p --bin floravox-fst-compile
+        run: cargo install -q --git https://github.com/AACTools/floravox --tag v0.5.1 floravox-g2p --bin floravox-fst-compile
 
       - name: Fetcher crate tests
         run: cargo test
@@ -43,7 +43,7 @@ jobs:
           set -euxo pipefail
           mkdir -p /tmp/smoke && tar xzf dist/de.tar.gz -C /tmp/smoke
           # direct lookup through the floravox CLI
-          cargo install -q --git https://github.com/AACTools/floravox --tag v0.5.0 floravox-cli --bin floravox
+          cargo install -q --git https://github.com/AACTools/floravox --tag v0.5.1 floravox-cli --bin floravox
           floravox g2p --lexicon /tmp/smoke/de guten tag welt
 
       - uses: actions/upload-artifact@v4
