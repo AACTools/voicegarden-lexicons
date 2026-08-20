@@ -16,7 +16,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Install floravox-fst-compile
-        run: cargo install --git https://github.com/AACTools/floravox --tag v0.5.0 --bin floravox-fst-compile
+        run: cargo install -q --git https://github.com/AACTools/floravox --tag v0.5.0 floravox-g2p --bin floravox-fst-compile
 
       - name: Fetcher crate tests
         run: cargo test
