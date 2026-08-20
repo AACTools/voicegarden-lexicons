@@ -10,11 +10,11 @@
 //! override with `VOICEGARDEN_LEXICON_DIR`), verified against the
 //! manifest's SHA-256, and unpacked into floravox FST lexicons.
 //!
-//! ```
+//! ```no_run
 //! use voicegarden_lexicons::LexiconArchive;
 //!
 //! # fn main() -> anyhow::Result<()> {
-//! let archive = LexiconArchive::default()?;
+//! let archive = LexiconArchive::default_archive()?;
 //! let bundle = archive.fetch("de")?;              // cached after first call
 //! let mut g2p = bundle.phonemizer()?;
 //! use floravox_g2p::TokenPhonemizer as _;
@@ -216,12 +216,6 @@ impl LexiconArchive {
             })?,
         };
         serde_json::from_slice(&bytes).context("parsing lexicons.json")
-    }
-}
-
-impl Default for LexiconArchive {
-    fn default() -> Self {
-        Self::default_archive().expect("default archive is reachable")
     }
 }
 
