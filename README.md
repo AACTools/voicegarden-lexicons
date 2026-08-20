@@ -1,46 +1,39 @@
 # voicegarden-lexicons
 
-> Permissively-licensed pronunciation lexicons for TTS — the espeak-ng
-> replacement. Part of the [VoiceGarden](https://github.com/AACTools)
-> group.
+Pronunciation dictionaries for text to speech, published under permissive licenses and free to download. Part of the [VoiceGarden](https://github.com/AACTools) group.
 
-The universal phonemizer today is espeak-ng — and it's GPL, which is why
-embedders keep reimventing per-language G2P and why sherpa-onnx is
-looking for a way out ([k2-fsa/sherpa-onnx#3731](https://github.com/k2-fsa/sherpa-onnx/issues/3731)).
-This archive publishes **MIT/BSD lexicons, keyed by language and voice
-alphabet**, consumable with one line from Rust (or a plain download).
+## The problem
 
-## What's published
+Before a TTS engine can speak, it has to turn each word into phonemes. The tool everyone uses for that job is espeak-ng, but espeak-ng is GPL, so projects that need to stay Apache or MIT cannot ship it. sherpa-onnx is removing it for exactly this reason ([k2-fsa/sherpa-onnx#3731](https://github.com/k2-fsa/sherpa-onnx/issues/3731)).
 
-Per language (`<lang>.tar.gz` release artifacts):
+This archive is the replacement: MIT and BSD lexicons, one bundle per language, downloadable as plain files or through a small library.
 
-| File | Contents |
+## What is in a bundle
+
+Each language is a `<lang>.tar.gz` containing:
+
+| File | What it is |
 |---|---|
-| `<lang>.fst` + `<lang>.pho` | floravox FST lexicon (word → phonemes), mmap-friendly |
-| `NOTICE` | source + license provenance |
+| `<lang>.fst` + `<lang>.pho` | the lexicon in floravox's format: word to space-separated phonemes |
+| `lexicon.txt` | the same data in sherpa-onnx's plain text format (`word\tp1 p2 p3`), so any sherpa-onnx binding (Python, C, C++, Node) can use it with no new code |
+| `NOTICE` | where the data came from and its license |
 
-Per-language Phonetisaurus OOV WFSTs are planned — they will be
-**trained on these IPA lexicons** so OOV output matches the bundle's
-alphabet (the published cmudict WFST emits ARPABET and is deliberately
-not bundled for that reason).
+`lexicons.json` lists every bundle: download URL, SHA-256, size, entry count, and license. Fourteen languages are published:
 
-`lexicons.json` — the manifest: one entry per language with download
-URL, SHA-256, sizes, license, and source provenance.
+| Bundle | Entries | | Bundle | Entries |
+|---|---|---|---|---|
+| de | 277,912 | | ru | 545,315 |
+| en | 124,384 | | es | 595,857 |
+| en-cmudict | 135,166 | | pt | 81,219 |
+| fr | 90,114 | | + ca, cs, fa, it, nl, sv, sw | |
 
-### Sources (data licenses travel with the bundles)
+## Why the data is good
 
-| Source | License | Languages |
-|---|---|---|
-| [gruut-lang-*](https://pypi.org/project/gruut/) | MIT | ca, cs, de, en, es, fa, fr, it, nl, pt, ru, sv, sw |
-| [CMUDict](https://github.com/cmusphinx/cmudict) | BSD-2-style | en (alternate `en-cmudict`, ARPABET→IPA via floravox ingest) |
+The lexicons come from [gruut](https://pypi.org/project/gruut/) (MIT), and gruut is the phonemizer piper's non-English voices were trained with. That matters: the symbols already match the voices. We measured 236,000 symbols from the German lexicon against the piper German voice and 0.00% failed to resolve. English also has a CMUDict bundle (BSD-style license). Per-language Phonetisaurus models for unknown words are planned; they will be trained on these same lexicons so the symbols still match. The published cmudict WFST is deliberately left out because it outputs ARPABET, which would not match.
 
-gruut is the phonemizer piper's non-English voices were trained with, so
-its symbols map onto those voices' inventories with **zero dropped
-symbols** through [floravox](https://github.com/AACTools/floravox)'s
-symbol resolution (validated: 236k symbols sampled from gruut de against
-piper `de_DE-thorsten`, 0.00% dropped).
+## Three ways to use it
 
-## Rust consumption
+1. From Rust:
 
 ```console
 cargo add voicegarden-lexicons
@@ -49,36 +42,43 @@ cargo add voicegarden-lexicons
 ```rust
 use voicegarden_lexicons::LexiconArchive;
 
-let archive = LexiconArchive::default()?;        // fetches/caches the manifest
-let bundle = archive.fetch("de")?;               // downloads once, caches
-let mut g2p = bundle.phonemizer()?;              // lexicon (+WFST) + spelling fallback
-// feed to floravox_core::synth::Synthesizer with any piper/MMS voice
+let archive = LexiconArchive::default_archive()?;   // reads the manifest
+let bundle = archive.fetch("de")?;                  // downloads once, then caches
+let mut g2p = bundle.phonemizer()?;                 // lexicon + spelling fallback
 ```
 
-Caching lives under `~/.voicegarden/lexicons` (override with
-`VOICEGARDEN_LEXICON_DIR`); the base URL is overridable for mirrors
-(`VOICEGARDEN_LEXICON_URL`).
+Bundles are cached under `~/.voicegarden/lexicons`. Set `VOICEGARDEN_LEXICON_DIR` to move the cache or `VOICEGARDEN_LEXICON_URL` to use a mirror.
 
-## Joining with voice models
+2. From any language with an FFI: [floravox](https://github.com/AACTools/floravox) builds `libfloravox_capi.so` with a small C API (`vg_phonemizer_open_lang`, `vg_phonemize_token`, free). Python via ctypes:
 
-The manifest keys on `lang_code` — the same shape
-[sherpa-onnx-tts-models](https://github.com/AACTools/sherpa-onnx-tts-models)
-uses per model — so routing a voice to its phonemization data is a
-manifest join: `model.language[0].lang_code → lexicons[lang]`. A merged
-manifest (voices + lexicons in one registry) is the planned end state.
+```python
+import ctypes
+lib = ctypes.CDLL("libfloravox_capi.so")
+lib.vg_phonemizer_open_lang.restype = ctypes.c_void_p
+lib.vg_phonemize_token.argtypes = [ctypes.c_void_p, ctypes.c_char_p,
+                                   ctypes.c_char_p, ctypes.c_int]
+p = lib.vg_phonemizer_open_lang(b"de")
+buf = ctypes.create_string_buffer(512)
+lib.vg_phonemize_token(p, b"guten", buf, len(buf))
+print(buf.value.decode())     # g uː t ə n
+```
+
+3. As plain files: download a bundle from [releases](https://github.com/AACTools/voicegarden-lexicons/releases). If you use sherpa-onnx, point its lexicon setting at `lexicon.txt` inside.
+
+## Matching voices to languages
+
+`lexicons.json` keys each bundle on `bcp47`, the same language code the [sherpa-onnx-tts-models](https://github.com/AACTools/sherpa-onnx-tts-models) registry records per model. Routing a voice to its phonemization data is a lookup across the two files. The plan is to merge them into one registry later.
 
 ## Building locally
 
 ```console
-make all          # downloads sources, builds every bundle + manifest
-make LANG=de      # one language
-cargo test        # fetcher-crate tests (offline, fixtures)
+make all          # download sources, build every bundle + manifest
+make build-lang LANG=de
+cargo test        # library tests, offline
 ```
 
-Requires: python3, curl, and `cargo install --git https://github.com/AACTools/floravox --tag v0.5.1 --bin floravox-fst-compile`.
+You need python3, curl, and `cargo install --git https://github.com/AACTools/floravox --tag v0.5.1 floravox-g2p --bin floravox-fst-compile`. `docs/build.md` describes the pipeline step by step.
 
 ## License
 
-The build code here is Apache-2.0 OR MIT. Each bundle carries its data
-source's license — see `lexicons.json` per entry and the NOTICE files
-inside bundles. No GPL data is included.
+The build code here is Apache-2.0 OR MIT. Each bundle carries its data source's license, recorded in `lexicons.json` and the NOTICE inside the bundle. No GPL data is included.
