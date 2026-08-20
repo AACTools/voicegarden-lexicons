@@ -1,12 +1,8 @@
 # voicegarden-lexicons
 
-Pronunciation dictionaries for text to speech, published under permissive licenses and free to download. Part of the [VoiceGarden](https://github.com/AACTools) group.
+Pronunciation dictionaries for text to speech, published under permissive licenses. Part of the [VoiceGarden](https://github.com/AACTools) group.
 
-## The problem
-
-Before a TTS engine can speak, it has to turn each word into phonemes. The tool everyone uses for that job is espeak-ng, but espeak-ng is GPL, so projects that need to stay Apache or MIT cannot ship it. sherpa-onnx is removing it for exactly this reason ([k2-fsa/sherpa-onnx#3731](https://github.com/k2-fsa/sherpa-onnx/issues/3731)).
-
-This archive is the replacement: MIT and BSD lexicons, one bundle per language, downloadable as plain files or through a small library.
+Text has to be turned into phonemes before a TTS engine can speak it. The tool most projects use for that, espeak-ng, is GPL, so projects that need to stay Apache-2.0 or MIT cannot ship it; sherpa-onnx is removing it for that reason ([k2-fsa/sherpa-onnx#3731](https://github.com/k2-fsa/sherpa-onnx/issues/3731)). This archive publishes MIT and BSD lexicons, one bundle per language.
 
 ## What is in a bundle
 
@@ -28,9 +24,16 @@ Each language is a `<lang>.tar.gz` containing:
 | en-cmudict | 135,166 | | pt | 81,219 |
 | fr | 90,114 | | + ca, cs, fa, it, nl, sv, sw | |
 
-## Why the data is good
+## Data sources
 
-The lexicons come from [gruut](https://pypi.org/project/gruut/) (MIT), and gruut is the phonemizer piper's non-English voices were trained with. That matters: the symbols already match the voices. We measured 236,000 symbols from the German lexicon against the piper German voice and 0.00% failed to resolve. English also has a CMUDict bundle (BSD-style license). Each bundle also carries a Phonetisaurus model for unknown words, trained on that same lexicon, so its symbols match by construction. (The separately published cmudict WFST is deliberately not used because it outputs ARPABET, which would not match.) On German, trained on the 95% split and evaluated on the held-out 5%, it scores 93.6% exact pronunciations with a 1.4% phoneme error rate. Every bundle records its own scores in `lexicons.json`.
+| Source | License | Languages |
+|---|---|---|
+| [gruut](https://pypi.org/project/gruut/) | MIT | ca, cs, de, en, es, fa, fr, it, nl, pt, ru, sv, sw |
+| [CMUDict](https://github.com/cmusphinx/cmudict) | BSD-style | en (alternate `en-cmudict` bundle) |
+
+gruut is the phonemizer piper's non-English voices were trained with. Measured on German: 236,000 symbols sampled from the lexicon against piper's `de_DE-thorsten` voice, 0.00% failed to resolve.
+
+Each bundle's Phonetisaurus model is trained on that bundle's lexicon, so its output uses the same symbol set. Holdout scores are recorded per bundle in `lexicons.json` (German: 93.6% exact, 1.4% phoneme error rate). The separately published cmudict WFST is not used because it outputs ARPABET, which would not match the IPA lexicons.
 
 ## Three ways to use it
 
@@ -66,9 +69,9 @@ print(buf.value.decode())     # g uː t ə n
 
 3. As plain files: download a bundle from [releases](https://github.com/AACTools/voicegarden-lexicons/releases). If you use sherpa-onnx, point its lexicon setting at `lexicon.txt` inside.
 
-## Matching voices to languages
+## Language codes
 
-`lexicons.json` keys each bundle on `bcp47`, the same language code the [sherpa-onnx-tts-models](https://github.com/AACTools/sherpa-onnx-tts-models) registry records per model. Routing a voice to its phonemization data is a lookup across the two files. The plan is to merge them into one registry later.
+Bundles are keyed on BCP-47 codes (`de`, `en-US`, ...). The fetcher accepts exact matches and language-prefix matches, so a voice labelled `de-DE` or `pt-BR` resolves to the nearest bundle.
 
 ## Building locally
 
