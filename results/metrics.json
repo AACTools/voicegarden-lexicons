@@ -109,5 +109,19 @@
    "coverage": 99.1,
    "exact": 7.3
   }
+ },
+ {
+  "entries": 41086,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 98.6,
+   "per": 0.2
+  },
+  "lang": "epo",
+  "p2g": {
+   "cer": 31.2,
+   "coverage": 99.9,
+   "exact": 14.5
+  }
  }
 ]
