@@ -193,5 +193,19 @@
    "coverage": 99.6,
    "exact": 11.2
   }
+ },
+ {
+  "entries": 30379,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 88.6,
+   "per": 2.4
+  },
+  "lang": "hin",
+  "p2g": {
+   "cer": 45.9,
+   "coverage": 98.7,
+   "exact": 11.7
+  }
  }
 ]
