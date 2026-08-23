@@ -179,5 +179,19 @@
    "coverage": 99.5,
    "exact": 12.8
   }
+ },
+ {
+  "entries": 26346,
+  "g2p": {
+   "coverage": 99.9,
+   "exact": 44.7,
+   "per": 11.5
+  },
+  "lang": "hbs",
+  "p2g": {
+   "cer": 39.3,
+   "coverage": 99.6,
+   "exact": 11.2
+  }
  }
 ]
