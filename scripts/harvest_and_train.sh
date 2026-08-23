@@ -39,15 +39,25 @@ echo "=== 1/3 harvest WikiPron (min $MIN entries)"
 python3 scripts/harvest_wikipron.py "${HARVEST_ARGS[@]}"
 
 echo "=== 2/3 extract gruut lexicons for overlap languages"
+# gruut bundles are keyed by ISO 639-1 (en, es, ...), WikiPron by
+# ISO 639-3 (eng, spa, ...). Map each bundle into the harvested dir that
+# names the same language so the merge always sees both sources.
+declare -A ISO3TO1=( [eng]=en [spa]=es [deu]=de [fra]=fr [ita]=it
+                     [por]=pt [nld]=nl [rus]=ru [cat]=ca [ces]=cs
+                     [fas]=fa [swe]=sv [swh]=sw )
 for bundle in dist/*.tar.gz; do
   [ -e "$bundle" ] || continue
-  lang=$(basename "$bundle" .tar.gz)
-  d="staging/$lang"
-  mkdir -p "$d"
-  if [ ! -f "$d/gruut.tsv" ] && [ -f "$d/wikipron.tsv" ]; then
-    tar -xzOf "$bundle" lexicon.txt > "$d/gruut.tsv" 2>/dev/null \
-      && echo "  $lang: gruut bundle extracted" || rm -f "$d/gruut.tsv"
-  fi
+  lang1=$(basename "$bundle" .tar.gz)
+  for iso3 in "${!ISO3TO1[@]}"; do
+    [ "${ISO3TO1[$iso3]}" = "$lang1" ] || continue
+    d="staging/$iso3"
+    [ -f "$d/wikipron.tsv" ] || continue
+    if [ ! -f "$d/gruut.tsv" ]; then
+      tar -xzOf "$bundle" lexicon.txt > "$d/gruut.tsv" 2>/dev/null \
+        && echo "  $iso3: gruut bundle ($lang1, $(wc -l < "$d/gruut.tsv") rows) merged into staging" \
+        || rm -f "$d/gruut.tsv"
+    fi
+  done
 done
 
 echo "=== 3/3 merge + train + bench, one commit per language"
