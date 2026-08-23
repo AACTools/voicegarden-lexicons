@@ -207,5 +207,19 @@
    "coverage": 98.7,
    "exact": 11.7
   }
+ },
+ {
+  "entries": 81441,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 89.7,
+   "per": 1.9
+  },
+  "lang": "ita",
+  "p2g": {
+   "cer": 37.6,
+   "coverage": 99.9,
+   "exact": 22.9
+  }
  }
 ]
