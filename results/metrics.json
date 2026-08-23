@@ -26,5 +26,32 @@
    "coverage": 99.7,
    "exact": 16.5
   }
+ },
+ {
+  "entries": 595857,
+  "lang": "es",
+  "p2g": {
+   "cer": 24.3,
+   "coverage": 100.0,
+   "exact": 40.4
+  }
+ },
+ {
+  "entries": 277912,
+  "lang": "de",
+  "p2g": {
+   "cer": 20.6,
+   "coverage": 100.0,
+   "exact": 50.0
+  }
+ },
+ {
+  "entries": 124384,
+  "lang": "en",
+  "p2g": {
+   "cer": 39.7,
+   "coverage": 98.6,
+   "exact": 39.2
+  }
  }
 ]
