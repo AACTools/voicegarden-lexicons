@@ -9,8 +9,13 @@ Output: staging/<lang>/merged.tsv
 
 Rules:
 - gruut rows win on word conflicts (consistent segmentation + stress is
-  what the voices expect); WikiPron fills words gruut lacks.
-- --prefer wikipron flips that for languages where gruut is thin.
+  what the voices expect).
+- --strategy union: WikiPron fills words gruut lacks. WARNING: the two
+  sources use conflicting IPA conventions (stress marks, diacritics);
+  union is only safe once a normaliser exists — measured on German it
+  dropped P2G exact from 50% (gruut-only) to 16% (union).
+- --strategy gruut-only (default when gruut exists): keep gruut alone.
+- --strategy wikipron-only: keep wikipron alone (for comparison rows).
 - Both files normalised to NFC; word keys casefolded for Latin scripts.
 """
 
@@ -40,22 +45,35 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("lang")
     ap.add_argument("--staging", default="staging")
-    ap.add_argument("--prefer", choices=["gruut", "wikipron"], default="gruut")
+    ap.add_argument("--strategy", choices=["auto", "union", "gruut-only", "wikipron-only"],
+                    default="auto",
+                    help="auto = gruut-only when gruut exists, else wikipron-only")
     args = ap.parse_args()
 
     d = Path(args.staging) / args.lang
     gruut = load(d / "gruut.tsv")
     wiki = load(d / "wikipron.tsv")
-    primary, secondary = (
-        (gruut, wiki) if args.prefer == "gruut" else (wiki, gruut)
-    )
 
-    merged = dict(primary)
-    new = 0
-    for w, p in secondary.items():
-        if w not in merged:
-            merged[w] = p
-            new += 1
+    strategy = args.strategy
+    if strategy == "auto":
+        strategy = "gruut-only" if len(gruut) >= len(wiki) else "wikipron-only"
+
+    if strategy == "gruut-only":
+        source, source_name = gruut, "gruut"
+        new = 0
+    elif strategy == "wikipron-only":
+        source, source_name = wiki, "wikipron"
+        new = 0
+    else:
+        source = dict(gruut)
+        source_name = "union(gruut+wikipron)"
+        new = 0
+        for w, p in wiki.items():
+            if w not in source:
+                source[w] = p
+                new += 1
+
+    merged = source
 
     out = d / "merged.tsv"
     with out.open("w", encoding="utf-8") as f:
@@ -64,8 +82,9 @@ def main() -> int:
 
     print(
         f"{args.lang}: gruut {len(gruut)} + wikipron {len(wiki)} "
-        f"(+{new} new words) -> {len(merged)} in {out}"
+        f"[{strategy}, +{new} new] -> {len(merged)} in {out}"
     )
+    (d / "merge-strategy.txt").write_text(strategy + "\n")
     return 0
 
 
