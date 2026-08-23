@@ -1,0 +1,16 @@
+[
+ {
+  "entries": 11977,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 95.3,
+   "per": 0.9
+  },
+  "lang": "eus",
+  "p2g": {
+   "cer": 27.5,
+   "coverage": 99.8,
+   "exact": 28.7
+  }
+ }
+]
