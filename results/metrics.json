@@ -67,5 +67,19 @@
    "coverage": 36.2,
    "exact": 5.1
   }
+ },
+ {
+  "entries": 14579,
+  "g2p": {
+   "coverage": 99.9,
+   "exact": 71.9,
+   "per": 7.0
+  },
+  "lang": "cym",
+  "p2g": {
+   "cer": 48.4,
+   "coverage": 99.2,
+   "exact": 8.9
+  }
  }
 ]
