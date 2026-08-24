@@ -997,5 +997,19 @@
    "coverage": 99.3,
    "exact": 7.6
   }
+ },
+ {
+  "entries": 10002,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 73.4,
+   "per": 5.7
+  },
+  "lang": "isl",
+  "p2g": {
+   "cer": 47.4,
+   "coverage": 98.4,
+   "exact": 5.0
+  }
  }
 ]
