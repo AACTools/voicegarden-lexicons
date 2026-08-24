@@ -1571,5 +1571,19 @@
    "coverage": 99.5,
    "exact": 7.8
   }
+ },
+ {
+  "entries": 4866,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 75.7,
+   "per": 6.7
+  },
+  "lang": "sqi",
+  "p2g": {
+   "cer": 41.5,
+   "coverage": 98.8,
+   "exact": 5.8
+  }
  }
 ]
