@@ -829,5 +829,19 @@
    "coverage": 95.6,
    "exact": 1.5
   }
+ },
+ {
+  "entries": 6312,
+  "g2p": {
+   "coverage": 77.2,
+   "exact": 15.5,
+   "per": 39.6
+  },
+  "lang": "hak",
+  "p2g": {
+   "cer": 63.8,
+   "coverage": 57.9,
+   "exact": 4.1
+  }
  }
 ]
