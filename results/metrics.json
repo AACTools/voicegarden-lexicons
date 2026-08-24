@@ -1221,5 +1221,19 @@
    "coverage": 95.3,
    "exact": 4.7
   }
+ },
+ {
+  "entries": 3453,
+  "g2p": {
+   "coverage": 55.5,
+   "exact": 13.3,
+   "per": 42.3
+  },
+  "lang": "mnp",
+  "p2g": {
+   "cer": 63.9,
+   "coverage": 43.4,
+   "exact": 4.6
+  }
  }
 ]
