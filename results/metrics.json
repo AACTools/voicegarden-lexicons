@@ -1515,5 +1515,19 @@
    "coverage": 100.0,
    "exact": 13.1
   }
+ },
+ {
+  "entries": 15602,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 84.5,
+   "per": 3.5
+  },
+  "lang": "slk",
+  "p2g": {
+   "cer": 44.3,
+   "coverage": 99.5,
+   "exact": 5.1
+  }
  }
 ]
