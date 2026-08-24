@@ -423,5 +423,19 @@
    "coverage": 100.0,
    "exact": 2.2
   }
+ },
+ {
+  "entries": 2982,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 75.8,
+   "per": 5.3
+  },
+  "lang": "asm",
+  "p2g": {
+   "cer": 57.0,
+   "coverage": 94.6,
+   "exact": 2.7
+  }
  }
 ]
