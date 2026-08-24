@@ -1081,5 +1081,19 @@
    "coverage": 95.8,
    "exact": 7.3
   }
+ },
+ {
+  "entries": 1023,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 21.6,
+   "per": 29.2
+  },
+  "lang": "kik",
+  "p2g": {
+   "cer": 49.8,
+   "coverage": 96.1,
+   "exact": 3.9
+  }
  }
 ]
