@@ -1011,5 +1011,19 @@
    "coverage": 98.4,
    "exact": 5.0
   }
+ },
+ {
+  "entries": 7863,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 90.3,
+   "per": 2.3
+  },
+  "lang": "izh",
+  "p2g": {
+   "cer": 46.1,
+   "coverage": 100.0,
+   "exact": 5.6
+  }
  }
 ]
