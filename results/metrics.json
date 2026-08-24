@@ -1599,5 +1599,19 @@
    "coverage": 98.9,
    "exact": 6.7
   }
+ },
+ {
+  "entries": 2375,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 89.1,
+   "per": 2.3
+  },
+  "lang": "szl",
+  "p2g": {
+   "cer": 48.0,
+   "coverage": 100.0,
+   "exact": 3.4
+  }
  }
 ]
