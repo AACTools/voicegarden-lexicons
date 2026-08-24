@@ -325,5 +325,19 @@
    "coverage": 97.7,
    "exact": 1.2
   }
+ },
+ {
+  "entries": 1891,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 22.1,
+   "per": 23.4
+  },
+  "lang": "acw",
+  "p2g": {
+   "cer": 60.9,
+   "coverage": 97.9,
+   "exact": 0.0
+  }
  }
 ]
