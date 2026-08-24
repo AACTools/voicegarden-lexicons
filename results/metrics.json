@@ -1781,5 +1781,19 @@
    "coverage": 99.0,
    "exact": 0.0
   }
+ },
+ {
+  "entries": 3971,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 26.1,
+   "per": 29.7
+  },
+  "lang": "yor",
+  "p2g": {
+   "cer": 56.6,
+   "coverage": 98.5,
+   "exact": 4.5
+  }
  }
 ]
