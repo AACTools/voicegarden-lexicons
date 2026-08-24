@@ -633,5 +633,19 @@
    "coverage": 98.0,
    "exact": 1.0
   }
+ },
+ {
+  "entries": 2185,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 61.5,
+   "per": 22.7
+  },
+  "lang": "egy",
+  "p2g": {
+   "cer": 54.2,
+   "coverage": 94.5,
+   "exact": 1.8
+  }
  }
 ]
