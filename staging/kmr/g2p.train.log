@@ -1,0 +1,16 @@
+lexicon: 2132 entries
+split: 2025 train / 107 holdout
+inventories: 603 grapheme segments, 730 phone segments
+em iter 1: 62 distinct pairs
+em iter 2: 62 distinct pairs
+em iter 3: 62 distinct pairs
+em iter 4: 62 distinct pairs
+em iter 5: 62 distinct pairs
+em iter 6: 62 distinct pairs
+em iter 7: 62 distinct pairs
+em iter 8: 62 distinct pairs
+joint tokens: 64
+ngram entries: 24547
+states: 21009, arcs: 24547 (+21008 backoff)
+wrote staging/kmr/wf-g2p.fst (982487 bytes) in 2.5s
+eval: exact 88.8%, PER 2.6%, coverage 100.0%
