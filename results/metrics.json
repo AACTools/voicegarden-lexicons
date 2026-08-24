@@ -291,5 +291,19 @@
    "coverage": 98.9,
    "exact": 19.8
   }
+ },
+ {
+  "entries": 595857,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 99.9,
+   "per": 0.0
+  },
+  "lang": "spa",
+  "p2g": {
+   "cer": 24.4,
+   "coverage": 100.0,
+   "exact": 40.8
+  }
  }
 ]
