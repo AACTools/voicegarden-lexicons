@@ -1613,5 +1613,19 @@
    "coverage": 100.0,
    "exact": 3.4
   }
+ },
+ {
+  "entries": 10095,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 84.6,
+   "per": 3.2
+  },
+  "lang": "tam",
+  "p2g": {
+   "cer": 48.8,
+   "coverage": 99.4,
+   "exact": 4.0
+  }
  }
 ]
