@@ -311,5 +311,19 @@
    "coverage": 69.7,
    "exact": 3.0
   }
+ },
+ {
+  "entries": 1711,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 87.2,
+   "per": 5.1
+  },
+  "lang": "aar",
+  "p2g": {
+   "cer": 51.9,
+   "coverage": 97.7,
+   "exact": 1.2
+  }
  }
 ]
