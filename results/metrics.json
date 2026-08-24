@@ -521,5 +521,19 @@
    "coverage": 50.7,
    "exact": 8.8
   }
+ },
+ {
+  "entries": 3860,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 77.7,
+   "per": 5.7
+  },
+  "lang": "ceb",
+  "p2g": {
+   "cer": 48.6,
+   "coverage": 99.0,
+   "exact": 4.1
+  }
  }
 ]
