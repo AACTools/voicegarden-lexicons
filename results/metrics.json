@@ -1585,5 +1585,19 @@
    "coverage": 98.8,
    "exact": 5.8
   }
+ },
+ {
+  "entries": 20489,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 55.0,
+   "per": 13.5
+  },
+  "lang": "swe",
+  "p2g": {
+   "cer": 53.5,
+   "coverage": 98.9,
+   "exact": 6.7
+  }
  }
 ]
