@@ -339,5 +339,19 @@
    "coverage": 97.9,
    "exact": 0.0
   }
+ },
+ {
+  "entries": 2073,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 61.5,
+   "per": 8.9
+  },
+  "lang": "afr",
+  "p2g": {
+   "cer": 54.0,
+   "coverage": 98.1,
+   "exact": 2.9
+  }
  }
 ]
