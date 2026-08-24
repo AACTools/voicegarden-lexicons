@@ -1,0 +1,16 @@
+lexicon: 996 entries
+split: 946 train / 50 holdout
+inventories: 214 grapheme segments, 235 phone segments
+em iter 1: 65 distinct pairs
+em iter 2: 24 distinct pairs
+em iter 3: 24 distinct pairs
+em iter 4: 24 distinct pairs
+em iter 5: 24 distinct pairs
+em iter 6: 24 distinct pairs
+em iter 7: 24 distinct pairs
+em iter 8: 24 distinct pairs
+joint tokens: 26
+ngram entries: 9936
+states: 8478, arcs: 9936 (+8477 backoff)
+wrote staging/mri/wf-g2p.fst (397107 bytes) in 1.0s
+eval: exact 96.0%, PER 0.7%, coverage 100.0%
