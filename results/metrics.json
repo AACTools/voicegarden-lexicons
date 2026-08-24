@@ -409,5 +409,19 @@
    "coverage": 100.0,
    "exact": 6.7
   }
+ },
+ {
+  "entries": 1833,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 35.9,
+   "per": 23.3
+  },
+  "lang": "ary",
+  "p2g": {
+   "cer": 56.2,
+   "coverage": 100.0,
+   "exact": 2.2
+  }
  }
 ]
