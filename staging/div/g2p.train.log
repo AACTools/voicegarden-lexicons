@@ -1,0 +1,16 @@
+lexicon: 1540 entries
+split: 1463 train / 77 holdout
+inventories: 540 grapheme segments, 954 phone segments
+em iter 1: 447 distinct pairs
+em iter 2: 200 distinct pairs
+em iter 3: 186 distinct pairs
+em iter 4: 186 distinct pairs
+em iter 5: 186 distinct pairs
+em iter 6: 186 distinct pairs
+em iter 7: 186 distinct pairs
+em iter 8: 186 distinct pairs
+joint tokens: 188
+ngram entries: 21611
+states: 18530, arcs: 21611 (+18529 backoff)
+wrote staging/div/wf-g2p.fst (867875 bytes) in 2.0s
+eval: exact 58.4%, PER 11.1%, coverage 100.0%
