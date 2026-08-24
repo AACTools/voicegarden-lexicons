@@ -1235,5 +1235,19 @@
    "coverage": 43.4,
    "exact": 4.6
   }
+ },
+ {
+  "entries": 820,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 17.1,
+   "per": 42.6
+  },
+  "lang": "mnw",
+  "p2g": {
+   "cer": 63.1,
+   "coverage": 87.8,
+   "exact": 4.9
+  }
  }
 ]
