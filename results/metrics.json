@@ -717,5 +717,19 @@
    "coverage": 99.8,
    "exact": 51.7
   }
+ },
+ {
+  "entries": 662,
+  "g2p": {
+   "coverage": 97.0,
+   "exact": 33.3,
+   "per": 22.1
+  },
+  "lang": "fro",
+  "p2g": {
+   "cer": 48.7,
+   "coverage": 100.0,
+   "exact": 6.1
+  }
  }
 ]
