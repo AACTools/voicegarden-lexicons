@@ -319,5 +319,19 @@
    "coverage": 99.8,
    "exact": 9.2
   }
+ },
+ {
+  "entries": 106238,
+  "g2p": {
+   "coverage": 63.8,
+   "exact": 29.6,
+   "per": 24.7
+  },
+  "lang": "yue",
+  "p2g": {
+   "cer": 61.1,
+   "coverage": 69.7,
+   "exact": 3.0
+  }
  }
 ]
