@@ -1627,5 +1627,19 @@
    "coverage": 99.4,
    "exact": 4.0
   }
+ },
+ {
+  "entries": 5110,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 87.9,
+   "per": 2.7
+  },
+  "lang": "tel",
+  "p2g": {
+   "cer": 46.7,
+   "coverage": 96.9,
+   "exact": 5.9
+  }
  }
 ]
