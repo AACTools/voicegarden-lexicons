@@ -1711,5 +1711,19 @@
    "coverage": 95.6,
    "exact": 0.6
   }
+ },
+ {
+  "entries": 2831,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 77.5,
+   "per": 5.7
+  },
+  "lang": "vot",
+  "p2g": {
+   "cer": 52.1,
+   "coverage": 98.6,
+   "exact": 2.1
+  }
  }
 ]
