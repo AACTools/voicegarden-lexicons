@@ -1501,5 +1501,19 @@
    "coverage": 96.8,
    "exact": 5.4
   }
+ },
+ {
+  "entries": 2604,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 85.4,
+   "per": 3.8
+  },
+  "lang": "shn",
+  "p2g": {
+   "cer": 42.2,
+   "coverage": 100.0,
+   "exact": 13.1
+  }
  }
 ]
