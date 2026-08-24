@@ -1767,5 +1767,19 @@
    "coverage": 100.0,
    "exact": 6.4
   }
+ },
+ {
+  "entries": 1963,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 42.9,
+   "per": 22.4
+  },
+  "lang": "yol",
+  "p2g": {
+   "cer": 65.0,
+   "coverage": 99.0,
+   "exact": 0.0
+  }
  }
 ]
