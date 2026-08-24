@@ -1655,5 +1655,19 @@
    "coverage": 100.0,
    "exact": 8.1
   }
+ },
+ {
+  "entries": 17221,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 56.7,
+   "per": 9.9
+  },
+  "lang": "tha",
+  "p2g": {
+   "cer": 52.1,
+   "coverage": 99.5,
+   "exact": 11.7
+  }
  }
 ]
