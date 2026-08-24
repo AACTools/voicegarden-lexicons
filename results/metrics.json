@@ -1277,5 +1277,19 @@
    "coverage": 96.0,
    "exact": 0.0
   }
+ },
+ {
+  "entries": 4862,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 70.8,
+   "per": 6.9
+  },
+  "lang": "msa",
+  "p2g": {
+   "cer": 51.1,
+   "coverage": 99.6,
+   "exact": 4.5
+  }
  }
 ]
