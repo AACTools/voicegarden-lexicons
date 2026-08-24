@@ -703,5 +703,19 @@
    "coverage": 98.6,
    "exact": 4.8
   }
+ },
+ {
+  "entries": 47143,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 95.6,
+   "per": 1.1
+  },
+  "lang": "fas",
+  "p2g": {
+   "cer": 22.3,
+   "coverage": 99.8,
+   "exact": 51.7
+  }
  }
 ]
