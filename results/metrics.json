@@ -1795,5 +1795,19 @@
    "coverage": 98.5,
    "exact": 4.5
   }
+ },
+ {
+  "entries": 1675,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 79.8,
+   "per": 4.5
+  },
+  "lang": "zha",
+  "p2g": {
+   "cer": 45.8,
+   "coverage": 100.0,
+   "exact": 7.1
+  }
  }
 ]
