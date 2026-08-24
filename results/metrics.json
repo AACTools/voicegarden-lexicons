@@ -1053,5 +1053,19 @@
    "coverage": 100.0,
    "exact": 6.3
   }
+ },
+ {
+  "entries": 1708,
+  "g2p": {
+   "coverage": 98.8,
+   "exact": 72.9,
+   "per": 6.5
+  },
+  "lang": "kan",
+  "p2g": {
+   "cer": 52.9,
+   "coverage": 92.9,
+   "exact": 3.5
+  }
  }
 ]
