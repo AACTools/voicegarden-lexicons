@@ -1291,5 +1291,19 @@
    "coverage": 99.6,
    "exact": 4.5
   }
+ },
+ {
+  "entries": 7947,
+  "g2p": {
+   "coverage": 99.7,
+   "exact": 65.7,
+   "per": 8.8
+  },
+  "lang": "mya",
+  "p2g": {
+   "cer": 57.8,
+   "coverage": 91.2,
+   "exact": 3.8
+  }
  }
 ]
