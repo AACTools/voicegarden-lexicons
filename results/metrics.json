@@ -1403,5 +1403,19 @@
    "coverage": 91.2,
    "exact": 5.9
   }
+ },
+ {
+  "entries": 2173,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 78.0,
+   "per": 4.6
+  },
+  "lang": "phl",
+  "p2g": {
+   "cer": 45.1,
+   "coverage": 100.0,
+   "exact": 2.8
+  }
  }
 ]
