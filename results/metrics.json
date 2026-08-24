@@ -857,5 +857,19 @@
    "coverage": 94.0,
    "exact": 1.2
   }
+ },
+ {
+  "entries": 1832,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 14.1,
+   "per": 30.1
+  },
+  "lang": "hau",
+  "p2g": {
+   "cer": 53.4,
+   "coverage": 100.0,
+   "exact": 0.0
+  }
  }
 ]
