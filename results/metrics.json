@@ -913,5 +913,19 @@
    "coverage": 99.0,
    "exact": 0.0
   }
+ },
+ {
+  "entries": 1125,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 82.1,
+   "per": 5.1
+  },
+  "lang": "hsb",
+  "p2g": {
+   "cer": 49.3,
+   "coverage": 100.0,
+   "exact": 3.6
+  }
  }
 ]
