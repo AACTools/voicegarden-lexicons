@@ -479,5 +479,19 @@
    "coverage": 100.0,
    "exact": 6.3
   }
+ },
+ {
+  "entries": 6531,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 52.0,
+   "per": 12.8
+  },
+  "lang": "ben",
+  "p2g": {
+   "cer": 58.3,
+   "coverage": 96.9,
+   "exact": 2.8
+  }
  }
 ]
