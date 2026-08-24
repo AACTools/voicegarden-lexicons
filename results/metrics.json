@@ -1305,5 +1305,19 @@
    "coverage": 91.2,
    "exact": 3.8
   }
+ },
+ {
+  "entries": 3813,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 24.1,
+   "per": 29.7
+  },
+  "lang": "nno",
+  "p2g": {
+   "cer": 58.0,
+   "coverage": 96.9,
+   "exact": 4.2
+  }
  }
 ]
