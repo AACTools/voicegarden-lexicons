@@ -577,5 +577,19 @@
    "coverage": 99.3,
    "exact": 3.5
   }
+ },
+ {
+  "entries": 1270,
+  "g2p": {
+   "coverage": 43.8,
+   "exact": 10.9,
+   "per": 45.4
+  },
+  "lang": "csp",
+  "p2g": {
+   "cer": 52.1,
+   "coverage": 62.5,
+   "exact": 18.8
+  }
  }
 ]
