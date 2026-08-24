@@ -12,5 +12,5 @@ em iter 8: 97 distinct pairs
 joint tokens: 99
 ngram entries: 1065606
 states: 530742, arcs: 1065606 (+530741 backoff)
-wrote staging/spa/wf-g2p.fst (31911892 bytes) in 1820.8s
+wrote staging/spa/wf-g2p.fst (31911892 bytes) in 1855.9s
 eval: exact 99.9%, PER 0.0%, coverage 100.0%

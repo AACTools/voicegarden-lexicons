@@ -1,16 +1,16 @@
-lexicon: 51318 entries
-split: 48752 train / 2566 holdout
-inventories: 837 grapheme segments, 2961 phone segments
-em iter 1: 2075 distinct pairs
-em iter 2: 960 distinct pairs
-em iter 3: 694 distinct pairs
-em iter 4: 642 distinct pairs
-em iter 5: 632 distinct pairs
-em iter 6: 632 distinct pairs
-em iter 7: 632 distinct pairs
-em iter 8: 633 distinct pairs
-joint tokens: 635
-ngram entries: 625957
-states: 446989, arcs: 625957 (+446988 backoff)
-wrote staging/deu/wf-g2p.fst (22537987 bytes) in 152.6s
-eval: exact 60.9%, PER 9.6%, coverage 100.0%
+lexicon: 277912 entries
+split: 264016 train / 13896 holdout
+inventories: 712 grapheme segments, 1524 phone segments
+em iter 1: 1732 distinct pairs
+em iter 2: 517 distinct pairs
+em iter 3: 280 distinct pairs
+em iter 4: 255 distinct pairs
+em iter 5: 244 distinct pairs
+em iter 6: 243 distinct pairs
+em iter 7: 236 distinct pairs
+em iter 8: 232 distinct pairs
+joint tokens: 234
+ngram entries: 990972
+states: 592584, arcs: 990972 (+592583 backoff)
+wrote staging/deu/wf-g2p.fst (32450864 bytes) in 1132.5s
+eval: exact 92.5%, PER 1.7%, coverage 100.0%

@@ -28,33 +28,6 @@
   }
  },
  {
-  "entries": 595857,
-  "lang": "es",
-  "p2g": {
-   "cer": 24.3,
-   "coverage": 100.0,
-   "exact": 40.4
-  }
- },
- {
-  "entries": 277912,
-  "lang": "de",
-  "p2g": {
-   "cer": 20.6,
-   "coverage": 100.0,
-   "exact": 50.0
-  }
- },
- {
-  "entries": 124384,
-  "lang": "en",
-  "p2g": {
-   "cer": 39.7,
-   "coverage": 98.6,
-   "exact": 39.2
-  }
- },
- {
   "entries": 147316,
   "g2p": {
    "coverage": 5.3,
@@ -83,17 +56,17 @@
   }
  },
  {
-  "entries": 51318,
+  "entries": 277912,
   "g2p": {
    "coverage": 100.0,
-   "exact": 60.9,
-   "per": 9.6
+   "exact": 92.5,
+   "per": 1.7
   },
   "lang": "deu",
   "p2g": {
-   "cer": 41.0,
-   "coverage": 99.6,
-   "exact": 16.3
+   "cer": 20.7,
+   "coverage": 100.0,
+   "exact": 49.5
   }
  },
  {

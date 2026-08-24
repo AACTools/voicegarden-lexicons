@@ -8,9 +8,3 @@ em iter 4: 98 distinct pairs
 em iter 5: 97 distinct pairs
 em iter 6: 97 distinct pairs
 em iter 7: 97 distinct pairs
-em iter 8: 97 distinct pairs
-joint tokens: 99
-ngram entries: 1065606
-states: 530742, arcs: 1065606 (+530741 backoff)
-wrote staging/spa/wf-p2g.fst (31911892 bytes) in 1835.1s
-eval (p2g): exact 40.8%, CER 24.4%, coverage 100.0%

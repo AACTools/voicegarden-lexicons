@@ -1,16 +1,16 @@
-lexicon: 168633 entries
-split: 160201 train / 8432 holdout
-inventories: 1287 grapheme segments, 4493 phone segments
-em iter 1: 3164 distinct pairs
-em iter 2: 1831 distinct pairs
-em iter 3: 1366 distinct pairs
-em iter 4: 1222 distinct pairs
-em iter 5: 1188 distinct pairs
-em iter 6: 1181 distinct pairs
-em iter 7: 1179 distinct pairs
-em iter 8: 1179 distinct pairs
-joint tokens: 1181
-ngram entries: 1822207
-states: 1362942, arcs: 1822207 (+1362941 backoff)
-wrote staging/eng/wf-p2g.fst (67329959 bytes) in 296.0s
-eval (p2g): exact 7.3%, CER 60.1%, coverage 99.1%
+lexicon: 124384 entries
+split: 118165 train / 6219 holdout
+inventories: 762 grapheme segments, 2873 phone segments
+em iter 1: 1946 distinct pairs
+em iter 2: 951 distinct pairs
+em iter 3: 613 distinct pairs
+em iter 4: 529 distinct pairs
+em iter 5: 517 distinct pairs
+em iter 6: 514 distinct pairs
+em iter 7: 514 distinct pairs
+em iter 8: 514 distinct pairs
+joint tokens: 516
+ngram entries: 1170417
+states: 873767, arcs: 1170417 (+873766 backoff)
+wrote staging/eng/wf-p2g.fst (43196524 bytes) in 198.1s
+eval (p2g): exact 9.0%, CER 55.9%, coverage 99.1%
