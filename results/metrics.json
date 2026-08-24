@@ -1039,5 +1039,19 @@
    "coverage": 93.5,
    "exact": 1.6
   }
+ },
+ {
+  "entries": 1577,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 92.4,
+   "per": 2.4
+  },
+  "lang": "kal",
+  "p2g": {
+   "cer": 36.9,
+   "coverage": 100.0,
+   "exact": 6.3
+  }
  }
 ]
