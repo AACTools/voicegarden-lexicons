@@ -619,5 +619,19 @@
    "coverage": 92.2,
    "exact": 0.0
   }
+ },
+ {
+  "entries": 1990,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 79.0,
+   "per": 5.7
+  },
+  "lang": "dsb",
+  "p2g": {
+   "cer": 52.1,
+   "coverage": 98.0,
+   "exact": 1.0
+  }
  }
 ]
