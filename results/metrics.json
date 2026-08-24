@@ -689,5 +689,19 @@
    "coverage": 98.5,
    "exact": 4.4
   }
+ },
+ {
+  "entries": 2938,
+  "g2p": {
+   "coverage": 99.3,
+   "exact": 51.0,
+   "per": 13.7
+  },
+  "lang": "fao",
+  "p2g": {
+   "cer": 49.8,
+   "coverage": 98.6,
+   "exact": 4.8
+  }
  }
 ]
