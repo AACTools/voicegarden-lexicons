@@ -591,5 +591,19 @@
    "coverage": 62.5,
    "exact": 18.8
   }
+ },
+ {
+  "entries": 4313,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 43.1,
+   "per": 18.5
+  },
+  "lang": "dan",
+  "p2g": {
+   "cer": 51.0,
+   "coverage": 99.5,
+   "exact": 5.1
+  }
  }
 ]
