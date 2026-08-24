@@ -1165,5 +1165,19 @@
    "coverage": 0.0,
    "exact": 0.0
   }
+ },
+ {
+  "entries": 3797,
+  "g2p": {
+   "coverage": 98.9,
+   "exact": 49.5,
+   "per": 16.0
+  },
+  "lang": "ltz",
+  "p2g": {
+   "cer": 56.5,
+   "coverage": 98.4,
+   "exact": 1.1
+  }
  }
 ]
