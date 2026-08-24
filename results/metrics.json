@@ -1753,5 +1753,19 @@
    "coverage": 36.5,
    "exact": 4.3
   }
+ },
+ {
+  "entries": 4051,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 44.3,
+   "per": 16.3
+  },
+  "lang": "yid",
+  "p2g": {
+   "cer": 54.1,
+   "coverage": 100.0,
+   "exact": 6.4
+  }
  }
 ]
