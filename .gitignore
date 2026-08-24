@@ -2,3 +2,8 @@
 dist/
 target/
 __pycache__/
+corpus/
+runs*/
+onnx*/
+runs-smoke/
+onnx-smoke/
