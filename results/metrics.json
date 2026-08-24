@@ -1487,5 +1487,19 @@
    "coverage": 95.3,
    "exact": 2.3
   }
+ },
+ {
+  "entries": 3693,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 68.1,
+   "per": 10.3
+  },
+  "lang": "sga",
+  "p2g": {
+   "cer": 52.5,
+   "coverage": 96.8,
+   "exact": 5.4
+  }
  }
 ]
