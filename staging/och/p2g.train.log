@@ -1,0 +1,16 @@
+lexicon: 15034 entries
+split: 14282 train / 752 holdout
+inventories: 14619 grapheme segments, 1130 phone segments
+em iter 1: 14772 distinct pairs
+em iter 2: 14307 distinct pairs
+em iter 3: 14224 distinct pairs
+em iter 4: 14167 distinct pairs
+em iter 5: 14109 distinct pairs
+em iter 6: 14084 distinct pairs
+em iter 7: 14069 distinct pairs
+em iter 8: 14060 distinct pairs
+joint tokens: 14062
+ngram entries: 138912
+states: 134980, arcs: 138912 (+134979 backoff)
+wrote staging/och/wf-p2g.fst (6195240 bytes) in 7.3s
+eval (p2g): exact 0.3%, CER 72.3%, coverage 6.2%
