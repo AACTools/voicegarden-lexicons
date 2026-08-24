@@ -1739,5 +1739,19 @@
    "coverage": 99.1,
    "exact": 6.9
   }
+ },
+ {
+  "entries": 12547,
+  "g2p": {
+   "coverage": 81.3,
+   "exact": 11.3,
+   "per": 41.6
+  },
+  "lang": "wuu",
+  "p2g": {
+   "cer": 65.7,
+   "coverage": 36.5,
+   "exact": 4.3
+  }
  }
 ]
