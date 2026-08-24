@@ -563,5 +563,19 @@
    "coverage": 46.3,
    "exact": 4.0
   }
+ },
+ {
+  "entries": 2823,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 92.2,
+   "per": 1.6
+  },
+  "lang": "csb",
+  "p2g": {
+   "cer": 49.9,
+   "coverage": 99.3,
+   "exact": 3.5
+  }
  }
 ]
