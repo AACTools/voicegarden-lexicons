@@ -381,5 +381,19 @@
    "coverage": 99.6,
    "exact": 1.4
   }
+ },
+ {
+  "entries": 1065,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 18.9,
+   "per": 29.2
+  },
+  "lang": "arc",
+  "p2g": {
+   "cer": 41.7,
+   "coverage": 96.2,
+   "exact": 7.5
+  }
  }
 ]
