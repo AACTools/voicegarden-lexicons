@@ -97,17 +97,22 @@
   }
  },
  {
-  "entries": 168633,
+  "entries": 124384,
   "g2p": {
    "coverage": 100.0,
-   "exact": 46.8,
-   "per": 17.1
+   "exact": 63.4,
+   "per": 10.3
   },
   "lang": "eng",
   "p2g": {
-   "cer": 60.1,
+   "cer": 55.9,
    "coverage": 99.1,
-   "exact": 7.3
+   "exact": 9.0
+  },
+  "p2g_nostress": {
+   "cer": 58.6,
+   "coverage": 98.9,
+   "exact": 7.2
   }
  },
  {
