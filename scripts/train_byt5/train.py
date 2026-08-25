@@ -121,6 +121,13 @@ def main() -> int:
             enc["labels"] = labels["input_ids"]
             return enc
 
+        # Eval subsample: generation over the full 27k val set takes
+        # ~34 min per eval; an even-spread 2k slice (4 min) is plenty
+        # for best-checkpoint selection. Test-split scoring stays full
+        # (eval_onnx.py).
+        if len(val_rows) > 2000:
+            step = len(val_rows) / 2000
+            val_rows = [val_rows[int(i * step)] for i in range(2000)]
         train_ds = Dataset.from_dict(
             {"input": [r[0] for r in train_rows], "target": [r[1] for r in train_rows]}
         ).map(tokenize, batched=True, remove_columns=["input", "target"])
