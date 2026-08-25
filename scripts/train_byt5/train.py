@@ -154,10 +154,16 @@ def main() -> int:
         resume_from = ckpts[-1] if (args.resume and ckpts) else None
 
         use_fp = "bf16" if torch.cuda.is_bf16_supported() else "fp16"
-        targs = Seq2SeqTrainingArguments(
+        kwargs = dict(
             output_dir=str(run_dir),
-            num_train_epochs=1.0 if args.max_steps else args.epochs,
-            max_steps=args.max_steps if args.max_steps > 0 else -1,
+        )
+        if args.max_steps > 0:
+            # transformers 4.x: epochs AND max_steps together let epochs
+            # win; pass ONLY max_steps for a hard cap.
+            kwargs["max_steps"] = args.max_steps
+        else:
+            kwargs["num_train_epochs"] = args.epochs
+        kwargs.update(
             per_device_train_batch_size=args.batch,
             per_device_eval_batch_size=args.batch,
             gradient_accumulation_steps=args.grad_accum,
@@ -181,6 +187,7 @@ def main() -> int:
             seed=args.seed,
             report_to=[],
         )
+        targs = Seq2SeqTrainingArguments(**kwargs)
 
         trainer = Seq2SeqTrainer(
             model=model,
