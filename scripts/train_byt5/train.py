@@ -135,14 +135,24 @@ def main() -> int:
             {"input": [r[0] for r in val_rows], "target": [r[1] for r in val_rows]}
         ).map(tokenize, batched=True, remove_columns=["input", "target"])
 
+        _debug_dumped = [False]
+
         def compute_metrics(eval_pred):
-            # Exact-match over GENERATED sequences (predict_with_generate):
-            # preds are generated token ids (no -100; may include padding),
-            # labels use -100 for padding. Compare each pair trimmed at
-            # the first EOS/pad on both sides.
             preds, labels = eval_pred
             if isinstance(preds, tuple):
                 preds = preds[0]
+            if not _debug_dumped[0]:
+                _debug_dumped[0] = True
+                import numpy as _np
+                _p = preds if not hasattr(preds, "argmax") else preds
+                with open("/workspace/metrics_debug.txt", "w") as _f:
+                    _f.write(f"preds type {type(_p).__name__} shape {getattr(_p, 'shape', None)}\n")
+                    _f.write(f"labels type {type(labels).__name__} shape {getattr(labels, 'shape', None)}\n")
+                    _arr_p = _np.asarray(_p)
+                    _arr_l = _np.asarray(labels)
+                    _f.write(f"preds[0][:30] {_arr_p[0][:30].tolist()}\n")
+                    _f.write(f"labels[0][:30] {_arr_l[0][:30].tolist()}\n")
+                    _f.write(f"preds sample rows: {_arr_p[:3, :12].tolist()}\n")
 
             def trim(ids, ignore):
                 out = []
