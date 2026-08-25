@@ -135,8 +135,6 @@ def main() -> int:
             {"input": [r[0] for r in val_rows], "target": [r[1] for r in val_rows]}
         ).map(tokenize, batched=True, remove_columns=["input", "target"])
 
-        _debug_dumped = [False]
-
         def compute_metrics(eval_pred):
             preds, labels = eval_pred
             if isinstance(preds, tuple):
@@ -166,6 +164,9 @@ def main() -> int:
             exact = 0
             total = 0
             for p, l in zip(preds, labels, strict=False):
+                # Generated sequences keep the leading decoder-start
+                # token (0); labels start at content. Skip it.
+                p = p[1:] if len(p) and int(p[0]) == 0 else p
                 lp = trim(p, -2)   # generated: no -100 present
                 ll = trim(l, -100)
                 total += 1
