@@ -64,7 +64,8 @@ def greedy_decode(session_pair, text: str) -> str:
 
     dec_ids = np.zeros((1, 1), dtype=np.int64)  # decoder start (pad)
     out_bytes = bytearray()
-    for _ in range(MAX_TARGET_LEN):
+    n_stuck = 0
+    for step in range(MAX_TARGET_LEN):
         dfeeds: dict[str, object] = {}
         dnames = {i.name for i in dec.get_inputs()}
         id_key = "input_ids" if "input_ids" in dnames else "decoder_input_ids"
@@ -81,6 +82,14 @@ def greedy_decode(session_pair, text: str) -> str:
         dec_ids = np.concatenate(
             [dec_ids, np.array([[nxt]], dtype=np.int64)], axis=1
         )
+        # Garbage guard: trained models emit EOS within ~word length.
+        # If we're far past any plausible target (say 100 bytes) the
+        # model is looping (untrained/quantised-broken) — stop early
+        # instead of grinding through 160 quadratic steps.
+        if step > 100:
+            n_stuck += 1
+            if n_stuck > 5 and out_bytes[-6:] == out_bytes[-12:-6]:
+                break
     return out_bytes.decode("utf-8", "replace")
 
 
