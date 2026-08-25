@@ -139,8 +139,6 @@ def main() -> int:
             preds, labels = eval_pred
             if isinstance(preds, tuple):
                 preds = preds[0]
-            if not _debug_dumped[0]:
-                _debug_dumped[0] = True
                 import numpy as _np
                 _p = preds if not hasattr(preds, "argmax") else preds
                 with open("/workspace/metrics_debug.txt", "w") as _f:
