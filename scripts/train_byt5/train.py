@@ -136,20 +136,31 @@ def main() -> int:
         ).map(tokenize, batched=True, remove_columns=["input", "target"])
 
         def compute_metrics(eval_pred):
-            # exact-match on the byte level (strip pad/eos handled by trainer)
+            # Exact-match over GENERATED sequences (predict_with_generate):
+            # preds are generated token ids (no -100; may include padding),
+            # labels use -100 for padding. Compare each pair trimmed at
+            # the first EOS/pad on both sides.
             preds, labels = eval_pred
             if isinstance(preds, tuple):
                 preds = preds[0]
-            preds = preds.argmax(axis=-1) if preds.ndim == 3 else preds
+
+            def trim(ids, ignore):
+                out = []
+                for t in ids:
+                    t = int(t)
+                    if t == ignore or t == 1 or t == 0:  # -100, EOS, PAD
+                        break
+                    out.append(t)
+                return out
+
             exact = 0
             total = 0
             for p, l in zip(preds, labels, strict=False):
-                # trim label padding (-100 -> tokenizer pad) and eos
-                lt = [t for t in l if t != -100]
-                pt = list(p[: len(lt)])
-                if lt and pt == lt[: len(pt)] and len(pt) == len(lt):
-                    exact += 1
+                lp = trim(p, -2)   # generated: no -100 present
+                ll = trim(l, -100)
                 total += 1
+                if lp == ll:
+                    exact += 1
             return {"exact_match": exact / max(total, 1)}
 
         # Resume: point Trainer at the newest saved checkpoint.
