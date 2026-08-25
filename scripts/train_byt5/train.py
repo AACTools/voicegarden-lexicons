@@ -68,6 +68,8 @@ def main() -> int:
     ap.add_argument("--save-steps", type=int, default=5000)
     ap.add_argument("--max-steps", type=int, default=0,
                     help="0 = full run (epochs); set small for smoke tests")
+    ap.add_argument("--resume", action="store_true",
+                    help="resume from the newest checkpoint in the run dir")
     ap.add_argument("--seed", type=int, default=7)
     args = ap.parse_args()
 
@@ -143,6 +145,14 @@ def main() -> int:
                 total += 1
             return {"exact_match": exact / max(total, 1)}
 
+        # Resume: point Trainer at the newest saved checkpoint.
+        import glob as _glob
+        ckpts = sorted(
+            _glob.glob(str(run_dir / "checkpoint-*")),
+            key=lambda p: int(p.rsplit("-", 1)[1]),
+        )
+        resume_from = ckpts[-1] if (args.resume and ckpts) else None
+
         use_fp = "bf16" if torch.cuda.is_bf16_supported() else "fp16"
         targs = Seq2SeqTrainingArguments(
             output_dir=str(run_dir),
@@ -180,7 +190,7 @@ def main() -> int:
             data_collator=DataCollatorForSeq2Seq(tokenizer, model=model),
             compute_metrics=compute_metrics,
         )
-        trainer.train()
+        trainer.train(resume_from_checkpoint=resume_from)
 
         final = run_dir / "final"
         trainer.save_model(str(final))
