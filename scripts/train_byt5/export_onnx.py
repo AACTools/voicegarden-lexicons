@@ -121,6 +121,58 @@ def validate(candidate_dir: Path, task: str) -> tuple[bool, list[str]]:
     return ok >= 2, results
 
 
+def try_manual(model: Path, tmp: Path) -> bool:
+    """Plain torch.onnx.export: encoder graph + decoder graph (with
+    lm_head), no cache, no merging — the path optimum keeps botching
+    for ByT5. Greedy decode feeds the full prefix each step (quadratic
+    but correct; a follow-up can re-add KV caching)."""
+    import torch
+    from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+    m = AutoModelForSeq2SeqLM.from_pretrained(str(model.resolve())).eval()
+    tok = AutoTokenizer.from_pretrained(str(model.resolve()))
+    tmp.mkdir(parents=True, exist_ok=True)
+
+    class Enc(torch.nn.Module):
+        def forward(self, input_ids, attention_mask):
+            return m.encoder(input_ids=input_ids, attention_mask=attention_mask).last_hidden_state
+
+    class Dec(torch.nn.Module):
+        def forward(self, input_ids, encoder_hidden_states, encoder_attention_mask):
+            out = m.decoder(
+                input_ids=input_ids,
+                encoder_hidden_states=encoder_hidden_states,
+                encoder_attention_mask=encoder_attention_mask,
+            ).last_hidden_state
+            return m.lm_head(out)
+
+    dyn = {0: "b", 1: "s"}
+    with torch.no_grad():
+        torch.onnx.export(
+            Enc(), (torch.zeros(1, 8, dtype=torch.long), torch.ones(1, 8, dtype=torch.long)),
+            str(tmp / "encoder_model.onnx"), opset_version=14,
+            input_names=["input_ids", "attention_mask"],
+            output_names=["last_hidden_state"],
+            dynamic_axes={"input_ids": dyn, "attention_mask": dyn,
+                          "last_hidden_state": {0: "b", 1: "s"}},
+        )
+        torch.onnx.export(
+            Dec(),
+            (torch.zeros(1, 2, dtype=torch.long),
+             torch.zeros(1, 8, 384, dtype=torch.float),
+             torch.ones(1, 8, dtype=torch.long)),
+            str(tmp / "decoder_model.onnx"), opset_version=14,
+            input_names=["input_ids", "encoder_hidden_states", "encoder_attention_mask"],
+            output_names=["logits"],
+            dynamic_axes={"input_ids": {0: "b", 1: "t"},
+                          "encoder_hidden_states": {0: "b", 1: "s"},
+                          "encoder_attention_mask": {0: "b", 1: "s"},
+                          "logits": {0: "b", 1: "t"}},
+        )
+    tok.save_pretrained(str(tmp))
+    return True
+
+
 def try_optimum(model: Path, tmp: Path, with_past: bool) -> bool:
     from optimum.onnxruntime import ORTModelForSeq2SeqLM
     from transformers import AutoTokenizer
@@ -147,12 +199,17 @@ def main() -> int:
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
 
-    for variant, with_past in (("plain", False), ("past", True)):
+    attempts = [
+        ("manual", lambda t: try_manual(Path(args.model), t)),
+        ("plain", lambda t: try_optimum(Path(args.model), t, False)),
+        ("past", lambda t: try_optimum(Path(args.model), t, True)),
+    ]
+    for variant, runner in attempts:
         tmp = out.parent / f".{out.name}-{variant}-tmp"
         shutil.rmtree(tmp, ignore_errors=True)
         print(f"== exporting {args.model} ({variant})")
         try:
-            try_optimum(Path(args.model), tmp, with_past)
+            runner(tmp)
         except Exception as e:  # noqa: BLE001
             print(f"  export failed: {e}")
             continue
