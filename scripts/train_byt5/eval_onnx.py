@@ -47,7 +47,8 @@ def greedy_decode(session_pair, text: str) -> str:
     import numpy as np
     import onnxruntime as ort
 
-    ids = list(text.encode("utf-8"))[: MAX_INPUT_LEN - 1] + [1]  # EOS as trained
+    # ByT5Tokenizer: id = byte + 3; EOS appended
+    ids = [b + 3 for b in text.encode("utf-8")][: MAX_INPUT_LEN - 1] + [1]
     inp = np.array([ids], dtype=np.int64)
     mask = np.ones_like(inp)
 
@@ -78,7 +79,7 @@ def greedy_decode(session_pair, text: str) -> str:
         nxt = int(np.argmax(logits[0, -1]))
         if nxt == EOS:
             break
-        out_bytes.append(nxt & 0xFF)
+        out_bytes.append(nxt - 3)  # id -> byte
         dec_ids = np.concatenate(
             [dec_ids, np.array([[nxt]], dtype=np.int64)], axis=1
         )

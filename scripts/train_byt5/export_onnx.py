@@ -43,8 +43,9 @@ EOS = 1
 
 def greedy(sess_pair, text, max_len=64):
     enc, dec = sess_pair
-    # match training tokenization: ByT5Tokenizer appends EOS (1)
-    ids = list(text.encode("utf-8"))[:127] + [1]
+    # match ByT5Tokenizer exactly: id = byte + 3 (0/1/2 reserved for
+    # pad/eos/unk), EOS appended
+    ids = [b + 3 for b in text.encode("utf-8")][:127] + [1]
     inp = np.array([ids], dtype=np.int64)
     mask = np.ones_like(inp)
     efeeds = {"input_ids": inp}
@@ -84,7 +85,7 @@ def greedy(sess_pair, text, max_len=64):
         nxt = int(np.argmax(logits[0, -1]))
         if nxt == EOS:
             break
-        out.append(32 if nxt == 35 else nxt & 0xFF)  # 35 = byt5 space
+        out.append(nxt - 3)  # id -> byte (space falls out naturally: 35-3=32)
         dec_ids = np.concatenate([dec_ids, np.array([[nxt]], dtype=np.int64)], axis=1)
         dec_mask = np.concatenate([dec_mask, np.ones((1, 1), dtype=np.int64)], axis=1)
     return out.decode("utf-8", "replace")
