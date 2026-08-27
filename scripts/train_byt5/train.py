@@ -62,6 +62,16 @@ def main() -> int:
                          "charsiu/g2p_multilingual_byT5_tiny_16_layers ~17M)")
     ap.add_argument("--name", default=None,
                     help="run-dir name (default: derived from --base)")
+    ap.add_argument("--tiny", action="store_true",
+                    help="train the 17M tiny config from scratch "
+                         "(d256/ff1024, 12enc+4dec) instead of --base")
+    ap.add_argument("--sampling", choices=["none", "temp"], default="temp",
+                    help="language-balanced sampling (temp = sqrt-frequency)")
+    ap.add_argument("--sampling-temp", type=float, default=0.5)
+    ap.add_argument("--no-smoothing", action="store_true",
+                    help="disable label smoothing (default 0.1)")
+    ap.add_argument("--early-stop", type=int, default=4,
+                    help="early-stopping patience in evals (0=off)")
     ap.add_argument("--out", default="runs")
     ap.add_argument("--epochs", type=float, default=3.0)
     ap.add_argument("--batch", type=int, default=64)
@@ -106,8 +116,19 @@ def main() -> int:
         val_rows = load_tsv(corpus / f"{task}.val.tsv", task)
         print(f"train {len(train_rows):,} / val {len(val_rows):,}")
 
-        tokenizer = AutoTokenizer.from_pretrained(args.base)
-        model = AutoModelForSeq2SeqLM.from_pretrained(args.base)
+        if args.tiny:
+            from transformers import T5Config
+            cfg = T5Config(
+                d_model=256, d_kv=64, d_ff=1024,
+                num_layers=12, num_decoder_layers=4, num_heads=4,
+                vocab_size=384, feed_forward_proj="gated-gelu",
+                decoder_start_token_id=0, eos_token_id=1,
+            )
+            tokenizer = AutoTokenizer.from_pretrained("google/byt5-small")
+            model = AutoModelForSeq2SeqLM.from_config(cfg)
+        else:
+            tokenizer = AutoTokenizer.from_pretrained(args.base)
+            model = AutoModelForSeq2SeqLM.from_pretrained(args.base)
 
         def tokenize(batch):
             # ByT5 is byte-level: the SAME tokenizer serves input and
@@ -134,6 +155,25 @@ def main() -> int:
         train_ds = Dataset.from_dict(
             {"input": [r[0] for r in train_rows], "target": [r[1] for r in train_rows]}
         ).map(tokenize, batched=True, remove_columns=["input", "target"])
+
+        # Language-balanced sampling (XLM-R style temperature weighting):
+        # draw the epoch with replacement, each example weighted by
+        # p(lang)^{-T}. T=0.5 (sqrt-frequency) lifts small languages —
+        # our missed macro gate was exactly the long tail.
+        if args.sampling == "temp" and args.max_steps == 0:
+            import random as _random
+            from collections import Counter as _Counter
+            langs = [r[0].split(":", 1)[0].strip("<>") for r in train_rows]
+            lang_counts = _Counter(langs)
+            n_total = len(train_rows)
+            weights = [
+                (n_total / lang_counts[l]) ** args.sampling_temp for l in langs
+            ]
+            rng = _random.Random(args.seed)
+            indices = rng.choices(range(n_total), weights=weights, k=n_total)
+            train_ds = train_ds.select(indices)
+            print(f"sampling: temp={args.sampling_temp}, "
+                  f"{len(set(indices))} unique of {n_total}")
         val_ds = Dataset.from_dict(
             {"input": [r[0] for r in val_rows], "target": [r[1] for r in val_rows]}
         ).map(tokenize, batched=True, remove_columns=["input", "target"])
@@ -205,6 +245,8 @@ def main() -> int:
             eval_steps=args.eval_steps,
             save_strategy="steps",
             save_steps=args.save_steps,
+            group_by_length=True,
+            label_smoothing_factor=0.0 if args.no_smoothing else 0.1,
             save_total_limit=2,
             load_best_model_at_end=True,
             metric_for_best_model="exact_match",
@@ -219,6 +261,11 @@ def main() -> int:
         )
         targs = Seq2SeqTrainingArguments(**kwargs)
 
+        callbacks = []
+        if args.early_stop > 0 and not args.max_steps:
+            from transformers import EarlyStoppingCallback
+            callbacks.append(EarlyStoppingCallback(early_stopping_patience=args.early_stop))
+
         trainer = Seq2SeqTrainer(
             model=model,
             args=targs,
@@ -226,6 +273,7 @@ def main() -> int:
             eval_dataset=val_ds,
             data_collator=DataCollatorForSeq2Seq(tokenizer, model=model),
             compute_metrics=compute_metrics,
+            callbacks=callbacks,
         )
         trainer.train(resume_from_checkpoint=resume_from)
 
