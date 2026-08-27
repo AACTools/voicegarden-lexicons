@@ -8,12 +8,18 @@ count, downloads each file, normalises to our lexicon.txt format
 (NFC, lowercased word where the language is cased, single pronunciation
 per word — first wins), and writes staging/<lang>/wikipron.tsv.
 
+--variants keeps regional/dialectal splits apart: languages with
+multiple dialect files (eng-US/eng-UK, por-BR/por-PT, spa-ES/spa-LatAm,
+cym-North/cym-South, ...) harvest into variety-keyed dirs instead of
+one mixed dir. Variety codes are short readable slugs derived from the
+WikiPron dialect field (US, UK, BR, PT, ES, LatAm, ...).
+
 Idempotent + resumable: a language with an existing .done marker is
 skipped; --force redoes everything.
 
 Usage:
-  scripts/harvest_wikipron.py [--min 1000] [--broad] [--langs a,b,c]
-                              [--out staging] [--limit N]
+  scripts/harvest_wikipron.py [--min 1000] [--variants]
+                              [--langs a,b,c] [--out staging] [--limit N]
 """
 
 from __future__ import annotations
@@ -56,25 +62,78 @@ def fetch(url: str, retries: int = 3) -> bytes:
     raise AssertionError("unreachable")
 
 
-def read_summary(min_entries: int) -> list[tuple[str, str, str, int]]:
-    """Return (file, iso, name, count) for broad-phonemic files."""
+# WikiPron dialect field -> short variety slug used in staging dirs and
+# corpus tags (kept conservative; unmapped dialects fall back to the
+# bare ISO code).
+VARIANT_SLUGS = {
+    "US, General American": "US",
+    "UK, Received Pronunciation": "UK",
+    "Brazil": "BR",
+    "Portugal": "PT",
+    "Castilian, Spain": "ES",
+    "Latin America": "LatAm",
+    "South Wales": "South",
+    "North Wales": "North",
+    "Eastern Armenian": "East",
+    "Western Armenian": "West",
+    "Hokkien": "Hokkien",
+    "Teochew": "Teochew",
+    "Shanghai": "Shanghai",
+    "Rarh, Standard Bengali": "Rarh",
+    "Dhaka": "Dhaka",
+    "Meixian": "Meixian",
+    "Changsha": "Changsha",
+    "Taiyuan": "Taiyuan",
+    "Jian'ou": "Jianou",
+    "Nanchang": "Nanchang",
+    "Fuzhou": "Fuzhou",
+    "Putian": "Putian",
+    "Nanning": "Nanning",
+    "Leizhou": "Leizhou",
+    "Standard": "",
+    "Zhengzhang": "Zhengzhang",
+}
+
+
+def read_summary(min_entries: int, variants: bool):
+    """Return (file, dirkey, display, count) for broad-phonemic files.
+
+    dirkey is the staging-dir/corpus tag: bare ISO, or ISO-Slug when
+    --variants and the language has multiple dialect files above the
+    entry threshold.
+    """
     text = fetch(SUMMARY_URL).decode("utf-8")
-    out: dict[tuple[str, str], tuple[str, str, int]] = {}
+    per_iso: dict[str, list[tuple[str, str, str, int]]] = {}
     for line in text.splitlines():
         parts = line.split("\t")
         if len(parts) < 9 or parts[7] != "Broad":
             continue
-        fname, iso, name = parts[0], parts[1], parts[2]
+        fname, iso, name, dialect = parts[0], parts[1], parts[2], parts[5]
         try:
             count = int(parts[8])
         except ValueError:
             continue
         if count < min_entries:
             continue
-        key = (iso, name)
-        if key not in out or count > out[key][2]:
-            out[key] = (fname, name, count)
-    return [(f, iso, name, c) for (iso, name), (f, name2, c) in out.items()]
+        per_iso.setdefault(iso, []).append((fname, name, dialect, count))
+
+    out = []
+    for iso, files in per_iso.items():
+        if len(files) == 1 or not variants:
+            # single variety (or flat mode): keep the largest file only
+            fname, name, _d, count = max(files, key=lambda f: f[3])
+            out.append((fname, iso, name, count))
+            continue
+        slugs = set()
+        for fname, name, dialect, count in files:
+            slug = VARIANT_SLUGS.get(dialect, "")
+            # dedupe slugs per language; fall back to a stable suffix
+            if slug in slugs or (slug and f"{iso}-{slug}" in slugs):
+                slug = dialect.replace(" ", "-").replace(",", "")[:12]
+            slugs.add(slug)
+            key = iso if not slug else f"{iso}-{slug}"
+            out.append((fname, key, f"{name} ({dialect})", count))
+    return out
 
 
 def normalise(word: str) -> str:
@@ -103,6 +162,8 @@ def harvest_one(fname: str, iso: str, out_dir: Path) -> tuple[int, Path]:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--min", type=int, default=1000)
+    ap.add_argument("--variants", action="store_true",
+                    help="keep dialect/region splits as separate dirs+tags")
     ap.add_argument("--langs", help="comma-separated ISO codes to limit to")
     ap.add_argument("--out", default="staging")
     ap.add_argument("--limit", type=int, default=0, help="stop after N languages")
@@ -113,24 +174,25 @@ def main() -> int:
     staging = Path(args.out)
     staging.mkdir(parents=True, exist_ok=True)
 
-    rows = read_summary(args.min)
+    rows = read_summary(args.min, args.variants)
     rows.sort(key=lambda r: -r[3])  # biggest first — value early
     if want:
-        rows = [r for r in rows if r[0] in want or r[1] in want]
+        rows = [r for r in rows if r[1] in want or r[1].split("-")[0] in want or r[0] in want]
     if args.limit:
         rows = rows[: args.limit]
 
     print(f"{len(rows)} languages to harvest (>= {args.min} entries)")
     done = skipped = failed = 0
-    for fname, iso, name, count in rows:
-        out_dir = staging / iso
+    for fname, key, name, count in rows:
+        out_dir = staging / key
         marker = out_dir / ".wikipron.done"
         if marker.exists() and not args.force:
             skipped += 1
             continue
         out_dir.mkdir(parents=True, exist_ok=True)
-        note = " (gruut-covered: gruut wins conflicts)" if iso in GRUUT_LANGS else ""
-        print(f"[{done + 1}/{len(rows)}] {iso} {name} (~{count}){note}")
+        bare = key.split("-")[0]
+        note = " (gruut-covered: gruut wins conflicts)" if bare in GRUUT_LANGS else ""
+        print(f"[{done + 1}/{len(rows)}] {key} {name} (~{count}){note}")
         try:
             kept, _ = harvest_one(fname, iso, out_dir)
         except Exception as e:  # noqa: BLE001 - keep the loop alive
