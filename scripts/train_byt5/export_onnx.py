@@ -242,7 +242,7 @@ def main() -> int:
             tmp.rename(out)
             print(f"KEPT {variant} -> {out}")
             (out / "PROVENANCE.txt").write_text(
-                f"exported from {args.model} via optimum-onnx "
+                f"exported from {args.model} "
                 f"({'with' if with_past else 'no'}-past variant), "
                 f"validated against known pairs\n"
             )
