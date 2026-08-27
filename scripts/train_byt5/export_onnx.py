@@ -142,9 +142,14 @@ def try_manual(model: Path, tmp: Path) -> bool:
             return m.encoder(input_ids=input_ids, attention_mask=attention_mask).last_hidden_state
 
     class Dec(torch.nn.Module):
-        def forward(self, input_ids, encoder_hidden_states, encoder_attention_mask):
+        # attention_mask here is the DECODER (causal) self-attention mask,
+        # passed explicitly: HF T5 branches on sequence_length==1 to skip
+        # the mask, and torch.onnx bakes that branch — explicit masks make
+        # the graph correct at every prefix length.
+        def forward(self, input_ids, attention_mask, encoder_hidden_states, encoder_attention_mask):
             out = m.decoder(
                 input_ids=input_ids,
+                attention_mask=attention_mask,
                 encoder_hidden_states=encoder_hidden_states,
                 encoder_attention_mask=encoder_attention_mask,
             ).last_hidden_state
@@ -160,15 +165,17 @@ def try_manual(model: Path, tmp: Path) -> bool:
             dynamic_axes={"input_ids": dyn, "attention_mask": dyn,
                           "last_hidden_state": {0: "b", 1: "s"}},
         )
+        causal2 = torch.tril(torch.ones(2, 2, dtype=torch.long))
         torch.onnx.export(
             Dec(),
-            (torch.zeros(1, 2, dtype=torch.long),
+            (torch.zeros(1, 2, dtype=torch.long), causal2,
              torch.zeros(1, 8, d_model, dtype=torch.float),
              torch.ones(1, 8, dtype=torch.long)),
             str(tmp / "decoder_model.onnx"), opset_version=14,
-            input_names=["input_ids", "encoder_hidden_states", "encoder_attention_mask"],
+            input_names=["input_ids", "attention_mask", "encoder_hidden_states", "encoder_attention_mask"],
             output_names=["logits"],
             dynamic_axes={"input_ids": {0: "b", 1: "t"},
+                          "attention_mask": {0: "b", 1: "t", 2: "t"},
                           "encoder_hidden_states": {0: "b", 1: "s"},
                           "encoder_attention_mask": {0: "b", 1: "s"},
                           "logits": {0: "b", 1: "t"}},
