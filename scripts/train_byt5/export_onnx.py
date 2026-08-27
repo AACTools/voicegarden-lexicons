@@ -130,7 +130,10 @@ def try_manual(model: Path, tmp: Path) -> bool:
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
     m = AutoModelForSeq2SeqLM.from_pretrained(str(model.resolve())).eval()
+    for p_ in m.parameters():
+        p_.requires_grad_(False)
     tok = AutoTokenizer.from_pretrained(str(model.resolve()))
+    d_model = m.config.d_model
     tmp.mkdir(parents=True, exist_ok=True)
 
     class Enc(torch.nn.Module):
@@ -159,7 +162,7 @@ def try_manual(model: Path, tmp: Path) -> bool:
         torch.onnx.export(
             Dec(),
             (torch.zeros(1, 2, dtype=torch.long),
-             torch.zeros(1, 8, 384, dtype=torch.float),
+             torch.zeros(1, 8, d_model, dtype=torch.float),
              torch.ones(1, 8, dtype=torch.long)),
             str(tmp / "decoder_model.onnx"), opset_version=14,
             input_names=["input_ids", "encoder_hidden_states", "encoder_attention_mask"],
