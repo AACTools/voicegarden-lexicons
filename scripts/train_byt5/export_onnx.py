@@ -74,21 +74,25 @@ def greedy(sess_pair, text, max_len=64):
         nxt = int(np.argmax(logits[0, -1]))
         if nxt == EOS:
             break
-        out.append(nxt & 0xFF)
+        out.append(32 if nxt == 35 else nxt & 0xFF)  # 35 = byt5 space
         dec_ids = np.array([[nxt]], dtype=np.int64)
     return out.decode("utf-8", "replace")
 
 
+# NOTE: tags must exist in the trained corpus (variety-keyed since the
+# dialect rework: eng-US, spa-ES, ...). ByT5Tokenizer maps SPACE to
+# byte 35 ('#'); greedy() decodes raw bytes, so we map 35 back to a
+# space before comparing to the space-separated gold.
 PAIRS = {
     "g2p": [
-        ("<spa>: gato", "ɡ a t o"),
-        ("<por>: gato", "ɡ a t u"),
-        ("<eng>: hello", "h"),
+        ("<spa-ES>: gato", "ɡ a t o"),
+        ("<por-BR>: gato", "ɡ a t u"),
+        ("<eng-US>: hello", "h"),
     ],
     "p2g": [
         ("<deu>: ʃ aɪ n", "sch"),
         ("<ita>: ɡ a t o", "gat"),
-        ("<eng>: k æ t", "c"),
+        ("<eng-US>: k æ t", "c"),
     ],
 }
 
