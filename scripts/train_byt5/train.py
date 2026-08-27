@@ -58,7 +58,10 @@ def main() -> int:
     ap.add_argument("--task", choices=["g2p", "p2g", "both"], default="both")
     ap.add_argument("--corpus", default="corpus")
     ap.add_argument("--base", default="google/byt5-small",
-                    help="base checkpoint (byt5-small ~300M, byt5-base ~580M)")
+                    help="base checkpoint (byt5-small ~300M; "
+                         "charsiu/g2p_multilingual_byT5_tiny_16_layers ~17M)")
+    ap.add_argument("--name", default=None,
+                    help="run-dir name (default: derived from --base)")
     ap.add_argument("--out", default="runs")
     ap.add_argument("--epochs", type=float, default=3.0)
     ap.add_argument("--batch", type=int, default=64)
@@ -96,7 +99,7 @@ def main() -> int:
     corpus = Path(args.corpus)
 
     for task in tasks:
-        run_dir = Path(args.out) / f"{task}-{Path(args.base).name}"
+        run_dir = Path(args.out) / f"{task}-{args.name or Path(args.base).name}"
         print(f"=== {task}: {args.base} -> {run_dir}")
 
         train_rows = load_tsv(corpus / f"{task}.train.tsv", task)
