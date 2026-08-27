@@ -75,7 +75,7 @@ def greedy(sess_pair, text, max_len=64):
         if nxt == EOS:
             break
         out.append(32 if nxt == 35 else nxt & 0xFF)  # 35 = byt5 space
-        dec_ids = np.array([[nxt]], dtype=np.int64)
+        dec_ids = np.concatenate([dec_ids, np.array([[nxt]], dtype=np.int64)], axis=1)
     return out.decode("utf-8", "replace")
 
 
