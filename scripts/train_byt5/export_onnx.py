@@ -243,7 +243,7 @@ def main() -> int:
             print(f"KEPT {variant} -> {out}")
             (out / "PROVENANCE.txt").write_text(
                 f"exported from {args.model} "
-                f"({'with' if with_past else 'no'}-past variant), "
+                f"(variant: {variant}), "
                 f"validated against known pairs\n"
             )
             return 0
