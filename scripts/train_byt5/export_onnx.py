@@ -61,8 +61,8 @@ def greedy(sess_pair, text, max_len=64):
     t = dec_ids.shape[1]
     for step in range(max_len):
         feeds = {key: dec_ids}
-        if "attention_mask" in names:  # manual exports: explicit causal
-            feeds["attention_mask"] = np.tril(np.ones((1, t, t), dtype=np.int64))
+        if "attention_mask" in names:  # manual exports: 2D ones; T5 applies causal internally
+            feeds["attention_mask"] = np.ones((1, t), dtype=np.int64)
         if "encoder_hidden_states" in names:
             feeds["encoder_hidden_states"] = hidden
         if "encoder_attention_mask" in names:
@@ -169,10 +169,9 @@ def try_manual(model: Path, tmp: Path) -> bool:
             dynamic_axes={"input_ids": dyn, "attention_mask": dyn,
                           "last_hidden_state": {0: "b", 1: "s"}},
         )
-        causal2 = torch.tril(torch.ones(2, 2, dtype=torch.long))
         torch.onnx.export(
             Dec(),
-            (torch.zeros(1, 2, dtype=torch.long), causal2,
+            (torch.zeros(1, 2, dtype=torch.long), torch.ones(1, 2, dtype=torch.long),
              torch.zeros(1, 8, d_model, dtype=torch.float),
              torch.ones(1, 8, dtype=torch.long)),
             str(tmp / "decoder_model.onnx"), opset_version=14,
