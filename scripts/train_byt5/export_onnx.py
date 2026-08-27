@@ -121,6 +121,7 @@ def try_optimum(model: Path, tmp: Path, with_past: bool) -> bool:
     from optimum.onnxruntime import ORTModelForSeq2SeqLM
     from transformers import AutoTokenizer
     task = "seq2seq-lm-with-past" if with_past else "seq2seq-lm"
+    model = model.resolve()
     m = ORTModelForSeq2SeqLM.from_pretrained(str(model), export=True, task=task)
     t = AutoTokenizer.from_pretrained(str(model))
     m.save_pretrained(str(tmp))
