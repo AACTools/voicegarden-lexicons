@@ -124,13 +124,20 @@ def read_summary(min_entries: int, variants: bool):
             fname, name, _d, count = max(files, key=lambda f: f[3])
             out.append((fname, iso, name, count))
             continue
-        slugs = set()
+        # Group by dialect: WikiPron ships both raw and _filtered files
+        # for big dialects — keep the filtered one (deduped pronunciations).
+        by_dialect: dict[str, tuple[str, str, int, bool]] = {}
         for fname, name, dialect, count in files:
+            filtered = fname.endswith("_filtered.tsv")
+            prev = by_dialect.get(dialect)
+            if prev is None or (filtered and not prev[3]):
+                by_dialect[dialect] = (fname, name, count, filtered)
+        slugs = {}
+        for dialect, (fname, name, count, _f) in by_dialect.items():
             slug = VARIANT_SLUGS.get(dialect, "")
-            # dedupe slugs per language; fall back to a stable suffix
-            if slug in slugs or (slug and f"{iso}-{slug}" in slugs):
+            if slug in slugs.values():
                 slug = dialect.replace(" ", "-").replace(",", "")[:12]
-            slugs.add(slug)
+            slugs[dialect] = slug
             key = iso if not slug else f"{iso}-{slug}"
             out.append((fname, key, f"{name} ({dialect})", count))
     return out
@@ -194,7 +201,7 @@ def main() -> int:
         note = " (gruut-covered: gruut wins conflicts)" if bare in GRUUT_LANGS else ""
         print(f"[{done + 1}/{len(rows)}] {key} {name} (~{count}){note}")
         try:
-            kept, _ = harvest_one(fname, iso, out_dir)
+            kept, _ = harvest_one(fname, key, out_dir)
         except Exception as e:  # noqa: BLE001 - keep the loop alive
             print(f"  FAILED: {e}", file=sys.stderr)
             failed += 1
