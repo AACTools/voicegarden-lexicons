@@ -54,11 +54,11 @@ MODELS = {
         },
         # charsiu: <iso1>: word  (paper convention "<lang>: word")
         "charsiu-small": {
-            "model": "charsiu/g2p_multilingual_byT5_small_100",
+            "model": "/workspace/h2h/charsiu-small",
             "fmt": "<{l1}>: {src}",
         },
         "charsiu-tiny16": {
-            "model": "charsiu/g2p_multilingual_byT5_tiny_16_layers",
+            "model": "/workspace/h2h/charsiu-tiny16",
             "fmt": "<{l1}>: {src}",
         },
     },
@@ -71,7 +71,7 @@ MODELS = {
         # their README is "<lang>: ipa" with iso-639-1 (best guess; the
         # adapter normalises whatever comes back)
         "bookbot-p2g": {
-            "model": "bookbot/byt5-small-wikipron-eng-latn-multi-broad-p2g",
+            "model": "/workspace/h2h/bookbot-p2g",
             "fmt": "{l1}: {src}",
         },
     },
@@ -124,7 +124,11 @@ def main() -> int:
     for key in wanted:
         spec = MODELS[args.task][key]
         try:
-            tok = AutoTokenizer.from_pretrained(spec["model"])
+            try:
+                tok = AutoTokenizer.from_pretrained(spec["model"])
+            except Exception:
+                from transformers import ByT5Tokenizer
+                tok = ByT5Tokenizer.from_pretrained(spec["model"])
             model = AutoModelForSeq2SeqLM.from_pretrained(spec["model"])
         except Exception as e:  # noqa: BLE001
             print(f"{key}: LOAD FAILED {e}")
