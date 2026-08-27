@@ -58,8 +58,11 @@ def greedy(sess_pair, text, max_len=64):
     dec_ids = np.zeros((1, 1), dtype=np.int64)
     past = {}
     out = bytearray()
+    t = dec_ids.shape[1]
     for step in range(max_len):
         feeds = {key: dec_ids}
+        if "attention_mask" in names:  # manual exports: explicit causal
+            feeds["attention_mask"] = np.tril(np.ones((1, t, t), dtype=np.int64))
         if "encoder_hidden_states" in names:
             feeds["encoder_hidden_states"] = hidden
         if "encoder_attention_mask" in names:
@@ -67,6 +70,7 @@ def greedy(sess_pair, text, max_len=64):
         for k, v in past.items():
             feeds[k] = v
         outs = dec.run(None, feeds)
+        t += 1
         logits = outs[0]
         # refresh past from present outputs when the graph supports it
         for i, o in enumerate(dec.get_outputs()):
