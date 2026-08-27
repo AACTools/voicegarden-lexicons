@@ -47,7 +47,7 @@ def greedy_decode(session_pair, text: str) -> str:
     import numpy as np
     import onnxruntime as ort
 
-    ids = list(text.encode("utf-8"))[:MAX_INPUT_LEN]
+    ids = list(text.encode("utf-8"))[: MAX_INPUT_LEN - 1] + [1]  # EOS as trained
     inp = np.array([ids], dtype=np.int64)
     mask = np.ones_like(inp)
 

@@ -43,7 +43,8 @@ EOS = 1
 
 def greedy(sess_pair, text, max_len=64):
     enc, dec = sess_pair
-    ids = list(text.encode("utf-8"))[:128]
+    # match training tokenization: ByT5Tokenizer appends EOS (1)
+    ids = list(text.encode("utf-8"))[:127] + [1]
     inp = np.array([ids], dtype=np.int64)
     mask = np.ones_like(inp)
     efeeds = {"input_ids": inp}
