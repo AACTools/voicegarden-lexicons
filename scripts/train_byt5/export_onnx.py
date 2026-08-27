@@ -55,14 +55,19 @@ def greedy(sess_pair, text, max_len=64):
     key = "input_ids" if "input_ids" in names else "decoder_input_ids"
     dnames = [n for n in names if "past_key_values" in n or ".key" in n]
     use_past_inputs = bool(dnames)
-    dec_ids = np.zeros((1, 1), dtype=np.int64)
+    # Bootstrap with [start, pad-masked start]: a length-2 prefix so the
+    # traced graph never sees a length-1 input (the baked length-1
+    # branch miscomputes). mask [1,0] keeps the pad inert; logits at the
+    # last position equal the true length-1 step.
+    dec_ids = np.zeros((1, 2), dtype=np.int64)
+    dec_mask = np.array([[1, 0]], dtype=np.int64)
     past = {}
     out = bytearray()
     t = dec_ids.shape[1]
     for step in range(max_len):
         feeds = {key: dec_ids}
-        if "attention_mask" in names:  # manual exports: 2D ones; T5 applies causal internally
-            feeds["attention_mask"] = np.ones((1, t), dtype=np.int64)
+        if "attention_mask" in names:  # manual exports: explicit mask
+            feeds["attention_mask"] = dec_mask
         if "encoder_hidden_states" in names:
             feeds["encoder_hidden_states"] = hidden
         if "encoder_attention_mask" in names:
@@ -81,6 +86,7 @@ def greedy(sess_pair, text, max_len=64):
             break
         out.append(32 if nxt == 35 else nxt & 0xFF)  # 35 = byt5 space
         dec_ids = np.concatenate([dec_ids, np.array([[nxt]], dtype=np.int64)], axis=1)
+        dec_mask = np.concatenate([dec_mask, np.ones((1, 1), dtype=np.int64)], axis=1)
     return out.decode("utf-8", "replace")
 
 
