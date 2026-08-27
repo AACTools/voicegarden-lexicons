@@ -178,7 +178,7 @@ def try_manual(model: Path, tmp: Path) -> bool:
             input_names=["input_ids", "attention_mask", "encoder_hidden_states", "encoder_attention_mask"],
             output_names=["logits"],
             dynamic_axes={"input_ids": {0: "b", 1: "t"},
-                          "attention_mask": {0: "b", 1: "t", 2: "t"},
+                          "attention_mask": {0: "b", 1: "t"},
                           "encoder_hidden_states": {0: "b", 1: "s"},
                           "encoder_attention_mask": {0: "b", 1: "s"},
                           "logits": {0: "b", 1: "t"}},
