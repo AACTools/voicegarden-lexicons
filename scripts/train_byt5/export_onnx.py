@@ -120,9 +120,13 @@ def validate(candidate_dir: Path, task: str) -> tuple[bool, list[str]]:
 def try_optimum(model: Path, tmp: Path, with_past: bool) -> bool:
     from optimum.onnxruntime import ORTModelForSeq2SeqLM
     from transformers import AutoTokenizer
-    task = "seq2seq-lm-with-past" if with_past else "seq2seq-lm"
     model = model.resolve()
-    m = ORTModelForSeq2SeqLM.from_pretrained(str(model), export=True, task=task)
+    kwargs = {}
+    # optimum-onnx 1.x/2.x disagree on the task kwarg; probe cheaply
+    try:
+        m = ORTModelForSeq2SeqLM.from_pretrained(str(model), export=True, **kwargs)
+    except TypeError:
+        m = ORTModelForSeq2SeqLM.from_pretrained(str(model))
     t = AutoTokenizer.from_pretrained(str(model))
     m.save_pretrained(str(tmp))
     t.save_pretrained(str(tmp))
