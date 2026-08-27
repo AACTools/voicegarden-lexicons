@@ -47,25 +47,30 @@ ISO3_TO_1 = {
 
 MODELS = {
     "g2p": {
-        # ours
+        # ours: segmented gruut-style IPA, <iso3> tags
         "ours-small": {
             "model": "runs/g2p-small/final",
             "fmt": "<{l3}>: {src}",
+            "norm": "segmented",
         },
-        # charsiu: <iso1>: word  (paper convention "<lang>: word")
+        # charsiu: "<eng-us>: word" style codes, UNSEGMENTED stress-marked
+        # IPA output ("ˈtʃɑɹ") — scored on stress-stripped concatenation
         "charsiu-small": {
             "model": "/workspace/h2h/charsiu-small",
-            "fmt": "<{l1}>: {src}",
+            "fmt": "<{cs}>: {src}",
+            "norm": "unsegmented",
         },
         "charsiu-tiny16": {
             "model": "/workspace/h2h/charsiu-tiny16",
-            "fmt": "<{l1}>: {src}",
+            "fmt": "<{cs}>: {src}",
+            "norm": "unsegmented",
         },
     },
     "p2g": {
         "ours-small": {
             "model": "runs/p2g-small/final",
             "fmt": "<{l3}>: {src}",
+            "norm": "segmented",
         },
         # bookbot p2g: trained on wikipron eng-latn multi; convention per
         # their README is "<lang>: ipa" with iso-639-1 (best guess; the
@@ -76,6 +81,30 @@ MODELS = {
         },
     },
 }
+
+
+# Charsiu language codes: bare ISO-3 except English (eng-us). Their
+# sheet also has a few variant codes we do not model here.
+CHARSIU_CODE = {k: k for k in ISO3_TO_1}
+CHARSIU_CODE["eng"] = "eng-us"
+
+
+def norm_pred(pred: str, style: str) -> str:
+    if style == "segmented":
+        return pred
+    # unsegmented IPA with stress: strip stress/space/length for compare
+    for ch in ("\u02c8", "\u02cc", " ", "\u02d0", "\u0303", "."):
+        pred = pred.replace(ch, "")
+    return pred
+
+
+def norm_gold(gold: str, style: str) -> str:
+    if style == "segmented":
+        return gold
+    joined = "".join(gold.split())
+    for ch in ("\u02c8", "\u02cc", "\u02d0", "\u0303", "."):
+        joined = joined.replace(ch, "")
+    return joined
 
 
 def token_error(pred: str, gold: str) -> float:
@@ -144,17 +173,19 @@ def main() -> int:
             texts = []
             for lang, src, _dst in chunk:
                 l1 = ISO3_TO_1.get(lang, lang)
-                texts.append(spec["fmt"].format(l3=lang, l1=l1, src=src))
+                cs = CHARSIU_CODE.get(lang.split("-")[0], lang.split("-")[0])
+                texts.append(spec["fmt"].format(l3=lang, l1=l1, cs=cs, src=src))
             enc = tok(texts, return_tensors="pt", padding=True,
                       truncation=True, max_length=128).to("cuda")
             with torch.no_grad():
                 out = model.generate(**enc, max_length=MAX_TARGET_LEN)
             preds = tok.batch_decode(out, skip_special_tokens=True)
+            style = spec.get("norm", "segmented")
             for (lang, _s, gold), pred in zip(chunk, preds, strict=True):
                 s = per_lang[lang]
-                s[0] += int(pred == gold)
+                s[0] += int(norm_pred(pred, style) == norm_gold(gold, style))
                 s[1] += 1
-                s[2] += token_error(pred, gold)
+                s[2] += token_error(norm_pred(pred, style), norm_gold(gold, style))
             done += len(chunk)
         total = sum(v[1] for v in per_lang.values())
         micro = sum(v[0] for v in per_lang.values()) / max(total, 1)
