@@ -235,6 +235,7 @@ def main() -> int:
         ("plain", lambda t: try_optimum(Path(args.model), t, False)),
         ("past", lambda t: try_optimum(Path(args.model), t, True)),
     ]
+    pairs = [(text, gold) for _tag, text, gold in derive_pairs(args.task)]
     for variant, runner in attempts:
         tmp = out.parent / f".{out.name}-{variant}-tmp"
         shutil.rmtree(tmp, ignore_errors=True)
