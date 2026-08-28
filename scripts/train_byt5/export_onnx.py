@@ -131,15 +131,15 @@ def validate(candidate_dir: Path, task: str, pairs=None) -> tuple[bool, list[str
         return False, [f"session load: {e}"]
     results = []
     ok = 0
-    for text, prefix in PAIRS[task]:
+    for text, gold in pairs:
         try:
             got = greedy((enc, dec), text)
         except Exception as e:  # noqa: BLE001
             results.append(f"{text!r}: decode error {e}")
             continue
-        good = got.startswith(prefix)
+        good = got == gold  # exact match against corpus truth
         ok += int(good)
-        results.append(f"{text!r} -> {got!r} (want prefix {prefix!r}) {'OK' if good else 'FAIL'}")
+        results.append(f"{text!r} -> {got!r} (corpus gold {gold!r}) {'OK' if good else 'FAIL'}")
     return ok >= 2, results
 
 
@@ -244,7 +244,7 @@ def main() -> int:
         except Exception as e:  # noqa: BLE001
             print(f"  export failed: {e}")
             continue
-        ok, details = validate(tmp, args.task)
+        ok, details = validate(tmp, args.task, pairs)
         for d in details:
             print(f"  {d}")
         if ok:
