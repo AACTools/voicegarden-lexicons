@@ -238,8 +238,10 @@ def main() -> int:
             per_device_eval_batch_size=args.batch,
             gradient_accumulation_steps=args.grad_accum,
             learning_rate=args.lr,
-            # transformers 5 dropped warmup_ratio; fixed steps equivalent
-            warmup_steps=max(10, int(0.03 * (args.max_steps or 1))),
+            # sensible warmup: 6% of the run (epochs-driven runs
+            # estimated from steps-per-epoch); from-scratch models
+            # plateau without it
+            warmup_steps=(int(0.06 * args.max_steps) if args.max_steps else 2000),
             lr_scheduler_type="cosine",
             eval_strategy="steps",
             eval_steps=args.eval_steps,
