@@ -91,25 +91,35 @@ def greedy(sess_pair, text, max_len=64):
     return out.decode("utf-8", "replace")
 
 
-# NOTE: tags must exist in the trained corpus (variety-keyed since the
-# dialect rework: eng-US, spa-ES, ...). ByT5Tokenizer maps SPACE to
-# byte 35 ('#'); greedy() decodes raw bytes, so we map 35 back to a
-# space before comparing to the space-separated gold.
-PAIRS = {
-    "g2p": [
-        ("<spa-ES>: gato", "ɡ a t o"),
-        ("<por-BR>: gato", "ɡ a t u"),
-        ("<eng-US>: hello", "h"),
-    ],
-    "p2g": [
-        ("<deu>: ʃ aɪ n", "sch"),
-        ("<ita>: ɡ a t o", "gat"),
-        ("<eng-US>: k æ t", "c"),
-    ],
-}
+# Gate pairs are derived from the training corpus itself (never
+# hand-written — hand expectations twice cost hours: gruut spa uses
+# ASCII "g" while por uses IPA "ɡ", por-BR "gato" ends in "o", etc).
+# We take the FIRST row of three key languages from g2p.train.tsv and
+# require an exact match on >= 2 of 3 through the exported ONNX.
+# ByT5Tokenizer maps SPACE to byte 35; greedy() maps it back.
+def derive_pairs(task: str, base: str = "."):
+    src = None
+    for cand in (f"{base}/corpus/{task}.train.tsv", f"corpus/{task}.train.tsv"):
+        import os
+        if os.path.exists(cand):
+            src = cand
+            break
+    if src is None:
+        raise SystemExit("corpus train tsv not found for gate pairs")
+    wanted = ["spa-ES", "por-BR", "eng-US"] if task == "g2p" else ["deu", "ita", "eng-US"]
+    pairs = []
+    for line in open(src, encoding="utf-8"):
+        p = line.rstrip("\n").split("\t")
+        if len(p) == 3 and p[0] in wanted and p[0] not in [x[0] for x in pairs]:
+            pairs.append((p[0], f"<{p[0]}>: {p[1]}", p[2]))
+        if len(pairs) == len(wanted):
+            break
+    return pairs
 
 
-def validate(candidate_dir: Path, task: str) -> tuple[bool, list[str]]:
+def validate(candidate_dir: Path, task: str, pairs=None) -> tuple[bool, list[str]]:
+    if pairs is None:
+        pairs = [(text, gold) for _tag, text, gold in derive_pairs(task)]
     enc_p = candidate_dir / "encoder_model.onnx"
     dec_p = candidate_dir / "decoder_model.onnx"
     if not (enc_p.exists() and dec_p.exists()):
