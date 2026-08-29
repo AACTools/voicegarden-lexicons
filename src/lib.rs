@@ -90,6 +90,9 @@ pub struct LexiconArchive {
     base: String,
     cache: PathBuf,
     manifest: Manifest,
+    /// Subdirectory holding both the manifest and the bundle tarballs
+    /// (empty for the base archive, `expanded` for the distilled sets).
+    subdir: String,
 }
 
 impl LexiconArchive {
@@ -101,20 +104,48 @@ impl LexiconArchive {
         Self::new(DEFAULT_BASE, default_cache_dir())
     }
 
+    /// The expanded (distilled) archive at the default base: manifest
+    /// at `<base>/expanded/expanded.json`, bundles beside it. Falls
+    /// back cleanly on cache misses like the base archive.
+    /// # Errors
+    ///
+    /// Network or manifest-parse failures.
+    pub fn default_expanded() -> anyhow::Result<Self> {
+        Self::new_expanded(DEFAULT_BASE, default_cache_dir())
+    }
+
+    /// Expanded archive at a custom base + cache dir.
+    /// # Errors
+    ///
+    /// Network/IO or manifest-parse failures.
+    pub fn new_expanded(base: impl Into<String>, cache: impl Into<PathBuf>) -> anyhow::Result<Self> {
+        Self::new_in(base, cache, "expanded/expanded.json", "expanded")
+    }
+
     /// Custom base — an `http(s)://` URL (mirror) or a local directory
     /// (offline use, tests) — plus a cache directory.
     /// # Errors
     ///
     /// Network/IO or manifest-parse failures.
     pub fn new(base: impl Into<String>, cache: impl Into<PathBuf>) -> anyhow::Result<Self> {
+        Self::new_in(base, cache, "lexicons.json", "")
+    }
+
+    fn new_in(
+        base: impl Into<String>,
+        cache: impl Into<PathBuf>,
+        manifest_name: &str,
+        subdir: &str,
+    ) -> anyhow::Result<Self> {
         let base = base.into();
         let cache = cache.into();
         fs::create_dir_all(&cache).with_context(|| format!("creating {}", cache.display()))?;
-        let manifest = Self::fetch_manifest(&base, &cache)?;
+        let manifest = Self::fetch_manifest(&base, &cache, manifest_name)?;
         Ok(Self {
             base,
             cache,
             manifest,
+            subdir: subdir.to_owned(),
         })
     }
 
@@ -168,7 +199,7 @@ impl LexiconArchive {
                     .join(", ")
             )
         })?;
-        let dir = self.cache.join(&entry.lang);
+        let dir = self.cache.join(&self.subdir).join(&entry.lang);
         let stamp = dir.join(".sha256");
         let fst = dir.join(format!("{}.fst", entry.lang));
         let pho = dir.join(format!("{}.pho", entry.lang));
@@ -180,9 +211,14 @@ impl LexiconArchive {
             return Self::bundle_from(&dir, entry);
         }
 
-        let url = format!("{}/{}", self.base.trim_end_matches('/'), entry.file);
-        let bytes =
-            get_bytes(&self.base, &entry.file).with_context(|| format!("downloading {url}"))?;
+        let url = format!(
+            "{}/{}/{}",
+            self.base.trim_end_matches('/'),
+            &self.subdir,
+            entry.file
+        );
+        let bytes = get_bytes(&format!("{}/{}", self.base.trim_end_matches('/'), &self.subdir), &entry.file)
+            .with_context(|| format!("downloading {url}"))?;
         let got = hash_hex(&bytes);
         if got != entry.sha256 {
             return Err(anyhow!(
@@ -214,10 +250,16 @@ impl LexiconArchive {
         })
     }
 
-    fn fetch_manifest(base: &str, cache: &Path) -> anyhow::Result<Manifest> {
-        let cached = cache.join("lexicons.json");
-        let url = format!("{}/lexicons.json", base.trim_end_matches('/'));
-        let bytes = match get_bytes(base, "lexicons.json") {
+    fn fetch_manifest(base: &str, cache: &Path, name: &str) -> anyhow::Result<Manifest> {
+        let cached = cache.join(name.replace('/', "-"));
+        let url = format!("{}/{}", base.trim_end_matches('/'), name);
+        let dir = Path::new(name)
+            .parent()
+            .filter(|p| !p.as_os_str().is_empty());
+        let bytes = match get_bytes(
+            &format!("{}/{}", base.trim_end_matches('/'), dir.map_or(String::new(), |d| format!("{}/", d.display()))),
+            Path::new(name).file_name().and_then(|n| n.to_str()).unwrap_or(name),
+        ) {
             Ok(b) => {
                 let _ = fs::write(&cached, &b);
                 b
@@ -405,5 +447,56 @@ mod tests {
             Ok(_) => panic!("bad checksum accepted"),
         };
         assert!(err.contains("checksum mismatch"), "{err}");
+    }
+
+    /// Same roundtrip as `offline_bundle_roundtrip`, but through the
+    /// expanded archive: manifest at `expanded/expanded.json`, bundle
+    /// beside it, fetched with `new_expanded`.
+    #[test]
+    #[allow(clippy::items_after_statements)]
+    fn offline_expanded_roundtrip() {
+        let tmp = tempfile::tempdir().unwrap();
+        let serve = tmp.path().join("serve");
+        let cache = tmp.path().join("cache");
+        fs::create_dir_all(&serve.join("expanded")).unwrap();
+
+        let work = tmp.path().join("work");
+        fs::create_dir_all(&work).unwrap();
+        LexiconWriter::new(work.join("xx"))
+            .write(vec![("guten".into(), "ɡ ʊ t ə n".into())])
+            .unwrap();
+
+        let tar_path = serve.join("expanded/xx.tar.gz");
+        {
+            let file = fs::File::create(&tar_path).unwrap();
+            let enc = flate2::write::GzEncoder::new(file, flate2::Compression::default());
+            let mut tar = tar::Builder::new(enc);
+            tar.append_path_with_name(work.join("xx.fst"), "xx.fst")
+                .unwrap();
+            tar.append_path_with_name(work.join("xx.pho"), "xx.pho")
+                .unwrap();
+            tar.into_inner().unwrap().finish().unwrap();
+        }
+        let bytes = fs::read(&tar_path).unwrap();
+        let manifest = format!(
+            "{{\"version\":\"expanded-v1\",\"format\":\"voicegarden-lexicons-expanded/1\",\
+            \"languages\":[{{\"lang\":\"xx\",\"name\":\"Test\",\"bcp47\":\"xx\",\
+            \"entries\":1,\"entries_base\":0,\"entries_distilled\":1,\
+            \"distill_agreement\":1.0,\"audit_exact\":null,\"three_vote_filtered\":false,\
+            \"license\":\"MIT\",\"source\":\"test\",\"phonetisaurus\":null,\
+            \"file\":\"xx.tar.gz\",\"sha256\":\"{}\"}}]}}",
+            hash_hex(&bytes)
+        );
+        fs::write(serve.join("expanded/expanded.json"), manifest).unwrap();
+
+        let archive = LexiconArchive::new_expanded(serve.display().to_string(), &cache).unwrap();
+        assert_eq!(archive.manifest().languages.len(), 1);
+        let bundle = archive.fetch("xx").unwrap();
+        use floravox_g2p::TokenPhonemizer as _;
+        let mut g2p = bundle.phonemizer().unwrap();
+        assert_eq!(g2p.phonemize_token("guten").len(), 5);
+        // cached fetch: no second download, same result
+        let again = archive.fetch("xx").unwrap();
+        assert_eq!(again.entry.lang, "xx");
     }
 }
