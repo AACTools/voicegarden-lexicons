@@ -1,0 +1,9 @@
+{
+ "lang": "por-PT",
+ "wordfreq_top": 100000,
+ "clean": 98784,
+ "lexicon": 64757,
+ "oov": 44564,
+ "agreed": 43491,
+ "agreement_rate": 0.976
+}
