@@ -1,0 +1,42 @@
+{
+ "small": {
+  "fp16": {
+   "artifact_mb": 600.7,
+   "exact": 0.745,
+   "ms_per_word": 2528.5100853443146,
+   "peak_rss_mb": 5009.1
+  },
+  "fp32": {
+   "artifact_mb": 1201.0,
+   "exact": 0.745,
+   "ms_per_word": 1339.3937838077545,
+   "peak_rss_mb": 5009.1
+  },
+  "int8-dynamic": {
+   "artifact_mb": 300.7,
+   "exact": 0.755,
+   "ms_per_word": 834.2020976543427,
+   "peak_rss_mb": 5009.1
+  }
+ },
+ "tiny": {
+  "fp16": {
+   "artifact_mb": 36.5,
+   "exact": 0.745,
+   "ms_per_word": 273.3101952075958,
+   "peak_rss_mb": 5009.1
+  },
+  "fp32": {
+   "artifact_mb": 72.7,
+   "exact": 0.745,
+   "ms_per_word": 84.99669671058655,
+   "peak_rss_mb": 5009.1
+  },
+  "int8-dynamic": {
+   "artifact_mb": 18.5,
+   "exact": 0.75,
+   "ms_per_word": 77.2345781326294,
+   "peak_rss_mb": 5009.1
+  }
+ }
+}
