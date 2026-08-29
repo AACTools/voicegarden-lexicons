@@ -120,6 +120,8 @@ def distill_lang(wf_code: str, tag: str, n: int, staging: Path,
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--lang", help="wordfreq code (en, de, ...)")
+    ap.add_argument("--tag", help="override the corpus tag (e.g. --lang es --tag spa-LatAm "
+                    "reuses the es wordlist with the LatAm prompt)")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--n", type=int, default=100_000,
                     help="wordfreq top-N per language")
@@ -145,7 +147,7 @@ def main() -> int:
 
     staging = Path(args.staging)
     out_dir = Path(args.out)
-    langs = ([(args.lang, LANG_MAP.get(args.lang, args.lang))]
+    langs = ([(args.lang, getattr(args, "tag", None) or LANG_MAP.get(args.lang, args.lang))]
              if args.lang else sorted(LANG_MAP.items()))
     # guard: only wordfreq-supported codes
     from wordfreq import available_languages
