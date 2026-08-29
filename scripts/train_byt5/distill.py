@@ -30,15 +30,14 @@ LANG_MAP = {
     "it": "ita", "pt": "por-BR", "nl": "nld", "ru": "rus",
     "pl": "pol", "fi": "fin", "sv": "swe", "cs": "ces",
     "tr": "tur", "ar": "ara", "hi": "hin", "id": "ind",
-    "vi": "vie", "tr": "tur", "ro": "ron", "hu": "hun",
+    "vi": "vie", "ro": "ron", "hu": "hun",
     "el": "ell", "da": "dan", "nb": "nob", "uk": "ukr",
-    "bg": "bul", "fi": "fin", "ca": "cat", "gl": "glg",
-    "sw": "swh", "bn": "ben-Rarh", "ta": "tam", "te": "tel",
-    "mr": "mar", "gu": "guj", "kn": "kan", "ml": "mal",
-    "pa": "pan", "ur": "urd", "fa": "fas", "he": "heb",
-    "th": "tha", "lv": "lav", "lt": "lit", "et": "est",
-    "sl": "slv", "sk": "slk", "sq": "sqi", "mk": "mkd",
-    "is": "isl", "ga": "gle", "cy": "cym-North", "eo": "epo",
+    "bg": "bul", "ca": "cat",
+    "bn": "ben-Rarh", "ta": "tam",
+    "ur": "urd", "fa": "fas", "he": "heb",
+    "lv": "lav", "lt": "lit", "et": "est",
+    "sl": "slv", "sk": "slk", "mk": "mkd",
+    "is": "isl",
 }
 
 MAX_INPUT = 128
@@ -145,6 +144,13 @@ def main() -> int:
     out_dir = Path(args.out)
     langs = ([(args.lang, LANG_MAP.get(args.lang, args.lang))]
              if args.lang else sorted(LANG_MAP.items()))
+    # guard: only wordfreq-supported codes
+    from wordfreq import available_languages
+    wf_ok = available_languages()
+    skipped = [(c, t) for c, t in langs if c not in wf_ok]
+    if skipped:
+        print(f"skipping (no wordfreq data): {[c for c, _ in skipped]}")
+    langs = [(c, t) for c, t in langs if c in wf_ok]
 
     all_stats = []
     for wf_code, tag in langs:
