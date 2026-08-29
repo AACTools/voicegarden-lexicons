@@ -1,0 +1,892 @@
+{
+ "default_tier": {
+  "g2p": "willwade/byt5-g2p-multilingual-tiny",
+  "p2g": "willwade/byt5-p2g-multilingual-tiny",
+  "quality_tier": {
+   "g2p": "willwade/byt5-g2p-multilingual",
+   "p2g": "willwade/byt5-p2g-multilingual"
+  }
+ },
+ "languages": {
+  "aar": {
+   "aliases": [
+    "aar"
+   ],
+   "bcp47": "aa"
+  },
+  "acw": {
+   "aliases": [
+    "acw"
+   ],
+   "bcp47": "acw"
+  },
+  "afr": {
+   "aliases": [
+    "afr"
+   ],
+   "bcp47": "af"
+  },
+  "ajp": {
+   "aliases": [
+    "ajp"
+   ],
+   "bcp47": "ajp"
+  },
+  "ang": {
+   "aliases": [
+    "ang"
+   ],
+   "bcp47": "ang"
+  },
+  "ara": {
+   "aliases": [
+    "ara"
+   ],
+   "bcp47": "ar"
+  },
+  "arc": {
+   "aliases": [
+    "arc"
+   ],
+   "bcp47": "arc"
+  },
+  "arg": {
+   "aliases": [
+    "arg"
+   ],
+   "bcp47": "arg"
+  },
+  "ary": {
+   "aliases": [
+    "ary"
+   ],
+   "bcp47": "ary"
+  },
+  "asm": {
+   "aliases": [
+    "asm"
+   ],
+   "bcp47": "as"
+  },
+  "ast": {
+   "aliases": [
+    "ast"
+   ],
+   "bcp47": "ast"
+  },
+  "bar": {
+   "aliases": [
+    "bar"
+   ],
+   "bcp47": "bar"
+  },
+  "bcl": {
+   "aliases": [
+    "bcl"
+   ],
+   "bcp47": "bcl"
+  },
+  "ben": {
+   "aliases": [
+    "ben"
+   ],
+   "bcp47": "bn"
+  },
+  "ben-Dhaka": {
+   "aliases": [
+    "ben-dhaka"
+   ],
+   "bcp47": "bn-Dhaka",
+   "variety": "Dhaka Bengali"
+  },
+  "ben-Rarh": {
+   "aliases": [
+    "ben-rarh"
+   ],
+   "bcp47": "bn-Rarh",
+   "variety": "Rarh (Standard) Bengali"
+  },
+  "bod": {
+   "aliases": [
+    "bod"
+   ],
+   "bcp47": "bod"
+  },
+  "cdo": {
+   "aliases": [
+    "cdo"
+   ],
+   "bcp47": "cdo"
+  },
+  "ceb": {
+   "aliases": [
+    "ceb"
+   ],
+   "bcp47": "ceb"
+  },
+  "cjy": {
+   "aliases": [
+    "cjy"
+   ],
+   "bcp47": "cjy"
+  },
+  "cmn": {
+   "aliases": [
+    "cmn"
+   ],
+   "bcp47": "zh"
+  },
+  "cpx": {
+   "aliases": [
+    "cpx"
+   ],
+   "bcp47": "cpx"
+  },
+  "csb": {
+   "aliases": [
+    "csb"
+   ],
+   "bcp47": "csb"
+  },
+  "csp": {
+   "aliases": [
+    "csp"
+   ],
+   "bcp47": "csp"
+  },
+  "cym": {
+   "aliases": [
+    "cym"
+   ],
+   "bcp47": "cy"
+  },
+  "cym-North": {
+   "aliases": [
+    "cym-north"
+   ],
+   "bcp47": "cy-North",
+   "variety": "North Wales Welsh"
+  },
+  "cym-South": {
+   "aliases": [
+    "cym-south"
+   ],
+   "bcp47": "cy-South",
+   "variety": "South Wales Welsh"
+  },
+  "dan": {
+   "aliases": [
+    "dan"
+   ],
+   "bcp47": "da"
+  },
+  "deu": {
+   "aliases": [
+    "deu"
+   ],
+   "bcp47": "de"
+  },
+  "div": {
+   "aliases": [
+    "div"
+   ],
+   "bcp47": "div"
+  },
+  "dsb": {
+   "aliases": [
+    "dsb"
+   ],
+   "bcp47": "dsb"
+  },
+  "egy": {
+   "aliases": [
+    "egy"
+   ],
+   "bcp47": "egy"
+  },
+  "ell": {
+   "aliases": [
+    "ell"
+   ],
+   "bcp47": "el"
+  },
+  "eng": {
+   "aliases": [
+    "eng"
+   ],
+   "bcp47": "en"
+  },
+  "eng-UK": {
+   "aliases": [
+    "en_GB",
+    "english-uk",
+    "eng-uk",
+    "en-RP"
+   ],
+   "bcp47": "en-GB",
+   "variety": "Received Pronunciation"
+  },
+  "eng-US": {
+   "aliases": [
+    "en_US",
+    "english-us",
+    "eng-us"
+   ],
+   "bcp47": "en-US",
+   "variety": "General American"
+  },
+  "enm": {
+   "aliases": [
+    "enm"
+   ],
+   "bcp47": "enm"
+  },
+  "epo": {
+   "aliases": [
+    "epo"
+   ],
+   "bcp47": "eo"
+  },
+  "est": {
+   "aliases": [
+    "est"
+   ],
+   "bcp47": "et"
+  },
+  "eus": {
+   "aliases": [
+    "eus"
+   ],
+   "bcp47": "eu"
+  },
+  "fao": {
+   "aliases": [
+    "fao"
+   ],
+   "bcp47": "fo"
+  },
+  "fas": {
+   "aliases": [
+    "fas"
+   ],
+   "bcp47": "fa"
+  },
+  "fin": {
+   "aliases": [
+    "fin"
+   ],
+   "bcp47": "fi"
+  },
+  "fra": {
+   "aliases": [
+    "fra"
+   ],
+   "bcp47": "fr"
+  },
+  "fro": {
+   "aliases": [
+    "fro"
+   ],
+   "bcp47": "fro"
+  },
+  "fry": {
+   "aliases": [
+    "fry"
+   ],
+   "bcp47": "fry"
+  },
+  "gan": {
+   "aliases": [
+    "gan"
+   ],
+   "bcp47": "gan"
+  },
+  "gla": {
+   "aliases": [
+    "gla"
+   ],
+   "bcp47": "gla"
+  },
+  "gle": {
+   "aliases": [
+    "gle"
+   ],
+   "bcp47": "ga"
+  },
+  "glg": {
+   "aliases": [
+    "glg"
+   ],
+   "bcp47": "gl"
+  },
+  "gmh": {
+   "aliases": [
+    "gmh"
+   ],
+   "bcp47": "gmh"
+  },
+  "got": {
+   "aliases": [
+    "got"
+   ],
+   "bcp47": "got"
+  },
+  "grc": {
+   "aliases": [
+    "grc"
+   ],
+   "bcp47": "grc"
+  },
+  "guj": {
+   "aliases": [
+    "guj"
+   ],
+   "bcp47": "gu"
+  },
+  "hak": {
+   "aliases": [
+    "hak"
+   ],
+   "bcp47": "hak"
+  },
+  "hat": {
+   "aliases": [
+    "hat"
+   ],
+   "bcp47": "hat"
+  },
+  "hau": {
+   "aliases": [
+    "hau"
+   ],
+   "bcp47": "ha"
+  },
+  "haw": {
+   "aliases": [
+    "haw"
+   ],
+   "bcp47": "haw"
+  },
+  "hbs": {
+   "aliases": [
+    "hbs"
+   ],
+   "bcp47": "hbs"
+  },
+  "heb": {
+   "aliases": [
+    "heb"
+   ],
+   "bcp47": "he"
+  },
+  "hin": {
+   "aliases": [
+    "hin"
+   ],
+   "bcp47": "hi"
+  },
+  "hrx": {
+   "aliases": [
+    "hrx"
+   ],
+   "bcp47": "hrx"
+  },
+  "hsb": {
+   "aliases": [
+    "hsb"
+   ],
+   "bcp47": "hsb"
+  },
+  "hsn": {
+   "aliases": [
+    "hsn"
+   ],
+   "bcp47": "hsn"
+  },
+  "hye": {
+   "aliases": [
+    "hye"
+   ],
+   "bcp47": "hy"
+  },
+  "hye-East": {
+   "aliases": [
+    "hye-east"
+   ],
+   "bcp47": "hy-East",
+   "variety": "Eastern Armenian"
+  },
+  "hye-West": {
+   "aliases": [
+    "hye-west"
+   ],
+   "bcp47": "hy-West",
+   "variety": "Western Armenian"
+  },
+  "ido": {
+   "aliases": [
+    "ido"
+   ],
+   "bcp47": "ido"
+  },
+  "ilo": {
+   "aliases": [
+    "ilo"
+   ],
+   "bcp47": "ilo"
+  },
+  "ind": {
+   "aliases": [
+    "ind"
+   ],
+   "bcp47": "id"
+  },
+  "isl": {
+   "aliases": [
+    "isl"
+   ],
+   "bcp47": "is"
+  },
+  "ita": {
+   "aliases": [
+    "ita"
+   ],
+   "bcp47": "it"
+  },
+  "izh": {
+   "aliases": [
+    "izh"
+   ],
+   "bcp47": "izh"
+  },
+  "jav": {
+   "aliases": [
+    "jav"
+   ],
+   "bcp47": "jav"
+  },
+  "kal": {
+   "aliases": [
+    "kal"
+   ],
+   "bcp47": "kal"
+  },
+  "kan": {
+   "aliases": [
+    "kan"
+   ],
+   "bcp47": "kn"
+  },
+  "khm": {
+   "aliases": [
+    "khm"
+   ],
+   "bcp47": "km"
+  },
+  "kik": {
+   "aliases": [
+    "kik"
+   ],
+   "bcp47": "kik"
+  },
+  "kix": {
+   "aliases": [
+    "kix"
+   ],
+   "bcp47": "kix"
+  },
+  "kmr": {
+   "aliases": [
+    "kmr"
+   ],
+   "bcp47": "kmr"
+  },
+  "lim": {
+   "aliases": [
+    "lim"
+   ],
+   "bcp47": "lim"
+  },
+  "liv": {
+   "aliases": [
+    "liv"
+   ],
+   "bcp47": "liv"
+  },
+  "ltc": {
+   "aliases": [
+    "ltc"
+   ],
+   "bcp47": "ltc"
+  },
+  "ltz": {
+   "aliases": [
+    "ltz"
+   ],
+   "bcp47": "lb"
+  },
+  "luh": {
+   "aliases": [
+    "luh"
+   ],
+   "bcp47": "luh"
+  },
+  "mal": {
+   "aliases": [
+    "mal"
+   ],
+   "bcp47": "ml"
+  },
+  "mar": {
+   "aliases": [
+    "mar"
+   ],
+   "bcp47": "mr"
+  },
+  "mlt": {
+   "aliases": [
+    "mlt"
+   ],
+   "bcp47": "mt"
+  },
+  "mnp": {
+   "aliases": [
+    "mnp"
+   ],
+   "bcp47": "mnp"
+  },
+  "mnw": {
+   "aliases": [
+    "mnw"
+   ],
+   "bcp47": "mnw"
+  },
+  "mon": {
+   "aliases": [
+    "mon"
+   ],
+   "bcp47": "mn"
+  },
+  "mri": {
+   "aliases": [
+    "mri"
+   ],
+   "bcp47": "mri"
+  },
+  "msa": {
+   "aliases": [
+    "msa"
+   ],
+   "bcp47": "msa"
+  },
+  "mya": {
+   "aliases": [
+    "mya"
+   ],
+   "bcp47": "my"
+  },
+  "nan": {
+   "aliases": [
+    "nan"
+   ],
+   "bcp47": "nan"
+  },
+  "nld": {
+   "aliases": [
+    "nld"
+   ],
+   "bcp47": "nl"
+  },
+  "nno": {
+   "aliases": [
+    "nno"
+   ],
+   "bcp47": "nn"
+  },
+  "nob": {
+   "aliases": [
+    "nob"
+   ],
+   "bcp47": "nb"
+  },
+  "nor": {
+   "aliases": [
+    "nor"
+   ],
+   "bcp47": "no"
+  },
+  "nya": {
+   "aliases": [
+    "nya"
+   ],
+   "bcp47": "nya"
+  },
+  "och": {
+   "aliases": [
+    "och"
+   ],
+   "bcp47": "och"
+  },
+  "orv": {
+   "aliases": [
+    "orv"
+   ],
+   "bcp47": "orv"
+  },
+  "pan": {
+   "aliases": [
+    "pan"
+   ],
+   "bcp47": "pa"
+  },
+  "phl": {
+   "aliases": [
+    "phl"
+   ],
+   "bcp47": "phl"
+  },
+  "pol": {
+   "aliases": [
+    "pol"
+   ],
+   "bcp47": "pl"
+  },
+  "por": {
+   "aliases": [
+    "por"
+   ],
+   "bcp47": "pt"
+  },
+  "por-BR": {
+   "aliases": [
+    "pt_BR",
+    "por-br",
+    "brazilian"
+   ],
+   "bcp47": "pt-BR",
+   "variety": "Brazilian Portuguese"
+  },
+  "por-PT": {
+   "aliases": [
+    "pt_PT",
+    "por-pt",
+    "european"
+   ],
+   "bcp47": "pt-PT",
+   "variety": "European Portuguese"
+  },
+  "pus": {
+   "aliases": [
+    "pus"
+   ],
+   "bcp47": "pus"
+  },
+  "ron": {
+   "aliases": [
+    "ron"
+   ],
+   "bcp47": "ro"
+  },
+  "san": {
+   "aliases": [
+    "san"
+   ],
+   "bcp47": "san"
+  },
+  "scn": {
+   "aliases": [
+    "scn"
+   ],
+   "bcp47": "scn"
+  },
+  "sco": {
+   "aliases": [
+    "sco"
+   ],
+   "bcp47": "sco"
+  },
+  "sga": {
+   "aliases": [
+    "sga"
+   ],
+   "bcp47": "sga"
+  },
+  "shn": {
+   "aliases": [
+    "shn"
+   ],
+   "bcp47": "shn"
+  },
+  "slk": {
+   "aliases": [
+    "slk"
+   ],
+   "bcp47": "sk"
+  },
+  "slr": {
+   "aliases": [
+    "slr"
+   ],
+   "bcp47": "slr"
+  },
+  "slv": {
+   "aliases": [
+    "slv"
+   ],
+   "bcp47": "sl"
+  },
+  "sme": {
+   "aliases": [
+    "sme"
+   ],
+   "bcp47": "se"
+  },
+  "spa": {
+   "aliases": [
+    "spa"
+   ],
+   "bcp47": "es"
+  },
+  "spa-ES": {
+   "aliases": [
+    "es_ES",
+    "spa-es",
+    "castilian"
+   ],
+   "bcp47": "es-ES",
+   "variety": "Castilian Spanish"
+  },
+  "spa-LatAm": {
+   "aliases": [
+    "es_LatAm",
+    "spa-latam",
+    "es-MX",
+    "es-AR"
+   ],
+   "bcp47": "es-419",
+   "variety": "Latin American Spanish"
+  },
+  "sqi": {
+   "aliases": [
+    "sqi"
+   ],
+   "bcp47": "sq"
+  },
+  "swe": {
+   "aliases": [
+    "swe"
+   ],
+   "bcp47": "sv"
+  },
+  "szl": {
+   "aliases": [
+    "szl"
+   ],
+   "bcp47": "szl"
+  },
+  "tam": {
+   "aliases": [
+    "tam"
+   ],
+   "bcp47": "ta"
+  },
+  "tel": {
+   "aliases": [
+    "tel"
+   ],
+   "bcp47": "te"
+  },
+  "tgk": {
+   "aliases": [
+    "tgk"
+   ],
+   "bcp47": "tg"
+  },
+  "tgl": {
+   "aliases": [
+    "tgl"
+   ],
+   "bcp47": "tl"
+  },
+  "tha": {
+   "aliases": [
+    "tha"
+   ],
+   "bcp47": "th"
+  },
+  "tur": {
+   "aliases": [
+    "tur"
+   ],
+   "bcp47": "tr"
+  },
+  "uig": {
+   "aliases": [
+    "uig"
+   ],
+   "bcp47": "uig"
+  },
+  "urd": {
+   "aliases": [
+    "urd"
+   ],
+   "bcp47": "ur"
+  },
+  "vot": {
+   "aliases": [
+    "vot"
+   ],
+   "bcp47": "vot"
+  },
+  "wln": {
+   "aliases": [
+    "wln"
+   ],
+   "bcp47": "wln"
+  },
+  "wuu": {
+   "aliases": [
+    "wuu"
+   ],
+   "bcp47": "wuh"
+  },
+  "yid": {
+   "aliases": [
+    "yid"
+   ],
+   "bcp47": "yi"
+  },
+  "yol": {
+   "aliases": [
+    "yol"
+   ],
+   "bcp47": "yol"
+  },
+  "yor": {
+   "aliases": [
+    "yor"
+   ],
+   "bcp47": "yor"
+  },
+  "yue": {
+   "aliases": [
+    "yue"
+   ],
+   "bcp47": "yue"
+  },
+  "zha": {
+   "aliases": [
+    "zha"
+   ],
+   "bcp47": "zha"
+  },
+  "zul": {
+   "aliases": [
+    "zul"
+   ],
+   "bcp47": "zu"
+  }
+ },
+ "note": "BCP-47 -> internal corpus tag resolution for the byt5 g2p/p2g models",
+ "version": 1
+}
