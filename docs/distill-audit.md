@@ -111,6 +111,30 @@ conventions do not map onto ours without per-language mapping tables
 our source where it exists). Cross-engine exact-match is therefore
 not a meaningful quality number without that layer.
 
+## Shipped: expanded lexicon FSTs (`distill-fst/`)
+
+11 languages compiled (merged.tsv + distill entries; eng/ell/swe use
+the 3-vote-filtered sets). Frequent-word (top-50k) lexicon hit rate:
+
+| tag | before | after | delta |
+|---|---|---|---|
+| tur | 12.1% | 87.3% | +75.2 |
+| ell | 10.0% | 75.4% | +65.4 |
+| pol | 47.9% | 97.7% | +49.8 |
+| spa-LatAm | 54.5% | 96.6% | +42.1 |
+| ita | 48.5% | 88.3% | +39.8 |
+| deu | 67.3% | 94.0% | +26.7 |
+| fra | 68.3% | 95.3% | +27.0 |
+| por-PT | 80.4% | 99.5% | +19.1 |
+| spa-ES | 75.4% | 97.8% | +22.4 |
+| swe | 24.7% | 47.5% | +22.8 |
+| eng-US | 86.4% | 90.0% | +3.6 |
+
+Caveat: distill candidates were selected from wordfreq top-100k, so
+these gains are partly by construction — we closed the frequent-word
+gaps on purpose, at audited 92-100% entry accuracy. Independent-text
+validation (Leipzig/Wikipedia sample) is the follow-up.
+
 ## Reproduce
 
 ```
