@@ -2,7 +2,7 @@ use voicegarden_lexicons::LexiconArchive;
 use floravox_g2p::TokenPhonemizer as _;
 
 fn main() -> anyhow::Result<()> {
-    let base = "/home/willwade/GitHub/AACTools/voicegarden-lexicons/dist";
+    let base = "/home/willwade/GitHub/AACTools/voicegarden-lexicons/dist/expanded";
     let archive = LexiconArchive::new_expanded(base, "/tmp/opencode/e2e-cache")?;
     println!("manifest languages: {}", archive.manifest().languages.len());
     for lang in ["eng-US", "spa-LatAm", "deu", "tur"] {

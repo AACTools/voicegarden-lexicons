@@ -104,9 +104,11 @@ impl LexiconArchive {
         Self::new(DEFAULT_BASE, default_cache_dir())
     }
 
-    /// The expanded (distilled) archive at the default base: manifest
-    /// at `<base>/expanded/expanded.json`, bundles beside it. Falls
-    /// back cleanly on cache misses like the base archive.
+    /// The expanded (distilled) archive: manifest `expanded.json` and
+    /// `<tag>.tar.gz` bundles beside it, at the same level as the base
+    /// archive's files (GitHub release assets are flat; no name
+    /// collisions — `deu.tar.gz` vs `de.tar.gz`). A local directory
+    /// works too: point the base at the folder holding them.
     /// # Errors
     ///
     /// Network or manifest-parse failures.
@@ -119,7 +121,7 @@ impl LexiconArchive {
     ///
     /// Network/IO or manifest-parse failures.
     pub fn new_expanded(base: impl Into<String>, cache: impl Into<PathBuf>) -> anyhow::Result<Self> {
-        Self::new_in(base, cache, "expanded/expanded.json", "expanded")
+        Self::new_in(base, cache, "expanded.json", "")
     }
 
     /// Custom base — an `http(s)://` URL (mirror) or a local directory
@@ -458,7 +460,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let serve = tmp.path().join("serve");
         let cache = tmp.path().join("cache");
-        fs::create_dir_all(&serve.join("expanded")).unwrap();
+        fs::create_dir_all(&serve).unwrap();
 
         let work = tmp.path().join("work");
         fs::create_dir_all(&work).unwrap();
@@ -466,7 +468,7 @@ mod tests {
             .write(vec![("guten".into(), "ɡ ʊ t ə n".into())])
             .unwrap();
 
-        let tar_path = serve.join("expanded/xx.tar.gz");
+        let tar_path = serve.join("xx.tar.gz");
         {
             let file = fs::File::create(&tar_path).unwrap();
             let enc = flate2::write::GzEncoder::new(file, flate2::Compression::default());
@@ -487,7 +489,7 @@ mod tests {
             \"file\":\"xx.tar.gz\",\"sha256\":\"{}\"}}]}}",
             hash_hex(&bytes)
         );
-        fs::write(serve.join("expanded/expanded.json"), manifest).unwrap();
+        fs::write(serve.join("expanded.json"), manifest).unwrap();
 
         let archive = LexiconArchive::new_expanded(serve.display().to_string(), &cache).unwrap();
         assert_eq!(archive.manifest().languages.len(), 1);
