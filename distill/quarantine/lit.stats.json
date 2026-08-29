@@ -1,0 +1,9 @@
+{
+ "lang": "lit",
+ "wordfreq_top": 100000,
+ "clean": 63829,
+ "lexicon": 0,
+ "oov": 63829,
+ "agreed": 6515,
+ "agreement_rate": 0.102
+}

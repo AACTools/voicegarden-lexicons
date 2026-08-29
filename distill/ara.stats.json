@@ -1,0 +1,9 @@
+{
+ "lang": "ara",
+ "wordfreq_top": 100000,
+ "clean": 99628,
+ "lexicon": 14272,
+ "oov": 91003,
+ "agreed": 46532,
+ "agreement_rate": 0.511
+}

@@ -1,0 +1,9 @@
+{
+ "lang": "hin",
+ "wordfreq_top": 100000,
+ "clean": 3207,
+ "lexicon": 30379,
+ "oov": 2709,
+ "agreed": 450,
+ "agreement_rate": 0.166
+}

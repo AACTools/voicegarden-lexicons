@@ -1,0 +1,52 @@
+{
+ "lang": "pol",
+ "prompt_tag": "pol",
+ "n_test": 200,
+ "agreed": 198,
+ "agreement_rate": 0.99,
+ "precision_exact": 0.96,
+ "precision_folded": 0.96,
+ "per_on_agreed": 0.007,
+ "wrong_examples": [
+  {
+   "w": "abrenuncjowanie",
+   "want": "a b r ɛ n u n t͡s j ɔ v a ɲ e",
+   "got": "a b r ɛ n u n t͡s j ɔ v a ɲ ɛ"
+  },
+  {
+   "w": "abaliowanie",
+   "want": "a b a l j ɔ v a ɲ e",
+   "got": "a b a l j ɔ v a ɲ ɛ"
+  },
+  {
+   "w": "ablizm",
+   "want": "ɛ j b l i z m",
+   "got": "a b l i z m"
+  },
+  {
+   "w": "abślak",
+   "want": "a p ɕ l ɒ k",
+   "got": "a p ɕ l a k"
+  },
+  {
+   "w": "abstynencyja",
+   "want": "a p s t ɨ n ɛ n t͡s j ɒ",
+   "got": "a p s t ɘ n ɛ n t͡s ɘ j a"
+  },
+  {
+   "w": "aalenem",
+   "want": "a l ɛ n ɛ m",
+   "got": "a a l ɛ n ɛ m"
+  },
+  {
+   "w": "abiuratowy",
+   "want": "a b j u r a t ɔ v ɨ",
+   "got": "a b j u r a t ɔ v ɘ"
+  },
+  {
+   "w": "abdiaszów",
+   "want": "a b d j a ʂ o f",
+   "got": "a b d j a ʂ u f"
+  }
+ ]
+}

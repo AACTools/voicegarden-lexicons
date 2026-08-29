@@ -1,0 +1,9 @@
+{
+ "lang": "urd",
+ "wordfreq_top": 100000,
+ "clean": 22962,
+ "lexicon": 6296,
+ "oov": 18605,
+ "agreed": 11621,
+ "agreement_rate": 0.625
+}

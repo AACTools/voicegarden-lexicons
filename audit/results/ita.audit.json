@@ -1,0 +1,52 @@
+{
+ "lang": "ita",
+ "prompt_tag": "ita",
+ "n_test": 200,
+ "agreed": 191,
+ "agreement_rate": 0.955,
+ "precision_exact": 0.958,
+ "precision_folded": 0.969,
+ "per_on_agreed": 0.006,
+ "wrong_examples": [
+  {
+   "w": "aborti",
+   "want": "a b ɔ r t i",
+   "got": "a b o r t i"
+  },
+  {
+   "w": "abrasività",
+   "want": "a b r a z i v i t a",
+   "got": "a b r a s i v i t a"
+  },
+  {
+   "w": "abadia",
+   "want": "a b a d i a",
+   "got": "a b a d j a"
+  },
+  {
+   "w": "abborrono",
+   "want": "a b b ɔ r r o n o",
+   "got": "a b b o r r o n o"
+  },
+  {
+   "w": "abasia",
+   "want": "a b a z i a",
+   "got": "a b a z j a"
+  },
+  {
+   "w": "abeto",
+   "want": "a b e t o",
+   "got": "a b ɛ t o"
+  },
+  {
+   "w": "abulia",
+   "want": "a b u l i a",
+   "got": "a b u l j a"
+  },
+  {
+   "w": "abbadia",
+   "want": "a b b a d i a",
+   "got": "a b b a d j a"
+  }
+ ]
+}

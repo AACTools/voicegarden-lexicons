@@ -1,0 +1,9 @@
+{
+ "lang": "fra",
+ "wordfreq_top": 100000,
+ "clean": 98575,
+ "lexicon": 90114,
+ "oov": 51766,
+ "agreed": 43943,
+ "agreement_rate": 0.849
+}

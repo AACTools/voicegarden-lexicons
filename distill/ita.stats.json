@@ -1,0 +1,9 @@
+{
+ "lang": "ita",
+ "wordfreq_top": 100000,
+ "clean": 95635,
+ "lexicon": 91133,
+ "oov": 57963,
+ "agreed": 47365,
+ "agreement_rate": 0.817
+}

@@ -1,0 +1,86 @@
+# Distillation quality audit
+
+*Measured 2026-08-29 against held-out test words (`corpus/g2p.test.tsv`,
+never seen in training). Method: replicate the exact distill path —
+both published models (small int8 + tiny int8, ONNX), same prompt
+conventions, same agreement filter — on ground-truth words, then score
+agreed predictions. `exact` = string match; `folded` additionally
+folds convention differences (ɑ↔a, ɔ↔o, ɡ↔g, length/aspiration
+diacritics, diphthong tokenization); `PER` = phoneme error rate on
+agreed predictions.*
+
+## Results (200 sampled test words per language)
+
+| lang | prompt | agree% | exact% | fold% | PER |
+|---|---|---|---|---|---|
+| spa | spa-ES | 100.0 | 100.0 | 100.0 | 0.000 |
+| pol | pol | 99.0 | 96.0 | 96.0 | 0.007 |
+| ita | ita | 95.5 | 95.8 | 96.9 | 0.006 |
+| ell | ell | 94.2 | 86.0 | 86.0 | 0.030 |
+| fra | fra | 91.0 | 92.3 | 92.9 | 0.015 |
+| deu | deu | 79.5 | 97.5 | 97.5 | 0.006 |
+| tur | tur | 79.8 | 51.6 | **93.4** | 0.149 |
+| swe | swe | 71.7 | 81.0 | 81.8 | 0.059 |
+| eng | eng-US | 48.5 | **61.9** | 61.9 | 0.112 |
+| heb | heb | 65.2 | 26.7 | 26.7 | 0.182 |
+| nob | nob | 42.3 | 0.0 | 0.0 | 0.153 |
+
+Reading: for well-anchored languages the agreement filter ships
+92-100% correct entries. `tur`'s raw number is a symbol-convention
+artifact (truth uses ɑ/ɔ/aː/pʰ, models use plain a/o) — folded, tur is
+93.4%. Real weak spots: **eng-US (61.9%)**, **heb (26.7%, n=23)**,
+**nob (0%, n=26)**.
+
+## Findings
+
+1. **Variety tags matter.** Bare `eng`/`spa`/`por` prompts degrade the
+   models (mixed-variety union data); the variety tags (`eng-US`,
+   `spa-ES`) are clean and score dramatically better (spa: 100% vs
+   53% bare). The distiller already used variety tags via `LANG_MAP`.
+2. **Ten languages were distilled with untrained tags.** `bul cat ces
+   hun lit lav mkd rus ukr vie` are not in `langs.json` (the trained
+   set): ~145k entries of unvalidated output. **Quarantined** to
+   `distill/quarantine/`; `distill.py` `LANG_MAP` trimmed to 27
+   validated tags. Valid shipped total: **846,126 entries**.
+3. **English is the weakest major language** — errors are stress
+   placement and unstressed-vowel reduction (`absconding` æ→ə,
+   `acorn` eɪ→ə). Of 18,587 shipped eng-US entries, roughly 7k carry
+   a wrong phone or stress mark by this estimate.
+4. **eng/spa/por bare-tag audits in the table's history failed as
+   OOD artifacts** — not model quality. Always audit with the
+   variety tag the distiller used.
+5. Small-corpus languages (heb 2.9k rows, nob 2.7k) are genuinely
+   mediocre — real vowel errors (heb collapses initial vowels to a).
+
+## Estimated shipped-entry correctness (agreed x precision)
+
+| lang | shipped | est. correct |
+|---|---|---|
+| spa-ES | 31,964 | ~100% |
+| pol | 57,954 | ~96% |
+| ita | 47,365 | ~96% |
+| deu | 37,062 | ~97% |
+| fra | 43,943 | ~93% |
+| tur | 46,503 | ~93% (folded) |
+| ell | 37,750 | ~86% |
+| swe | 51,150 | ~82% |
+| eng-US | 18,587 | ~62% |
+
+## Recommendations
+
+- Compile FST expansions now for the ≥90% band: spa-ES, deu, pol,
+  ita, fra, tur (folded-convention aware).
+- eng-US: do not compile blind. Either accept with a provenance flag,
+  or add the WFST as a third voter (ship only 3-way agreement) —
+  untested, follow-up.
+- nob/heb: keep out of FST compilation until their corpora grow;
+  entries remain available with provenance.
+- All distill output stays in separate TSVs (`distill/*.tsv`), never
+  merged into `staging/*/merged.tsv`, so provenance is structural.
+
+## Reproduce
+
+```
+python3 scripts/train_byt5/distill_audit.py --lang deu --n 200
+python3 scripts/train_byt5/distill_audit.py --lang eng --prompt-tag eng-US --n 200
+```

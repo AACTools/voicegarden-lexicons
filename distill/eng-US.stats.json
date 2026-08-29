@@ -1,0 +1,9 @@
+{
+ "lang": "eng-US",
+ "wordfreq_top": 100000,
+ "clean": 94032,
+ "lexicon": 124384,
+ "oov": 30858,
+ "agreed": 18587,
+ "agreement_rate": 0.602
+}

@@ -1,0 +1,9 @@
+{
+ "lang": "fas",
+ "wordfreq_top": 100000,
+ "clean": 28702,
+ "lexicon": 47143,
+ "oov": 25286,
+ "agreed": 14619,
+ "agreement_rate": 0.578
+}

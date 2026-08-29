@@ -1,0 +1,9 @@
+{
+ "lang": "lav",
+ "wordfreq_top": 100000,
+ "clean": 45347,
+ "lexicon": 0,
+ "oov": 45347,
+ "agreed": 5716,
+ "agreement_rate": 0.126
+}

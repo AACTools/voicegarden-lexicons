@@ -1,0 +1,52 @@
+{
+ "lang": "fra",
+ "prompt_tag": "fra",
+ "n_test": 200,
+ "agreed": 182,
+ "agreement_rate": 0.91,
+ "precision_exact": 0.923,
+ "precision_folded": 0.929,
+ "per_on_agreed": 0.015,
+ "wrong_examples": [
+  {
+   "w": "achetés",
+   "want": "a ʃ ə t e",
+   "got": "a ʃ t e"
+  },
+  {
+   "w": "accession",
+   "want": "a k s ɛ s j ɔ̃",
+   "got": "a k s e s j ɔ̃"
+  },
+  {
+   "w": "abu",
+   "want": "a b u",
+   "got": "a b y"
+  },
+  {
+   "w": "abstenu",
+   "want": "a b s t ə n y",
+   "got": "a p s t ə n y"
+  },
+  {
+   "w": "absorba",
+   "want": "a p s ɔ ʁ b a",
+   "got": "a b s ɔ ʁ b a"
+  },
+  {
+   "w": "abasourdi",
+   "want": "a b a s u ʁ d i",
+   "got": "a b a z u ʁ d i"
+  },
+  {
+   "w": "abrégera",
+   "want": "a b ʁ ɛ ʒ ə ʁ a",
+   "got": "a b ʁ e ʒ ə ʁ a"
+  },
+  {
+   "w": "acrosport",
+   "want": "a k ʁ o s p ɔ ʁ",
+   "got": "a k ʁ ɔ s p ɔ ʁ"
+  }
+ ]
+}

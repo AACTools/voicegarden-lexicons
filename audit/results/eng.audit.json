@@ -1,0 +1,52 @@
+{
+ "lang": "eng",
+ "prompt_tag": "eng-US",
+ "n_test": 200,
+ "agreed": 97,
+ "agreement_rate": 0.485,
+ "precision_exact": 0.619,
+ "precision_folded": 0.619,
+ "per_on_agreed": 0.112,
+ "wrong_examples": [
+  {
+   "w": "absconding",
+   "want": "æ b s k ˈɑ n d ɪ ŋ",
+   "got": "ə b s k ˈɑ n d ɪ ŋ"
+  },
+  {
+   "w": "adewale",
+   "want": "ˌæ d eɪ w ˈɑ l eɪ",
+   "got": "ˈeɪ d w ˌeɪ l"
+  },
+  {
+   "w": "acorn",
+   "want": "ˈeɪ k ɔ ɹ n",
+   "got": "ə k ˈɔ ɹ n"
+  },
+  {
+   "w": "absconded",
+   "want": "æ b s k ˈɑ n d ɪ d",
+   "got": "ə b s k ˈɑ n d ɪ d"
+  },
+  {
+   "w": "adheres",
+   "want": "ə d h ˈɪ ɹ z",
+   "got": "ˈæ d h ɚ z"
+  },
+  {
+   "w": "adarand",
+   "want": "ˈæ d ə ɹ ˌæ n d",
+   "got": "ˈæ d ɚ ə n d"
+  },
+  {
+   "w": "adjourned",
+   "want": "ə d͡ʒ ˈɚ n d",
+   "got": "ˈæ d͡ʒ ɚ n d"
+  },
+  {
+   "w": "adjust",
+   "want": "ə d͡ʒ ˈʌ s t",
+   "got": "ˈæ d͡ʒ ə s t"
+  }
+ ]
+}

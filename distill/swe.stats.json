@@ -1,0 +1,9 @@
+{
+ "lang": "swe",
+ "wordfreq_top": 100000,
+ "clean": 98862,
+ "lexicon": 20489,
+ "oov": 82916,
+ "agreed": 51150,
+ "agreement_rate": 0.617
+}

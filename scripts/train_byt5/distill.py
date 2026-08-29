@@ -25,18 +25,21 @@ from pathlib import Path
 
 # wordfreq code -> corpus tag (subset with real wordfreq coverage and
 # our lexicons; tags not listed use the wordfreq code directly)
+# wordfreq code -> corpus tag. ONLY tags present in langs.json (the
+# trained set) are listed — distilling with an untrained tag produces
+# unvalidated output (see distill/quarantine/). bul/cat/ces/hun/lit/
+# lav/mkd/rus/ukr/vie are NOT trained; removed until they are.
 LANG_MAP = {
     "en": "eng-US", "de": "deu", "es": "spa-ES", "fr": "fra",
-    "it": "ita", "pt": "por-BR", "nl": "nld", "ru": "rus",
-    "pl": "pol", "fi": "fin", "sv": "swe", "cs": "ces",
+    "it": "ita", "pt": "por-BR", "nl": "nld",
+    "pl": "pol", "fi": "fin", "sv": "swe",
     "tr": "tur", "ar": "ara", "hi": "hin", "id": "ind",
-    "vi": "vie", "ro": "ron", "hu": "hun",
-    "el": "ell", "da": "dan", "nb": "nob", "uk": "ukr",
-    "bg": "bul", "ca": "cat",
+    "ro": "ron",
+    "el": "ell", "da": "dan", "nb": "nob",
+    "et": "est",
     "bn": "ben-Rarh", "ta": "tam",
     "ur": "urd", "fa": "fas", "he": "heb",
-    "lv": "lav", "lt": "lit", "et": "est",
-    "sl": "slv", "sk": "slk", "mk": "mkd",
+    "sl": "slv", "sk": "slk",
     "is": "isl",
 }
 

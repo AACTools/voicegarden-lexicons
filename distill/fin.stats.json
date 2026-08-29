@@ -1,0 +1,9 @@
+{
+ "lang": "fin",
+ "wordfreq_top": 100000,
+ "clean": 99184,
+ "lexicon": 167178,
+ "oov": 77665,
+ "agreed": 65573,
+ "agreement_rate": 0.844
+}

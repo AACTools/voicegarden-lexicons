@@ -1,0 +1,9 @@
+{
+ "lang": "nld",
+ "wordfreq_top": 100000,
+ "clean": 98231,
+ "lexicon": 70493,
+ "oov": 70118,
+ "agreed": 57857,
+ "agreement_rate": 0.825
+}

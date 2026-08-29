@@ -1,0 +1,9 @@
+{
+ "lang": "hun",
+ "wordfreq_top": 100000,
+ "clean": 46380,
+ "lexicon": 0,
+ "oov": 46380,
+ "agreed": 2540,
+ "agreement_rate": 0.055
+}

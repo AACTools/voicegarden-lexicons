@@ -1,0 +1,9 @@
+{
+ "lang": "slv",
+ "wordfreq_top": 100000,
+ "clean": 53761,
+ "lexicon": 5088,
+ "oov": 50722,
+ "agreed": 29381,
+ "agreement_rate": 0.579
+}

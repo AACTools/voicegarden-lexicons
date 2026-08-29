@@ -1,0 +1,9 @@
+{
+ "lang": "slk",
+ "wordfreq_top": 100000,
+ "clean": 59227,
+ "lexicon": 15602,
+ "oov": 53257,
+ "agreed": 48546,
+ "agreement_rate": 0.912
+}

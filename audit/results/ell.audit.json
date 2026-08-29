@@ -1,0 +1,52 @@
+{
+ "lang": "ell",
+ "prompt_tag": "ell",
+ "n_test": 189,
+ "agreed": 178,
+ "agreement_rate": 0.942,
+ "precision_exact": 0.86,
+ "precision_folded": 0.86,
+ "per_on_agreed": 0.03,
+ "wrong_examples": [
+  {
+   "w": "άγια",
+   "want": "a ʝ i a",
+   "got": "a ʝ a"
+  },
+  {
+   "w": "άρης",
+   "want": "a r i s",
+   "got": "a ɾ i s"
+  },
+  {
+   "w": "άγουρος",
+   "want": "a ɣ u r o s",
+   "got": "a ɣ u ɾ o s"
+  },
+  {
+   "w": "άγιου",
+   "want": "a ʝ i u",
+   "got": "a ʝ u"
+  },
+  {
+   "w": "άντες",
+   "want": "a d e s",
+   "got": "a n d e s"
+  },
+  {
+   "w": "άμπακος",
+   "want": "a b a k o s",
+   "got": "a m b a k o s"
+  },
+  {
+   "w": "άμπακων",
+   "want": "a b a k o n",
+   "got": "a m b a k o n"
+  },
+  {
+   "w": "άι",
+   "want": "a j",
+   "got": "a i"
+  }
+ ]
+}

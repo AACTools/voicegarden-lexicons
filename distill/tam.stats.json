@@ -1,0 +1,9 @@
+{
+ "lang": "tam",
+ "wordfreq_top": 100000,
+ "clean": 3701,
+ "lexicon": 10095,
+ "oov": 3665,
+ "agreed": 1165,
+ "agreement_rate": 0.318
+}

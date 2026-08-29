@@ -1,0 +1,52 @@
+{
+ "lang": "tur",
+ "prompt_tag": "tur",
+ "n_test": 114,
+ "agreed": 91,
+ "agreement_rate": 0.798,
+ "precision_exact": 0.516,
+ "precision_folded": 0.934,
+ "per_on_agreed": 0.149,
+ "wrong_examples": [
+  {
+   "w": "adap",
+   "want": "aː d a p",
+   "got": "a d a p"
+  },
+  {
+   "w": "acıpayam",
+   "want": "a d͡ʒ ɯ pʰ a̟ j a̟ m",
+   "got": "a d͡ʒ ɯ p a j a m"
+  },
+  {
+   "w": "abdüksiyon",
+   "want": "ɑ b d y c s i j o n",
+   "got": "a b d y c s i j ɔ n"
+  },
+  {
+   "w": "abalı",
+   "want": "ɑ b ɑ ɫ ɯ",
+   "got": "a b a ɫ ɯ"
+  },
+  {
+   "w": "adet",
+   "want": "ɑ d e t",
+   "got": "aː d e t"
+  },
+  {
+   "w": "abat",
+   "want": "aː b a t",
+   "got": "a b a t"
+  },
+  {
+   "w": "adapte",
+   "want": "ɑ d ɑ p t e",
+   "got": "a d a p t e"
+  },
+  {
+   "w": "adamım",
+   "want": "ɑ d ɑ m ɯ m",
+   "got": "a d a m ɯ m"
+  }
+ ]
+}

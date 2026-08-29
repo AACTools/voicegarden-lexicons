@@ -1,0 +1,11 @@
+{
+ "lang": "spa",
+ "prompt_tag": "spa-ES",
+ "n_test": 200,
+ "agreed": 200,
+ "agreement_rate": 1.0,
+ "precision_exact": 1.0,
+ "precision_folded": 1.0,
+ "per_on_agreed": 0.0,
+ "wrong_examples": []
+}

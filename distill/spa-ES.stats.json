@@ -1,0 +1,9 @@
+{
+ "lang": "spa-ES",
+ "wordfreq_top": 100000,
+ "clean": 98944,
+ "lexicon": 595857,
+ "oov": 34898,
+ "agreed": 31964,
+ "agreement_rate": 0.916
+}

@@ -1,0 +1,52 @@
+{
+ "lang": "swe",
+ "prompt_tag": "swe",
+ "n_test": 191,
+ "agreed": 137,
+ "agreement_rate": 0.717,
+ "precision_exact": 0.81,
+ "precision_folded": 0.818,
+ "per_on_agreed": 0.059,
+ "wrong_examples": [
+  {
+   "w": "adjunkt",
+   "want": "a d j 'ɵ ŋ k t",
+   "got": "²'ɑː j ɵ ŋ k t"
+  },
+  {
+   "w": "alkoholist",
+   "want": "a l k ʊ h ɔ l 'ɪ s t",
+   "got": "a l k ʊ h ʊ l 'ɪ s t"
+  },
+  {
+   "w": "akvarium",
+   "want": "²a k v 'ɑː r ɪ ɵ m",
+   "got": "a k v 'ɑː r ɪ ɵ m"
+  },
+  {
+   "w": "alibi",
+   "want": "'ɑː l ɪ b ɪ",
+   "got": "a l ɪ b 'iː"
+  },
+  {
+   "w": "aderton",
+   "want": "²'ɑː d ɛ t ɔ n",
+   "got": "a d ɛ t 'uː n"
+  },
+  {
+   "w": "ab",
+   "want": "²'ɑː b eː",
+   "got": "ɑː b"
+  },
+  {
+   "w": "alkohol",
+   "want": "²'a l k ʊ h oː l",
+   "got": "²'a l k ʊ h uː l"
+  },
+  {
+   "w": "alkoholism",
+   "want": "a l k ʊ h ɔ l 'ɪ s m",
+   "got": "a l k ʊ h ʊ l 'ɪ s m"
+  }
+ ]
+}

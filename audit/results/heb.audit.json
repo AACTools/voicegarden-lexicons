@@ -1,0 +1,52 @@
+{
+ "lang": "heb",
+ "prompt_tag": "heb",
+ "n_test": 23,
+ "agreed": 15,
+ "agreement_rate": 0.652,
+ "precision_exact": 0.267,
+ "precision_folded": 0.267,
+ "per_on_agreed": 0.182,
+ "wrong_examples": [
+  {
+   "w": "אבוס",
+   "want": "e v u s",
+   "got": "a v u s"
+  },
+  {
+   "w": "אבובן",
+   "want": "a b u v a n",
+   "got": "a v u v a n"
+  },
+  {
+   "w": "אבחה",
+   "want": "i v χ a",
+   "got": "a v χ a"
+  },
+  {
+   "w": "אבהות",
+   "want": "a b a h u t",
+   "got": "a v h u t"
+  },
+  {
+   "w": "אבא",
+   "want": "a b a",
+   "got": "a v a"
+  },
+  {
+   "w": "אבוב",
+   "want": "a b u v",
+   "got": "a v u v"
+  },
+  {
+   "w": "אבהי",
+   "want": "a v a h i",
+   "got": "a v h i"
+  },
+  {
+   "w": "אבות",
+   "want": "a v o t",
+   "got": "a v u t"
+  }
+ ]
+}

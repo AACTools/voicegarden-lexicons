@@ -1,0 +1,9 @@
+{
+ "lang": "ron",
+ "wordfreq_top": 100000,
+ "clean": 43115,
+ "lexicon": 8936,
+ "oov": 39040,
+ "agreed": 35079,
+ "agreement_rate": 0.899
+}

@@ -1,0 +1,9 @@
+{
+ "lang": "rus",
+ "wordfreq_top": 100000,
+ "clean": 99543,
+ "lexicon": 0,
+ "oov": 99543,
+ "agreed": 19666,
+ "agreement_rate": 0.198
+}

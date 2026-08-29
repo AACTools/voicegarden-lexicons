@@ -1,0 +1,9 @@
+{
+ "lang": "tur",
+ "wordfreq_top": 100000,
+ "clean": 61076,
+ "lexicon": 11436,
+ "oov": 54550,
+ "agreed": 46503,
+ "agreement_rate": 0.852
+}

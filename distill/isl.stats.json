@@ -1,0 +1,9 @@
+{
+ "lang": "isl",
+ "wordfreq_top": 100000,
+ "clean": 42032,
+ "lexicon": 10002,
+ "oov": 37168,
+ "agreed": 27767,
+ "agreement_rate": 0.747
+}

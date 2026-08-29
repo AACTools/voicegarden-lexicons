@@ -1,0 +1,9 @@
+{
+ "lang": "mkd",
+ "wordfreq_top": 100000,
+ "clean": 99329,
+ "lexicon": 0,
+ "oov": 99329,
+ "agreed": 2175,
+ "agreement_rate": 0.022
+}

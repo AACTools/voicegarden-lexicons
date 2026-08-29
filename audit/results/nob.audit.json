@@ -1,0 +1,52 @@
+{
+ "lang": "nob",
+ "prompt_tag": "nob",
+ "n_test": 26,
+ "agreed": 11,
+ "agreement_rate": 0.423,
+ "precision_exact": 0.0,
+ "precision_folded": 0.0,
+ "per_on_agreed": 0.153,
+ "wrong_examples": [
+  {
+   "w": "abandoner",
+   "want": "a b a n d ɔ n eː r",
+   "got": "a b a n d uː n ə r"
+  },
+  {
+   "w": "abandon",
+   "want": "a b a n d ɔ ŋ",
+   "got": "a b a n d uː n"
+  },
+  {
+   "w": "abandoneringene",
+   "want": "a b a n d ɔ n eː r ɪ ŋ n̩ ə n ə",
+   "got": "a b a n d ʊ n eː r ɪ ŋ ə n ə"
+  },
+  {
+   "w": "abandonen",
+   "want": "a b a n d ɔ ŋ n̩",
+   "got": "a b a n d uː n n̩"
+  },
+  {
+   "w": "abandonerte",
+   "want": "a b a n d ɔ n eː ʁ t ə",
+   "got": "a b a n d ʊ n eː ʁ t ə"
+  },
+  {
+   "w": "abandonene",
+   "want": "a b a n d ɔ ŋ ə n ə",
+   "got": "a b a n d uː n ə n ə"
+  },
+  {
+   "w": "abandoneringen",
+   "want": "a b a n d ɔ n eː r ɪ ŋ n̩",
+   "got": "a b a n d ʊ n eː r ɪ ŋ n̩"
+  },
+  {
+   "w": "abandonering",
+   "want": "a b a n d ɔ n eː r ɪ ŋ",
+   "got": "a b a n d ʊ n eː r ɪ ŋ"
+  }
+ ]
+}

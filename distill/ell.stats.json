@@ -1,0 +1,9 @@
+{
+ "lang": "ell",
+ "wordfreq_top": 100000,
+ "clean": 46306,
+ "lexicon": 19008,
+ "oov": 41658,
+ "agreed": 37750,
+ "agreement_rate": 0.906
+}

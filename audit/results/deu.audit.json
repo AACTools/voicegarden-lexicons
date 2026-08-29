@@ -1,0 +1,32 @@
+{
+ "lang": "deu",
+ "prompt_tag": "deu",
+ "n_test": 200,
+ "agreed": 159,
+ "agreement_rate": 0.795,
+ "precision_exact": 0.975,
+ "precision_folded": 0.975,
+ "per_on_agreed": 0.006,
+ "wrong_examples": [
+  {
+   "w": "abgehen",
+   "want": "ʔ a p g eː ə n",
+   "got": "ʔ a p g ə h ə n"
+  },
+  {
+   "w": "abgefahren",
+   "want": "ʔ a p g ə f aː ɐ n",
+   "got": "ʔ a p g ə f a ʁ ə n"
+  },
+  {
+   "w": "aachen",
+   "want": "aː χ ə n",
+   "got": "aː x ə n"
+  },
+  {
+   "w": "abfindung",
+   "want": "a p͡f ɪ n d ʊ ŋ",
+   "got": "ʔ a p͡f ɪ n d ʊ ŋ"
+  }
+ ]
+}

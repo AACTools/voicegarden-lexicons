@@ -1,0 +1,52 @@
+{
+ "lang": "por",
+ "prompt_tag": "por",
+ "n_test": 200,
+ "agreed": 9,
+ "agreement_rate": 0.045,
+ "precision_exact": 0.0,
+ "precision_folded": 0.0,
+ "per_on_agreed": 0.484,
+ "wrong_examples": [
+  {
+   "w": "abifa",
+   "want": "ɐ b i f ɐ",
+   "got": "a b i f a"
+  },
+  {
+   "w": "abbas",
+   "want": "ɐ b b ɐ s",
+   "got": "a b b a s"
+  },
+  {
+   "w": "abalada",
+   "want": "ɐ b ɐ l ɐ d ɐ",
+   "got": "a b a l a d a"
+  },
+  {
+   "w": "abe",
+   "want": "ɐ b i",
+   "got": "a b e"
+  },
+  {
+   "w": "aasp",
+   "want": "ɐ ɐ s p",
+   "got": "a a s p"
+  },
+  {
+   "w": "abas",
+   "want": "ɐ b ɐ s",
+   "got": "a b a s"
+  },
+  {
+   "w": "abiq",
+   "want": "ɐ b i k",
+   "got": "a b i k"
+  },
+  {
+   "w": "abastada",
+   "want": "ɐ b ɐ s t ɐ d ɐ",
+   "got": "a b a s t a d a"
+  }
+ ]
+}

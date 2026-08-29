@@ -1,0 +1,9 @@
+{
+ "lang": "cat",
+ "wordfreq_top": 100000,
+ "clean": 97718,
+ "lexicon": 0,
+ "oov": 97718,
+ "agreed": 42651,
+ "agreement_rate": 0.436
+}

@@ -1,0 +1,9 @@
+{
+ "lang": "dan",
+ "wordfreq_top": 100000,
+ "clean": 29179,
+ "lexicon": 4313,
+ "oov": 26483,
+ "agreed": 13759,
+ "agreement_rate": 0.52
+}
