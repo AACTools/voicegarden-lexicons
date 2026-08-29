@@ -78,6 +78,39 @@ artifact (truth uses ɑ/ɔ/aː/pʰ, models use plain a/o) — folded, tur is
 - All distill output stays in separate TSVs (`distill/*.tsv`), never
   merged into `staging/*/merged.tsv`, so provenance is structural.
 
+## The eng salvage: three-voter filter
+
+Adding the WFST tier (gruut-trained, MIT) as a third voter transforms
+the eng numbers (`audit/eng.3vote.json`, same 200-word sample):
+
+| filter | precision | coverage of 2-vote |
+|---|---|---|
+| small+tiny agree (shipped filter) | 61.9% | 100% |
+| small+tiny+WFST agree | **98.3%** | 59.8% |
+
+Caveat, stated plainly: the WFST scores 98% on this split because the
+test words sit inside its training distribution; on true OOV it runs
+~63% (leaderboard). So the precision of 3-vote-filtered *distill*
+entries lies between 62% and 98% — strictly better than shipping the
+2-vote set. Recommended: re-filter the 18,587 eng-US entries through
+the WFST and keep the ~11k that survive.
+
+## espeak-ng head-to-head (the owed measurement)
+
+`espeak_audit.py`, same splits, folded comparison:
+
+| lang | voice | exact (folded) | notes |
+|---|---|---|---|
+| eng | en-us | 15.5% (43% with ɐ-wildcard) | residual misses = secondary-stress + r-coloring conventions |
+| deu | de | 0% | symbol inventory incommensurable |
+| spa | es | 0% | same |
+
+espeak's transcriptions are phonetically reasonable but its
+conventions do not map onto ours without per-language mapping tables
+(building those is gruut's raison d'etre — and gruut is MIT, already
+our source where it exists). Cross-engine exact-match is therefore
+not a meaningful quality number without that layer.
+
 ## Reproduce
 
 ```

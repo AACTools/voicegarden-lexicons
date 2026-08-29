@@ -1,0 +1,20 @@
+{
+ "n": 200,
+ "two_agree": 97,
+ "two_exact": 60,
+ "two_fold": 60,
+ "three_agree": 58,
+ "three_exact": 57,
+ "three_fold": 57,
+ "wfst_exact": 196,
+ "wfst_fold": 196,
+ "lang": "eng",
+ "prompt_tag": "eng-US",
+ "two_vote_precision": 0.619,
+ "two_vote_folded": 0.619,
+ "three_vote_precision": 0.983,
+ "three_vote_folded": 0.983,
+ "three_vote_coverage_of_two": 0.598,
+ "wfst_only_precision": 0.98,
+ "wfst_only_folded": 0.98
+}

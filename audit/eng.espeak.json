@@ -1,0 +1,8 @@
+{
+ "lang": "eng",
+ "voice": "en-us",
+ "n": 200,
+ "exact_raw": 0.125,
+ "exact_folded": 0.155,
+ "exact_folded_wildcard": 0.43
+}
