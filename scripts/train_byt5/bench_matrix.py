@@ -116,14 +116,39 @@ def bench(enc, dec, rows, variety_default) -> dict:
 # ---------- variant builders -------------------------------------------
 
 
+def _constants_to_initializers(path_in, path_out):
+    """torch.onnx.export folds weights into Constant nodes, which ORT
+    quantization skips (it only processes initializers). Convert them."""
+    import onnx
+    from onnx import numpy_helper
+
+    m = onnx.load(str(path_in))
+    g = m.graph
+    const_vals = {}
+    for n in list(g.node):
+        if n.op_type == "Constant":
+            for attr in n.attribute:
+                if attr.name == "value":
+                    const_vals[n.output[0]] = numpy_helper.to_array(attr.t)
+            g.node.remove(n)
+    for name, arr in const_vals.items():
+        g.initializer.append(numpy_helper.from_array(arr, name=name))
+    onnx.save(m, str(path_out))
+    return len(const_vals)
+
+
 def quantize_dynamic(src: Path, dst: Path):
     from onnxruntime.quantization import QuantType, quantize_dynamic
 
     dst.mkdir(parents=True, exist_ok=True)
+    tmp = dst.parent / (dst.name + "-pre")
+    tmp.mkdir(parents=True, exist_ok=True)
     for f in ("encoder_model.onnx", "decoder_model.onnx"):
-        quantize_dynamic(str(src / f), str(dst / f), weight_type=QuantType.QInt8)
+        _constants_to_initializers(src / f, tmp / f)
+        quantize_dynamic(str(tmp / f), str(dst / f), weight_type=QuantType.QInt8)
     for extra in src.glob("*.json"):
         shutil.copy(extra, dst / extra.name)
+    shutil.rmtree(tmp, ignore_errors=True)
 
 
 def quantize_static(src: Path, dst: Path, calib_rows):
@@ -149,12 +174,16 @@ def quantize_static(src: Path, dst: Path, calib_rows):
             }
 
     dst.mkdir(parents=True, exist_ok=True)
+    tmp = dst.parent / (dst.name + "-pre")
+    tmp.mkdir(parents=True, exist_ok=True)
+    _constants_to_initializers(src / "encoder_model.onnx", tmp / "encoder_model.onnx")
     quantize_static(
-        str(src / "encoder_model.onnx"), str(dst / "encoder_model.onnx"),
-        calibration_data_reader=Reader(), weight_type=QuantType.QInt8,
+        str(tmp / "encoder_model.onnx"), str(dst / "encoder_model.onnx"),
+        calibration_data_reader=Reader(),
+        extra_options={"WeightSymmetric": True},
     )
-    quantize_dynamic(str(src / "decoder_model.onnx"), str(dst / "decoder_model.onnx"),
-                     weight_type=QuantType.QInt8)
+    quantize_dynamic(str(src / "decoder_model.onnx"), str(dst / "decoder_model.onnx"))
+    shutil.rmtree(tmp, ignore_errors=True)
     for extra in src.glob("*.json"):
         shutil.copy(extra, dst / extra.name)
 
