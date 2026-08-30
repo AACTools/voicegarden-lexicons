@@ -216,10 +216,10 @@ impl LexiconArchive {
         let url = format!(
             "{}/{}/{}",
             self.base.trim_end_matches('/'),
-            &self.subdir,
+            self.subdir,
             entry.file
         );
-        let bytes = get_bytes(&format!("{}/{}", self.base.trim_end_matches('/'), &self.subdir), &entry.file)
+        let bytes = get_bytes(&format!("{}/{}", self.base.trim_end_matches('/'), self.subdir), &entry.file)
             .with_context(|| format!("downloading {url}"))?;
         let got = hash_hex(&bytes);
         if got != entry.sha256 {
