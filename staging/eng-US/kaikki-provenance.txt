@@ -1,0 +1,1 @@
+kaikki.tsv: IPA harvested from English Wiktionary via wiktextract/kaikki (CC BY-SA 3.0), dialect-tagged (UK/RP for eng-UK, US/GenAm for eng-US), segmented with floravox-g2p ipa_tokens. Variant source - merge policy: merged.tsv unchanged; variants join via the ranked lexicon.
