@@ -1,9 +1,9 @@
 [
  {
-  "tag": "ita",
-  "shared": 19226,
-  "agree_before": 0.01,
-  "agree_after_m2m": 0.02,
-  "iterations": 12
+  "tag": "deu",
+  "shared": 22291,
+  "agree_before": 0.193,
+  "agree_after_m2m": 0.32,
+  "iterations": 5
  }
 ]

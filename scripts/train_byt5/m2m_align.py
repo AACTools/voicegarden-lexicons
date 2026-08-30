@@ -183,6 +183,7 @@ def harmonize(tag: str, iters: int, min_shared: int) -> dict | None:
 
     counts = init_blocks(pairs)
     logp, blocks = build_dist(counts)
+    fallback_stats = {"fallback_pairs": 0}
     for _it in range(iters):
         counts = reestimate(pairs, logp, blocks, fallback_stats)
         logp, blocks = build_dist(counts)
