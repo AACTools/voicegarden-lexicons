@@ -16,6 +16,11 @@ Rules:
   dropped P2G exact from 50% (gruut-only) to 16% (union).
 - --strategy gruut-only (default when gruut exists): keep gruut alone.
 - --strategy wikipron-only: keep wikipron alone (for comparison rows).
+- --strategy variants: merged.tsv stays gruut-only (safe conventions),
+  and a variants.tsv sidecar records every non-identical wikipron row
+  (real dialect variants + convention-clashed duplicates + words gruut
+  lacks) so the variant-preserving lexicon and ranked-candidates API
+  can use them without poisoning the primary training data.
 - Both files normalised to NFC; word keys casefolded for Latin scripts.
 """
 
@@ -45,8 +50,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("lang")
     ap.add_argument("--staging", default="staging")
-    ap.add_argument("--strategy", choices=["auto", "union", "gruut-only", "wikipron-only"],
-                    default="auto",
+    ap.add_argument("--strategy", choices=["auto", "union", "gruut-only",
+                    "wikipron-only", "variants"], default="auto",
                     help="auto = gruut-only when gruut exists, else wikipron-only")
     args = ap.parse_args()
 
@@ -58,7 +63,22 @@ def main() -> int:
     if strategy == "auto":
         strategy = "gruut-only" if len(gruut) >= len(wiki) else "wikipron-only"
 
-    if strategy == "gruut-only":
+    if strategy == "variants":
+        source, source_name = gruut, "gruut"
+        new = 0
+        n_var = n_conflict = n_oov = 0
+        with (d / "variants.tsv").open("w", encoding="utf-8") as vf:
+            for w in sorted(wiki):
+                if w in gruut:
+                    if wiki[w] != gruut[w]:
+                        vf.write(f"{w}\t{wiki[w]}\n")
+                        n_conflict += 1
+                else:
+                    vf.write(f"{w}\t{wiki[w]}\n")
+                    n_oov += 1
+                n_var = n_conflict + n_oov
+        strategy_note = f"variants {n_var} ({n_conflict} clashes, {n_oov} gruut-OOV)"
+    elif strategy == "gruut-only":
         source, source_name = gruut, "gruut"
         new = 0
     elif strategy == "wikipron-only":
@@ -80,9 +100,10 @@ def main() -> int:
         for w in sorted(merged):
             f.write(f"{w}\t{merged[w]}\n")
 
+    extra = f"; {strategy_note}" if strategy == "variants" else ""
     print(
         f"{args.lang}: gruut {len(gruut)} + wikipron {len(wiki)} "
-        f"[{strategy}, +{new} new] -> {len(merged)} in {out}"
+        f"[{strategy}, +{new} new] -> {len(merged)} in {out}{extra}"
     )
     (d / "merge-strategy.txt").write_text(strategy + "\n")
     return 0
