@@ -4,6 +4,43 @@ How the published models were built, and how it worked out. Written
 after the fact: what worked, what didn't, what the numbers mean, and
 what we would do differently.
 
+## The English fine-tune experiment (2026-08-30): a negative result
+
+Hypothesis: English scores lower than every comparable language
+(fine-tuned small: 48% exact on the original holdout; German 94%)
+because English was under-trained amid 3M competing pairs. A
+concentrated fine-tune should lift it.
+
+Setup: corpus-ft = eng-US (122k) + eng-UK (78k) + CMUDict-as-IPA
+(only 2,266 genuinely new words, gruut already absorbed the rest)
+plus a 300k replay sample from the other languages; 1 epoch, both
+directions, both models fine-tuned from the published checkpoints on
+an RTX 3090 (~40 min each).
+
+Result: no improvement.
+
+| model | published | fine-tuned |
+|---|---|---|
+| small | 52.1% | 52.9% (+0.8, noise) |
+| tiny | 54.6% | 52.2% (-2.4, worse) |
+
+The tiny's validation loss *rose* during training, the classic
+degradation signature. The published checkpoints were kept.
+
+What this tells us: English is not under-trained. The models already
+fit the English data; held-out accuracy is bounded by the corpus's
+internal inconsistencies (stress placement and vowel-reduction
+conventions differ between the merged sources) and by English
+orthography itself. Adding more of the same data cannot fix that.
+The real lever, if English ever needs to improve, is corpus
+convention cleanup: one source of truth for stress and reduction
+rules, retrained from the cleaned data. That is a data-engineering
+project, not a training run.
+
+The corpus builder and CMUDict converter live in
+`scripts/train_byt5/build_ft_corpus.py` and the floravox repo's
+`floravox-g2p/examples/cmu2tsv.rs`, so the experiment is reproducible.
+
 ## 1. What was built
 
 Four models (g2p/p2g × 300M/17M), trained on a 3.02M-pair corpus of
