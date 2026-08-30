@@ -16,11 +16,12 @@ Rules:
   dropped P2G exact from 50% (gruut-only) to 16% (union).
 - --strategy gruut-only (default when gruut exists): keep gruut alone.
 - --strategy wikipron-only: keep wikipron alone (for comparison rows).
-- --strategy variants: merged.tsv stays gruut-only (safe conventions),
-  and a variants.tsv sidecar records every non-identical wikipron row
-  (real dialect variants + convention-clashed duplicates + words gruut
-  lacks) so the variant-preserving lexicon and ranked-candidates API
-  can use them without poisoning the primary training data.
+- --strategy variants: merged.tsv follows the auto rule (bigger source
+  wins), and a variants.tsv sidecar records every non-identical row of
+  the OTHER source (real dialect variants + convention-clashed
+  duplicates + words the primary lacks) so the variant-preserving
+  lexicon and ranked-candidates API can use them without poisoning
+  the primary training data.
 - Both files normalised to NFC; word keys casefolded for Latin scripts.
 """
 
@@ -75,10 +76,12 @@ def main() -> int:
             other_name, other = "gruut", gruut
         new = 0
         n_var = n_conflict = n_oov = 0
+        src_cf = {k.casefold(): v for k, v in source.items()}
         with (d / "variants.tsv").open("w", encoding="utf-8") as vf:
             for w in sorted(other):
-                if w in source:
-                    if other[w] != source[w]:
+                cf = w.casefold()
+                if cf in src_cf:
+                    if other[w] != src_cf[cf]:
                         vf.write(f"{w}\t{other[w]}\n")
                         n_conflict += 1
                 else:
@@ -115,7 +118,8 @@ def main() -> int:
         f"{args.lang}: gruut {len(gruut)} + wikipron {len(wiki)} "
         f"[{strategy}, +{new} new] -> {len(merged)} in {out}{extra}"
     )
-    (d / "merge-strategy.txt").write_text(strategy + "\n")
+    note = strategy_note if strategy == "variants" else strategy
+    (d / "merge-strategy.txt").write_text(note + "\n")
     return 0
 
 

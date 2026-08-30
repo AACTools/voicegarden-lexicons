@@ -1,1 +1,1 @@
-variants
+primary gruut; variants 4376 (2099 clashes, 2277 primary-OOV) from wikipron
