@@ -64,20 +64,30 @@ def main() -> int:
         strategy = "gruut-only" if len(gruut) >= len(wiki) else "wikipron-only"
 
     if strategy == "variants":
-        source, source_name = gruut, "gruut"
+        # primary follows the auto rule (bigger source keeps merged.tsv);
+        # the sidecar preserves the OTHER source's non-identical rows.
+        primary_is_gruut = len(gruut) >= len(wiki)
+        if primary_is_gruut:
+            source, source_name = gruut, "gruut"
+            other_name, other = "wikipron", wiki
+        else:
+            source, source_name = wiki, "wikipron"
+            other_name, other = "gruut", gruut
         new = 0
         n_var = n_conflict = n_oov = 0
         with (d / "variants.tsv").open("w", encoding="utf-8") as vf:
-            for w in sorted(wiki):
-                if w in gruut:
-                    if wiki[w] != gruut[w]:
-                        vf.write(f"{w}\t{wiki[w]}\n")
+            for w in sorted(other):
+                if w in source:
+                    if other[w] != source[w]:
+                        vf.write(f"{w}\t{other[w]}\n")
                         n_conflict += 1
                 else:
-                    vf.write(f"{w}\t{wiki[w]}\n")
+                    vf.write(f"{w}\t{other[w]}\n")
                     n_oov += 1
                 n_var = n_conflict + n_oov
-        strategy_note = f"variants {n_var} ({n_conflict} clashes, {n_oov} gruut-OOV)"
+        strategy_note = (f"primary {source_name}; variants {n_var} "
+                         f"({n_conflict} clashes, {n_oov} primary-OOV) "
+                         f"from {other_name}")
     elif strategy == "gruut-only":
         source, source_name = gruut, "gruut"
         new = 0
