@@ -4,10 +4,10 @@ use floravox_g2p::TokenPhonemizer as _;
 fn main() -> anyhow::Result<()> {
     let archive = LexiconArchive::default_expanded()?;
     println!("manifest languages: {}", archive.manifest().languages.len());
-    for lang in ["eng-US", "spa-LatAm", "deu", "tur"] {
-        let b = archive.fetch(lang)?;
+    for lang in archive.manifest().languages.iter().map(|e| e.lang.clone()) {
+        let b = archive.fetch(&lang)?;
         let mut g2p = b.phonemizer().expect("phonemizer");
-        let w = match lang {
+        let w = match lang.as_str() {
             "eng-US" => "emoji",
             "spa-LatAm" => "personas",
             "deu" => "mente",
