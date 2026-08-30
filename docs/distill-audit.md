@@ -169,3 +169,35 @@ lacks, no destructive conversion. Proper harmonization needs a
 many-to-many EM aligner and per-language convention specs; the
 measured clash table above is the baseline that work is judged
 against. Data from `audit/harmonization-report.json`.
+
+## M2M EM aligner: the harmonization breakthrough (2026-08-30)
+
+`m2m_align.py` replaces the context-free rewrites with hard-EM joint
+segmentation: anchor-seeded block counts, Viterbi realignment,
+re-estimation of P(target_seg | source_seg), 1-D Viterbi conversion.
+Five iterations, blocks up to 2x2 tokens. Shared-word exact match,
+before -> after:
+
+| lang | before | context-free best | M2M EM |
+|---|---|---|---|
+| eng | 0.0% | 0.0% | **28.0%** |
+| fas | 1.2% | 1.6% | **51.4%** |
+| spa | 67.1% | 67.1% | **86.8%** |
+| por | 1.7% | 6.5% | **18.6%** |
+| deu | 19.3% | 19.3% | **32.0%** |
+| nld | 7.6% | 7.6% | **16.7%** |
+| swe | 24.4% | 26.8% | **28.4%** |
+| fra | 90.6% | 90.6% | 90.8% |
+| ita | 1.0% | 1.0% | 2.0% |
+
+French is untouched (identity-default conversion is safe where
+sources already agree). Italian is diagnosed, not just stuck: gruut
+fuses stress into tokens (ˈk, ˈd), wikipron omits stress entirely,
+and the two also split mid-vowels (e/ɛ, o/ɔ) and glides (i/j)
+differently. Converting wikipron->gruut exactly would require
+predicting stress the source does not contain. Options for ita:
+normalize gruut DOWN to the stress-less convention (deterministic but
+lossy), or keep both as tagged variants per the merge policy.
+
+Next: convert wikipron via the learned maps, build the harmonized
+corpus, retrain, gate on top-1 + top-3 vs the current models.
