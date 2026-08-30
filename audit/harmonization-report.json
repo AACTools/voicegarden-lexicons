@@ -1,0 +1,74 @@
+{
+ "deu": {
+  "shared": 22291,
+  "agree_before": 0.193,
+  "agree_after_conversion": 0.193,
+  "n_to_m_ops_share": 0.478,
+  "harmonized_rows": 51318,
+  "strategy": "context"
+ },
+ "eng": {
+  "shared": 35058,
+  "agree_before": 0.0,
+  "agree_after_conversion": 0.0,
+  "n_to_m_ops_share": 0.311,
+  "harmonized_rows": 79307,
+  "strategy": "context-free"
+ },
+ "fas": {
+  "shared": 1462,
+  "agree_before": 0.012,
+  "agree_after_conversion": 0.016,
+  "n_to_m_ops_share": 0.132,
+  "harmonized_rows": 9283,
+  "strategy": "context-free"
+ },
+ "fra": {
+  "shared": 25665,
+  "agree_before": 0.906,
+  "agree_after_conversion": 0.906,
+  "n_to_m_ops_share": 0.442,
+  "harmonized_rows": 84402,
+  "strategy": "context"
+ },
+ "ita": {
+  "shared": 19226,
+  "agree_before": 0.01,
+  "agree_after_conversion": 0.01,
+  "n_to_m_ops_share": 0.04,
+  "harmonized_rows": 81441,
+  "strategy": "context"
+ },
+ "nld": {
+  "shared": 8024,
+  "agree_before": 0.076,
+  "agree_after_conversion": 0.076,
+  "n_to_m_ops_share": 0.188,
+  "harmonized_rows": 45234,
+  "strategy": "context-free"
+ },
+ "por": {
+  "shared": 23628,
+  "agree_before": 0.017,
+  "agree_after_conversion": 0.065,
+  "n_to_m_ops_share": 0.293,
+  "harmonized_rows": 57211,
+  "strategy": "context-free"
+ },
+ "spa": {
+  "shared": 73407,
+  "agree_before": 0.671,
+  "agree_after_conversion": 0.671,
+  "n_to_m_ops_share": 0.215,
+  "harmonized_rows": 131056,
+  "strategy": "context"
+ },
+ "swe": {
+  "shared": 2777,
+  "agree_before": 0.244,
+  "agree_after_conversion": 0.268,
+  "n_to_m_ops_share": 0.353,
+  "harmonized_rows": 5054,
+  "strategy": "context-free"
+ }
+}

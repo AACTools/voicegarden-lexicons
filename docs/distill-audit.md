@@ -141,3 +141,31 @@ validation (Leipzig/Wikipedia sample) is the follow-up.
 python3 scripts/train_byt5/distill_audit.py --lang deu --n 200
 python3 scripts/train_byt5/distill_audit.py --lang eng --prompt-tag eng-US --n 200
 ```
+
+## Source clash measurement + harmonization attempt (2026-08-30)
+
+For 9 languages the staging dictionaries merge two sources (gruut +
+WikiPron). Measuring shared words: the sources' transcriptions agree
+exactly 0% of the time for English, 1-25% for ita/fas/por/nld/deu/swe,
+67% for Spanish, 91% for French. The G2P models were trained on the
+merged union, which is why holdout accuracy tracks source harmony
+(Spanish distills at 100%, English caps at ~62%).
+
+Harmonization attempt (`harmonize_sources.py`): learn wikipron->gruut
+rewrite rules from the shared-word alignments (anchor-based n:m,
+purity-gated), apply, re-measure. Result across two strategies
+(context-free, context-conditioned):
+
+- real but modest gains: por 1.7%->6.5%, swe 24.4%->26.8%, fas +0.4
+- nothing for eng/ita/deu/nld: the remaining disagreement is heavily
+  context-dependent symbol substitution (n:m segmentation is only
+  13-41% of operations), which context-free rules cannot resolve
+- ungated rules can destroy near-harmonious languages (fra 90.6->0)
+
+Conclusion: simple rewrite conversion is not sufficient. The merge
+policy stays variant-preserving: gruut entries primary, wikipron
+entries kept as provenance-tagged secondary variants for words gruut
+lacks, no destructive conversion. Proper harmonization needs a
+many-to-many EM aligner and per-language convention specs; the
+measured clash table above is the baseline that work is judged
+against. Data from `audit/harmonization-report.json`.
