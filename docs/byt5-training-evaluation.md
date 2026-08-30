@@ -1,8 +1,8 @@
-# Critical evaluation: the ByT5 multilingual G2P/P2G effort
+# Training the ByT5 multilingual G2P/P2G models
 
-*Written after the fact, honestly. Covers training, data, and usage —
-what worked, what didn't, what the numbers actually mean, and what we
-would do differently.*
+How the published models were built, and how it worked out. Written
+after the fact: what worked, what didn't, what the numbers mean, and
+what we would do differently.
 
 ## 1. What was built
 

@@ -60,6 +60,25 @@ The bundles live in `dist/expanded/` and use the same file layout as the base bu
 
 One honest caveat: we picked the candidate words from frequency lists, so the coverage gains partly measure our own selection. The full method, per-language test results, and the ten languages we threw away (the networks were not trained on them) are in [docs/distill-audit.md](docs/distill-audit.md).
 
+## Quality and speed, honestly
+
+The engine people compare against is espeak-ng, the GPL rules engine. We measured it on the same machine against the floravox tier chain:
+
+| tier | cold start | per word | resident memory |
+|---|---|---|---|
+| espeak-ng rules | 10-65 ms | 9 ms | ~5 MB |
+| our expanded dictionary (memory-mapped) | <5 ms | <0.1 ms | ~0 |
+| our Phonetisaurus guesser | ~650 ms* | ~1 ms | ~70 MB |
+| ByT5 tiny neural model (int8 ONNX) | 410 ms | 64 ms | ~122 MB |
+
+*unstripped debug binary, worst case. A warm process pays none of that.
+
+Where espeak-ng still wins: raw speed on a stream of unknown words (9 ms each, no lookup needed), and it never refuses a word. Its rules produce a pronunciation for any input in any of its ~135 languages.
+
+Where this archive wins: for the words people actually write. On random Wikipedia articles, the dictionary tier now answers 38% to 87% of words (depending on language; English 85%, Spanish 87%) in under a millionth of the time espeak needs, and the entries we added carry a measured 92-100% accuracy rate in the symbol conventions piper-family voices were trained with. The remainder falls through to the guesser and neural tiers. Two structural differences stand regardless of numbers: the data is MIT and BSD licensed, so Apache/MIT projects can ship it, and the phoneme symbols match what gruut-based voices expect, which espeak's output does not. This archive also does the reverse direction (phonemes to spelling), which espeak does not.
+
+What we have not done: a fair accuracy comparison against espeak on the same test words. Its transcriptions use a different symbol system, so scoring it against our dictionaries measures symbol mismatch as much as quality. Doing that comparison properly needs a per-language mapping table; until then, we claim the license, the conventions, and the measured dictionary quality, not a knockout.
+
 ## Where the data comes from
 
 | Source | License | Languages |
@@ -125,9 +144,7 @@ You need python3, curl, and `cargo install --git https://github.com/AACTools/flo
 |---|---|
 | [docs/build.md](docs/build.md) | the build pipeline, end to end |
 | [docs/distill-audit.md](docs/distill-audit.md) | how the expanded bundles were tested: per-language accuracy, the double-check filter, and the ten languages we rejected |
-| [docs/dx-evaluation.md](docs/dx-evaluation.md) | measured startup time, speed, and memory against espeak-ng |
-| [docs/roadmap-quality.md](docs/roadmap-quality.md) | quality roadmap |
-| [docs/critical-evaluation-v2.md](docs/critical-evaluation-v2.md) | the evaluation that started this work (historical) |
+| [docs/byt5-training-evaluation.md](docs/byt5-training-evaluation.md) | how the ByT5 models were trained and how well it worked |
 
 ## License
 
