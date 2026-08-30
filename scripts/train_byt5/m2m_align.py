@@ -64,15 +64,15 @@ def viterbi(src, tgt, logp, blocks_by_first):
             if d[i][j] == NEG or (i == 0 and j == 0):
                 continue
             # consider blocks ENDING at (i, j)
-            for di in (1, 2):
-                for dj in (1, 2):
+            for di in range(1, MAX_BLOCK + 1):
+                for dj in range(1, MAX_BLOCK + 1):
                     pi, pj = i - di, j - dj
                     if pi < 0 or pj < 0 or d[pi][pj] == NEG:
                         continue
+                    if src[pi] not in blocks_by_first:
+                        continue
                     sa = tuple(src[pi:i])
                     sb = tuple(tgt[pj:j])
-                    if sa not in blocks_by_first:
-                        continue
                     key = (sa, sb)
                     p = logp.get(key)
                     if p is None:
@@ -93,7 +93,7 @@ def viterbi(src, tgt, logp, blocks_by_first):
     return ops
 
 
-def reestimate(pairs, logp, blocks_by_first):
+def reestimate(pairs, logp, blocks_by_first, stats=None):
     counts = Counter()
     for a, b in pairs:
         ops = viterbi(a, b, logp, blocks_by_first)
@@ -101,6 +101,8 @@ def reestimate(pairs, logp, blocks_by_first):
             for sa, sb in ops:
                 counts[(sa, sb)] += 1
         else:
+            if stats is not None:
+                stats["fallback_pairs"] += 1
             # fallback: identity on the overlap
             n = min(len(a), len(b))
             for i in range(n):
@@ -153,7 +155,10 @@ def convert(tokens, best, blocks_by_first):
                     d[i] = v
                     back[i] = (pi, sb)
             elif length == 1:
-                v = d[pi] + 4.0  # unseen-token identity penalty
+                # unseen-token identity. 4.0 ~ p 0.018: deliberately
+                # lenient vs rare seen blocks but far above the ~0.1
+                # cost of frequent ones, so learned blocks win.
+                v = d[pi] + 4.0
                 if v < d[i]:
                     d[i] = v
                     back[i] = (pi, sa)
@@ -179,9 +184,11 @@ def harmonize(tag: str, iters: int, min_shared: int) -> dict | None:
     counts = init_blocks(pairs)
     logp, blocks = build_dist(counts)
     for _it in range(iters):
-        counts = reestimate(pairs, logp, blocks)
+        counts = reestimate(pairs, logp, blocks, fallback_stats)
         logp, blocks = build_dist(counts)
     best = best_targets(logp, blocks)
+    if fallback_stats["fallback_pairs"]:
+        print(f"  {tag}: unreconstructible pairs {fallback_stats['fallback_pairs']}")
 
     hit = sum(convert(a, best, blocks) == b for a, b in pairs) / len(pairs)
     print(f"{tag:8} shared {len(shared):6,}  agree {before:5.1%} -> {hit:5.1%} (M2M EM, {iters} iters)")
