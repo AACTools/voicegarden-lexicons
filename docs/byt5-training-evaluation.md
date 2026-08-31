@@ -1,8 +1,45 @@
 # Training the ByT5 multilingual G2P/P2G models
 
-How the published models were built, and how it worked out. Written
-after the fact: what worked, what didn't, what the numbers mean, and
-what we would do differently.
+## v2: Harmonized retrain (2026-08-30)
+
+In August 2026 the models were retrained on a **harmonized 4.12M-pair
+corpus** (+27% over v1's 3.02M), 142 language tags, with per-language
+IPA conventions unified via a learned many-to-many EM aligner
+([scripts/train_byt5/m2m_align.py](../scripts/train_byt5/m2m_align.py)).
+
+The retrain used the same architecture (byt5-small / tiny config) and
+hyperparameters as v1, but with M2M-converted wikipron fill replacing
+the raw union. The new models are published at:
+
+- [G2P small](https://huggingface.co/willwade/byt5-g2p-multilingual)
+- [G2P tiny](https://huggingface.co/willwade/byt5-g2p-multilingual-tiny)
+- [P2G small](https://huggingface.co/willwade/byt5-p2g-multilingual)
+- [P2G tiny](https://huggingface.co/willwade/byt5-p2g-multilingual-tiny)
+
+Results on the same stratified 4000-row test set (v1 vs v2 on the
+harmonized test split):
+
+| model | v1 micro | v2 micro | Δ |
+|---|---|---|---|
+| g2p-small | 0.663 | **0.730** | +0.067 |
+| g2p-tiny | 0.582 | **0.718** | +0.136 |
+| p2g-small | 0.483 | 0.483 | 0.000 |
+| p2g-tiny | 0.397 | 0.397 | 0.000 |
+
+(The v1 scores on this test are lower than the published 0.731 because
+the v1 test had mixed conventions, making tie-breaking easier. The v2
+scores are on a harder, convention-clean test.)
+
+Key per-language gains: spa +0.256, fra +0.222, por +0.570, nld +0.174.
+Regression: deu -0.072, eng-UK -0.039. Detailed per-language diffs in
+[floravox/results-h/](https://github.com/AACTools/floravox/tree/main/results-h).
+
+Training run: RTX 3090, ~8h, ~$1.20 (small + tiny, both directions).
+
+The English fine-tune experiment (below) is from v1 and remains
+instructive despite the v2 corpus changes.
+
+---
 
 ## The English fine-tune experiment (2026-08-30): a negative result
 

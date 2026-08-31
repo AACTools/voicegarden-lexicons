@@ -31,7 +31,7 @@ Every dictionary has gaps. The words it lacks are often ordinary ones, and each 
 For 11 languages we filled those gaps ahead of time. The process had three steps:
 
 1. We took frequency lists of the most common words in each language and picked out the ones missing from the dictionary.
-2. We asked two neural networks (the published [ByT5 G2P models](https://huggingface.co/willwade/byt5-g2p-multilingual), a [small](https://huggingface.co/willwade/byt5-g2p-multilingual) and a [tiny](https://huggingface.co/willwade/byt5-g2p-multilingual-tiny) version, trained independently) to pronounce each missing word. We kept a word only when both networks produced the same pronunciation.
+2. We asked two neural networks (the [ByT5 G2P models](https://huggingface.co/willwade/byt5-g2p-multilingual), a [small](https://huggingface.co/willwade/byt5-g2p-multilingual) and a [tiny](https://huggingface.co/willwade/byt5-g2p-multilingual-tiny) version, trained independently) to pronounce each missing word. We kept a word only when both networks produced the same pronunciation. The G2P models and their [P2G inverses](https://huggingface.co/willwade/byt5-p2g-multilingual) were retrained in August 2026 on a harmonized 4.12M-pair corpus with per-language IPA conventions unified via a learned EM aligner ([training details](docs/byt5-training-evaluation.md)).
 3. We tested the kept pronunciations against dictionary words the networks had never seen, to measure how often an agreed answer is actually right.
 
 Here is what that produced. "Added entries" is how many new words each dictionary gained. "Measured accuracy" is the share of added pronunciations that were exactly right in that test. "Text coverage" is the share of the 50,000 most common words the dictionary can now look up, before and after.
@@ -70,6 +70,9 @@ The engine people compare against is espeak-ng, the GPL rules engine. We measure
 | our expanded dictionary (memory-mapped) | <5 ms | <0.1 ms | ~0 |
 | our Phonetisaurus guesser | ~650 ms* | ~1 ms | ~70 MB |
 | ByT5 tiny neural model (int8 ONNX) | 410 ms | 64 ms | ~122 MB |
+| ByT5 small neural model (new harmonized) | 2.1 s | 150 ms | 1.2 GB |
+
+*The harmonized models (v2, Aug 2026) are trained on 4.12M pairs with M2M-aligned IPA conventions. [G2P small](https://huggingface.co/willwade/byt5-g2p-multilingual) / [G2P tiny](https://huggingface.co/willwade/byt5-g2p-multilingual-tiny) / [P2G small](https://huggingface.co/willwade/byt5-p2g-multilingual) / [P2G tiny](https://huggingface.co/willwade/byt5-p2g-multilingual-tiny). The int8 ONNX variants are from the original v1 models; pending quantisation of v2.*
 
 *unstripped debug binary, worst case. A warm process pays none of that.
 
@@ -145,6 +148,7 @@ You need python3, curl, and `cargo install --git https://github.com/AACTools/flo
 | [docs/build.md](docs/build.md) | the build pipeline, end to end |
 | [docs/distill-audit.md](docs/distill-audit.md) | how the expanded bundles were tested: per-language accuracy, the double-check filter, and the ten languages we rejected |
 | [docs/byt5-training-evaluation.md](docs/byt5-training-evaluation.md) | how the ByT5 models were trained and how well it worked |
+| [docs/NEXT-STEPS.md](https://github.com/AACTools/floravox/blob/main/docs/NEXT-STEPS.md) | current project roadmap and decisions |
 
 ## License
 
