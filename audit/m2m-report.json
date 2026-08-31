@@ -5,5 +5,61 @@
   "agree_before": 0.193,
   "agree_after_m2m": 0.32,
   "iterations": 5
+ },
+ {
+  "tag": "eng",
+  "shared": 35058,
+  "agree_before": 0.0,
+  "agree_after_m2m": 0.28,
+  "iterations": 5
+ },
+ {
+  "tag": "fas",
+  "shared": 1462,
+  "agree_before": 0.012,
+  "agree_after_m2m": 0.514,
+  "iterations": 5
+ },
+ {
+  "tag": "fra",
+  "shared": 25665,
+  "agree_before": 0.906,
+  "agree_after_m2m": 0.908,
+  "iterations": 5
+ },
+ {
+  "tag": "ita",
+  "shared": 19226,
+  "agree_before": 0.01,
+  "agree_after_m2m": 0.02,
+  "iterations": 5
+ },
+ {
+  "tag": "nld",
+  "shared": 8024,
+  "agree_before": 0.076,
+  "agree_after_m2m": 0.167,
+  "iterations": 5
+ },
+ {
+  "tag": "por",
+  "shared": 23628,
+  "agree_before": 0.017,
+  "agree_after_m2m": 0.186,
+  "iterations": 5
+ },
+ {
+  "tag": "spa",
+  "shared": 73407,
+  "agree_before": 0.671,
+  "agree_after_m2m": 0.868,
+  "iterations": 5
+ },
+ {
+  "tag": "swe",
+  "shared": 2777,
+  "agree_before": 0.244,
+  "agree_after_m2m": 0.284,
+  "iterations": 5
  }
 ]

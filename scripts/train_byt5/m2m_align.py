@@ -172,7 +172,8 @@ def convert(tokens, best, blocks_by_first):
     return out
 
 
-def harmonize(tag: str, iters: int, min_shared: int) -> dict | None:
+def harmonize(tag: str, iters: int, min_shared: int,
+              apply: bool = False) -> dict | None:
     d = REPO / "staging" / tag
     G, W = load(d / "gruut.tsv"), load(d / "wikipron.tsv")
     shared = sorted(set(G) & set(W))
@@ -193,6 +194,23 @@ def harmonize(tag: str, iters: int, min_shared: int) -> dict | None:
 
     hit = sum(convert(a, best, blocks) == b for a, b in pairs) / len(pairs)
     print(f"{tag:8} shared {len(shared):6,}  agree {before:5.1%} -> {hit:5.1%} (M2M EM, {iters} iters)")
+
+    if apply:
+        # harmonized merged.tsv: gruut primary + converted wikipron fill
+        # for words gruut lacks. Shared words stay gruut (primary wins).
+        out_rows = [(w, " ".join(G[w])) for w in sorted(G)]
+        added = 0
+        for w in sorted(W):
+            if w not in G:
+                conv = convert(W[w], best, blocks)
+                if conv:
+                    out_rows.append((w, " ".join(conv)))
+                    added += 1
+        out_rows.sort()
+        with (d / "merged.tsv").open("w", encoding="utf-8") as f:
+            for w, p in out_rows:
+                f.write(f"{w}\t{p}\n")
+        print(f"  {tag}: harmonized merged.tsv = {len(G):,} gruut + {added:,} converted wikipron")
     return {
         "tag": tag, "shared": len(shared),
         "agree_before": round(before, 3),
@@ -209,6 +227,9 @@ def main() -> int:
     ap.add_argument("--max-block", type=int, default=2)
     ap.add_argument("--min-shared", type=int, default=200)
     ap.add_argument("--report", default="audit/m2m-report.json")
+    ap.add_argument("--apply", action="store_true",
+                    help="rewrite merged.tsv: gruut primary + M2M-converted "
+                         "wikipron fill for words gruut lacks (harmonized corpus)")
     args = ap.parse_args()
 
     global MAX_BLOCK
@@ -219,7 +240,7 @@ def main() -> int:
              if args.all else [])
     results = []
     for tag in langs:
-        r = harmonize(tag, args.iters, args.min_shared)
+        r = harmonize(tag, args.iters, args.min_shared, apply=args.apply)
         if r:
             results.append(r)
     out = REPO / args.report

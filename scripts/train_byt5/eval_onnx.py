@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -63,7 +64,12 @@ def greedy_decode(session_pair, text: str) -> str:
     # first output = last_hidden_state
     hidden = enc_out[0]
 
-    dec_ids = np.zeros((1, 1), dtype=np.int64)  # decoder start (pad)
+    # Bootstrap decoder with [start, pad-masked start] so the manual
+    # export's traced graph never sees length-1 input (T5 branches on
+    # length == 1). The pad stays inert via mask [1, 0]; logits at the
+    # last position equal the true length-1 step.
+    dec_ids = np.zeros((1, 2), dtype=np.int64)
+    dec_mask = np.array([[1, 0]], dtype=np.int64)
     out_bytes = bytearray()
     n_stuck = 0
     for step in range(MAX_TARGET_LEN):
@@ -71,6 +77,8 @@ def greedy_decode(session_pair, text: str) -> str:
         dnames = {i.name for i in dec.get_inputs()}
         id_key = "input_ids" if "input_ids" in dnames else "decoder_input_ids"
         dfeeds[id_key] = dec_ids
+        if "attention_mask" in dnames:
+            dfeeds["attention_mask"] = dec_mask
         if "encoder_hidden_states" in dnames:
             dfeeds["encoder_hidden_states"] = hidden
         if "encoder_attention_mask" in dnames:
@@ -82,6 +90,9 @@ def greedy_decode(session_pair, text: str) -> str:
         out_bytes.append(nxt - 3)  # id -> byte
         dec_ids = np.concatenate(
             [dec_ids, np.array([[nxt]], dtype=np.int64)], axis=1
+        )
+        dec_mask = np.concatenate(
+            [dec_mask, np.ones((1, 1), dtype=np.int64)], axis=1
         )
         # Garbage guard: trained models emit EOS within ~word length.
         # If we're far past any plausible target (say 100 bytes) the
