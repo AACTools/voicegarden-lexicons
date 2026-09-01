@@ -7,6 +7,7 @@ license = "Apache-2.0 OR MIT"
 repository = "https://github.com/AACTools/voicegarden-lexicons"
 keywords = ["tts", "g2p", "lexicon", "phonemizer", "accessibility"]
 categories = ["accessibility", "text-processing"]
+exclude = ["staging/", "audit/", "scripts/", "docs/", "distill*/", "expanded*/", "results*/", "corpus*/", "session*"]
 
 [dependencies]
 floravox-g2p = "0.6.0"
