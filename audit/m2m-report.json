@@ -1,65 +1,439 @@
 [
  {
-  "tag": "deu",
-  "shared": 22291,
-  "agree_before": 0.193,
-  "agree_after_m2m": 0.32,
-  "iterations": 5
- },
- {
-  "tag": "eng",
-  "shared": 35058,
-  "agree_before": 0.0,
-  "agree_after_m2m": 0.28,
-  "iterations": 5
- },
- {
-  "tag": "fas",
-  "shared": 1462,
-  "agree_before": 0.012,
-  "agree_after_m2m": 0.514,
-  "iterations": 5
- },
- {
-  "tag": "fra",
-  "shared": 25665,
-  "agree_before": 0.906,
-  "agree_after_m2m": 0.908,
-  "iterations": 5
- },
- {
-  "tag": "ita",
-  "shared": 19226,
-  "agree_before": 0.01,
-  "agree_after_m2m": 0.02,
-  "iterations": 5
- },
- {
-  "tag": "nld",
-  "shared": 8024,
-  "agree_before": 0.076,
-  "agree_after_m2m": 0.167,
-  "iterations": 5
- },
- {
-  "tag": "por",
-  "shared": 23628,
-  "agree_before": 0.017,
-  "agree_after_m2m": 0.186,
-  "iterations": 5
- },
- {
-  "tag": "spa",
-  "shared": 73407,
-  "agree_before": 0.671,
-  "agree_after_m2m": 0.868,
-  "iterations": 5
- },
- {
-  "tag": "swe",
   "shared": 2777,
   "agree_before": 0.244,
   "agree_after_m2m": 0.284,
-  "iterations": 5
+  "iterations": 3,
+  "best": {
+   "\u0251\u02d0": {
+    "tgt": "'\u0251\u02d0",
+    "score": 0.9997
+   },
+   "b": {
+    "tgt": "b",
+    "score": 0.3629
+   },
+   "e\u02d0": {
+    "tgt": "'e\u02d0",
+    "score": 0.8682
+   },
+   "a": {
+    "tgt": "a",
+    "score": 0.5224
+   },
+   "\u0254": {
+    "tgt": "\u0254",
+    "score": 0.7006
+   },
+   "r\u02d0": {
+    "tgt": "r",
+    "score": 0.5676
+   },
+   "n": {
+    "tgt": "n",
+    "score": 0.2758
+   },
+   "\u025b": {
+    "tgt": "\u025b",
+    "score": 0.5552
+   },
+   "m": {
+    "tgt": "m",
+    "score": 0.3197
+   },
+   "\u014b\u02d0": {
+    "tgt": "\u014b",
+    "score": 0.2563
+   },
+   "r": {
+    "tgt": "r",
+    "score": 0.3658
+   },
+   "\u0275": {
+    "tgt": "\u0275",
+    "score": 0.6099
+   },
+   "p\u02d0": {
+    "tgt": "p",
+    "score": 0.3457
+   },
+   "t": {
+    "tgt": "t",
+    "score": 0.3303
+   },
+   "s": {
+    "tgt": "s",
+    "score": 0.4051
+   },
+   "l": {
+    "tgt": "l",
+    "score": 0.3294
+   },
+   "\u0289\u02d0": {
+    "tgt": "\u0289\u02d0",
+    "score": 1.0221
+   },
+   "b\u02d0": {
+    "tgt": "b",
+    "score": 0.174
+   },
+   "\u026a": {
+    "tgt": "\u026a",
+    "score": 0.6164
+   },
+   "n\u02d0": {
+    "tgt": "n",
+    "score": 0.4079
+   },
+   "k\u02d0": {
+    "tgt": "k",
+    "score": 0.5555
+   },
+   "k": {
+    "tgt": "k",
+    "score": 0.3739
+   },
+   "p": {
+    "tgt": "p",
+    "score": 0.3693
+   },
+   "i\u02d0": {
+    "tgt": "'i\u02d0",
+    "score": 0.8447
+   },
+   "a\u02d0": {
+    "tgt": "a",
+    "score": 1.5014
+   },
+   "d": {
+    "tgt": "d",
+    "score": 0.33
+   },
+   "\u00b2": {
+    "tgt": "\u00b2s",
+    "score": 2.0946
+   },
+   "d\u02d0": {
+    "tgt": "d",
+    "score": 0.7094
+   },
+   "j": {
+    "tgt": "j",
+    "score": 0.419
+   },
+   "\u014b": {
+    "tgt": "\u014b",
+    "score": 0.158
+   },
+   "\u00f8\u02d0": {
+    "tgt": "\u00f8\u02d0",
+    "score": 0.9197
+   },
+   "v": {
+    "tgt": "v",
+    "score": 0.4207
+   },
+   "i": {
+    "tgt": "\u026a",
+    "score": 0.2322
+   },
+   "\u028a": {
+    "tgt": "\u028a",
+    "score": 0.3706
+   },
+   "f": {
+    "tgt": "f",
+    "score": 0.4135
+   },
+   "\u0267": {
+    "tgt": "\u0267",
+    "score": 0.3067
+   },
+   "u\u02d0": {
+    "tgt": "'u\u02d0",
+    "score": 0.9718
+   },
+   "\u025b\u02d0": {
+    "tgt": "\u025b\u02d0",
+    "score": 0.9784
+   },
+   "\u00b9": {
+    "tgt": "t",
+    "score": 1.7156
+   },
+   "\u00e6": {
+    "tgt": "r",
+    "score": 1.2056
+   },
+   "\u0282": {
+    "tgt": "\u0255",
+    "score": 0.5822
+   },
+   "\u0261": {
+    "tgt": "\u0261",
+    "score": 0.3293
+   },
+   "h": {
+    "tgt": "h",
+    "score": 0.5761
+   },
+   "\u0289": {
+    "tgt": "\u0275",
+    "score": 0.7965
+   },
+   "o\u02d0": {
+    "tgt": "o\u02d0",
+    "score": 0.8749
+   },
+   "l\u02d0": {
+    "tgt": "l",
+    "score": 0.4542
+   },
+   "\u0288": {
+    "tgt": "t",
+    "score": 0.308
+   },
+   "t\u02d0": {
+    "tgt": "t",
+    "score": 0.2444
+   },
+   "y": {
+    "tgt": "t",
+    "score": 0.7397
+   },
+   "\u0251": {
+    "tgt": "a",
+    "score": 0.5484
+   },
+   "\u0153": {
+    "tgt": "\u0153",
+    "score": 0.643
+   },
+   "m\u02d0": {
+    "tgt": "m",
+    "score": 0.6581
+   },
+   "\u00e6\u02d0": {
+    "tgt": "'\u025b\u02d0",
+    "score": 0.6981
+   },
+   "y\u02d0": {
+    "tgt": "'y\u02d0",
+    "score": 1.0125
+   },
+   "\u0259": {
+    "tgt": "\u025b",
+    "score": 0.0845
+   },
+   "\u00e1": {
+    "tgt": "\u00b2'a",
+    "score": 0.1335
+   },
+   "e": {
+    "tgt": "\u025b",
+    "score": 0.4197
+   },
+   "\u026a\u02d0": {
+    "tgt": "k",
+    "score": 0.1335
+   },
+   "s\u02d0": {
+    "tgt": "s",
+    "score": 0.3726
+   },
+   "\u028a\u032f": {
+    "tgt": "\u028a",
+    "score": 0.0364
+   },
+   "\u028f": {
+    "tgt": "\u028f",
+    "score": 0.9275
+   },
+   "\u0256": {
+    "tgt": "d",
+    "score": 0.1196
+   },
+   "o": {
+    "tgt": "\u028a",
+    "score": 0.5754
+   },
+   "\u0288\u02d0": {
+    "tgt": "t",
+    "score": 0.5335
+   },
+   "\u0261\u02d0": {
+    "tgt": "\u0261",
+    "score": 0.4629
+   },
+   "\u0273": {
+    "tgt": "n",
+    "score": 0.2499
+   },
+   "\u0255": {
+    "tgt": "\u0255",
+    "score": 0.6944
+   },
+   "x": {
+    "tgt": "\u0267",
+    "score": 0.4453
+   },
+   "\u0153\u02d0": {
+    "tgt": "r",
+    "score": 1.2072
+   },
+   "\u0267\u02d0": {
+    "tgt": "\u0267",
+    "score": 0.0706
+   },
+   "\u00f4\u02d0": {
+    "tgt": "'o\u02d0",
+    "score": 0.0706
+   },
+   "\u0282\u02d0": {
+    "tgt": "\u0255",
+    "score": 0.7397
+   },
+   "\u0279": {
+    "tgt": "r",
+    "score": 0.1335
+   },
+   "\u00f8": {
+    "tgt": "'\u0153",
+    "score": 1.3863
+   },
+   "\u0153\u031e": {
+    "tgt": "\u0153",
+    "score": 1.1144
+   },
+   "f\u02d0": {
+    "tgt": "f",
+    "score": 1.1144
+   },
+   "\u025b\u031d": {
+    "tgt": "\u025b",
+    "score": 0.1335
+   },
+   "\u029d": {
+    "tgt": "j",
+    "score": 0.1335
+   },
+   "\u00ee\u02d0": {
+    "tgt": "'i\u02d0",
+    "score": 0.0706
+   },
+   "\u01ce": {
+    "tgt": "'a",
+    "score": 0.1335
+   },
+   "j\u02d0": {
+    "tgt": "j",
+    "score": 0.7172
+   },
+   "u": {
+    "tgt": "\u028a",
+    "score": 0.9308
+   },
+   "\u0289\u031f\u02d0": {
+    "tgt": "s",
+    "score": 1.6981
+   },
+   "\u0275\u0304": {
+    "tgt": "'\u0275",
+    "score": 0.1335
+   },
+   "\u0289\u0302\u02d0": {
+    "tgt": "\u0275",
+    "score": 0.1335
+   },
+   "\u0153\u031e\u02d0": {
+    "tgt": "r",
+    "score": 0.0706
+   },
+   "\u0251\u0302\u02d0": {
+    "tgt": "'\u0251\u02d0",
+    "score": 0.048
+   },
+   "\u0256\u02d1": {
+    "tgt": "d",
+    "score": 0.1335
+   },
+   "\u0252\u02d0": {
+    "tgt": "'\u0251\u02d0",
+    "score": 0.1335
+   },
+   "k\u02b0": {
+    "tgt": "k",
+    "score": 0.1335
+   },
+   "\u027e": {
+    "tgt": "r",
+    "score": 0.0364
+   },
+   "t\u0361\u0255": {
+    "tgt": "\u0255",
+    "score": 0.7397
+   },
+   "\u02c7l": {
+    "tgt": "\u00b2l",
+    "score": 0.1335
+   },
+   "t\u02d1": {
+    "tgt": "t",
+    "score": 0.1335
+   },
+   "\u0283": {
+    "tgt": "\u0267",
+    "score": 0.1335
+   },
+   "a\u0361\u028a": {
+    "tgt": "'\u0251\u02d0",
+    "score": 0.1335
+   },
+   "a\u035c\u028a": {
+    "tgt": "a",
+    "score": 0.1335
+   },
+   "\u00ea\u02d0": {
+    "tgt": "'e\u02d0",
+    "score": 0.1335
+   },
+   "\u026d": {
+    "tgt": "\u026a",
+    "score": 0.2499
+   },
+   "\u1ef3\u02d0": {
+    "tgt": "f",
+    "score": 0.1335
+   },
+   "\u0254\u02d0": {
+    "tgt": "'o\u02d0",
+    "score": 0.1335
+   },
+   "\u00f8\u0300\u02d0": {
+    "tgt": "'\u00f8\u02d0",
+    "score": 0.1335
+   },
+   "t\u0361\u0283": {
+    "tgt": "\u0267",
+    "score": 0.1335
+   },
+   "\u025b\u0302\u02d0": {
+    "tgt": "'\u025b\u02d0",
+    "score": 0.1335
+   },
+   "t\u02b0": {
+    "tgt": "n",
+    "score": 0.1335
+   },
+   "\u00fb\u02d0": {
+    "tgt": "'u\u02d0",
+    "score": 0.1335
+   },
+   "\u025b\u030c": {
+    "tgt": "\u025b",
+    "score": 0.1335
+   }
+  },
+  "tag": "swe"
  }
 ]
