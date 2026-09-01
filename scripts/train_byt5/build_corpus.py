@@ -95,14 +95,17 @@ def main() -> int:
             continue
         rows: list[tuple[str, str]] = []
         seen: set[tuple[str, str]] = set()
-        for line in merged.read_text(encoding="utf-8").splitlines():
-            word, _, pron = line.partition("\t")
-            w, p = clean_word(word), clean_pron(pron)
-            if not w or not p or (w, p) in seen:
-                skipped += 1
+        for src in [merged, d / "kaikki.tsv"]:
+            if not src.exists():
                 continue
-            seen.add((w, p))
-            rows.append((w, p))
+            for line in src.read_text(encoding="utf-8").splitlines():
+                word, _, pron = line.partition("\t")
+                w, p = clean_word(word), clean_pron(pron)
+                if not w or not p or (w, p) in seen:
+                    skipped += 1
+                    continue
+                seen.add((w, p))
+                rows.append((w, p))
         if len(rows) >= MIN_LANG_ROWS:
             langs[d.name] = rows
 
