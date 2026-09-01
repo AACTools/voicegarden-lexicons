@@ -8,3 +8,7 @@ onnx*/
 runs-smoke/
 onnx-smoke/
 corpus-h/
+distill-fst-v2/
+expanded-v2/
+results-h/
+distill-v2/
