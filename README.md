@@ -148,8 +148,7 @@ You need python3, curl, and `cargo install floravox-g2p --bin floravox-fst-compi
 | [docs/build.md](docs/build.md) | the build pipeline, end to end |
 | [docs/distill-audit.md](docs/distill-audit.md) | how the expanded bundles were tested: per-language accuracy, the double-check filter, and the ten languages we rejected |
 | [docs/byt5-training-evaluation.md](docs/byt5-training-evaluation.md) | how the ByT5 models were trained and how well it worked (v1 + v2 harmonized retrain) |
-| [docs/NEXT-STEPS.md](https://github.com/AACTools/floravox/blob/main/docs/NEXT-STEPS.md) | current project roadmap and decisions |
-| [floravox pipeline test](https://github.com/AACTools/floravox/blob/main/scripts/pipeline_test.sh) | end-to-end integration test: crate resolution, unit tests, CLI tools, ONNX models, HF reachability |
+| [floravox examples](https://github.com/AACTools/floravox/tree/main/examples) | Python and Node.js examples for ByT5 ONNX inference |
 
 ## License
 
