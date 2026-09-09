@@ -144,7 +144,7 @@ make build-lang LANG=de
 cargo test        # library tests, offline
 ```
 
-You need python3, curl, and `cargo install floravox-g2p --bin floravox-fst-compile` (or `--git https://github.com/AACTools/floravox` for the latest). `docs/build.md` describes the pipeline step by step.
+You need python3, curl, and `cargo install --locked floravox-g2p --bin floravox-fst-compile` from crates.io. `docs/build.md` describes the pipeline step by step.
 
 ## Docs
 
