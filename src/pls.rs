@@ -20,7 +20,8 @@
 //! let xml = voicegarden_lexicons::pls::rows_to_pls(&rows, Some("en"))?;
 //! assert!(xml.contains("<grapheme>claughton</grapheme>"));
 //!
-//! // Import: PLS → rows (alphabet="ipa" phonemes only by default)
+//! // Import: PLS → rows (aliases fold in as their substitution text;
+//! // use pls_to_lexemes + phoneme_rows for phonemes only)
 //! let back = voicegarden_lexicons::pls::pls_to_rows(&xml)?;
 //! assert_eq!(back, rows);
 //! # Ok(())
@@ -53,8 +54,7 @@ pub struct Lexeme {
 ///
 /// # Errors
 ///
-/// Only if a grapheme contains characters that cannot appear in XML
-/// content (escaped automatically otherwise).
+/// Never in practice (content is escaped automatically).
 pub fn rows_to_pls(rows: &[(String, String)], lang: Option<&str>) -> anyhow::Result<String> {
     let lexemes: Vec<Lexeme> = rows
         .iter()
@@ -79,7 +79,8 @@ pub fn lexemes_to_pls(lexemes: &[Lexeme], lang: Option<&str>) -> anyhow::Result<
     writeln!(out, r#"<?xml version="1.0" encoding="UTF-8"?>"#).ok();
     writeln!(
         out,
-        r#"<lexicon version="1.0" xmlns="http://www.w3.org/2005/01/pronunciation-lexicon" xml:lang="{lang}">"#,
+        r#"<lexicon version="1.0" xmlns="http://www.w3.org/2005/01/pronunciation-lexicon" xml:lang="{}">"#,
+        escape(lang)
     )
     .ok();
     for lx in lexemes {
@@ -103,9 +104,10 @@ pub fn lexemes_to_pls(lexemes: &[Lexeme], lang: Option<&str>) -> anyhow::Result<
 
 /// Parse a PLS 1.0 document into rows.
 ///
-/// Alias lexemes are returned as `(grapheme, alias)` pairs — callers
-/// that only want phoneme rows can filter with
-/// [`phoneme_rows`]. Non-IPA `alphabet` attributes are accepted and the
+/// Alias lexemes are returned as `(grapheme, alias)` pairs. Multiple
+/// `<phoneme>`/`<alias>` alternates and multiple `<grapheme>` forms each
+/// fan out as separate rows (nothing spec-legal is dropped). Non-IPA
+/// `alphabet` attributes are accepted and the
 /// value passed through unchanged (conversion is the caller's job
 /// before export, and after import if they declared something else).
 ///
@@ -132,10 +134,12 @@ pub fn pls_to_rows(pls: &str) -> anyhow::Result<Vec<(String, String)>> {
 pub fn pls_to_lexemes(pls: &str) -> anyhow::Result<Vec<Lexeme>> {
     let mut lexemes = Vec::new();
     // A lexeme may carry multiple <grapheme> elements (the W3C spec's
-    // judgement/judgment example); fan each out as its own Lexeme.
+    // judgement/judgment example) and multiple <phoneme>/<alias>
+    // alternates; every combination fans out as its own Lexeme so no
+    // spec-legal pronunciation is silently dropped.
     let mut graphemes: Vec<String> = Vec::new();
-    let mut phoneme = String::new();
-    let mut alias: Option<String> = None;
+    let mut phonemes: Vec<String> = Vec::new();
+    let mut aliases: Vec<String> = Vec::new();
     let mut in_grapheme = false;
     let mut in_phoneme = false;
     let mut in_alias = false;
@@ -153,8 +157,8 @@ pub fn pls_to_lexemes(pls: &str) -> anyhow::Result<Vec<Lexeme>> {
                 match name.as_ref() {
                     b"lexeme" => {
                         graphemes.clear();
-                        phoneme.clear();
-                        alias = None;
+                        phonemes.clear();
+                        aliases.clear();
                     }
                     b"grapheme" => in_grapheme = true,
                     b"phoneme" => in_phoneme = true,
@@ -175,31 +179,48 @@ pub fn pls_to_lexemes(pls: &str) -> anyhow::Result<Vec<Lexeme>> {
                         in_grapheme = false;
                     }
                     b"phoneme" => {
-                        phoneme = std::mem::take(&mut text);
+                        if !text.is_empty() {
+                            phonemes.push(std::mem::take(&mut text));
+                        }
                         in_phoneme = false;
                     }
                     b"alias" => {
-                        alias = Some(std::mem::take(&mut text));
+                        if !text.is_empty() {
+                            aliases.push(std::mem::take(&mut text));
+                        }
                         in_alias = false;
                     }
                     b"lexeme" => {
-                        if phoneme.is_empty() && alias.is_none() {
+                        let label = graphemes.first().map_or("?", String::as_str);
+                        if phonemes.is_empty() && aliases.is_empty() {
                             anyhow::bail!(
-                                "lexeme for {:?} has neither <phoneme> nor <alias>",
-                                graphemes.first().map_or("?", String::as_str)
+                                "lexeme for {label:?} has neither a non-empty \
+                                 <phoneme> nor <alias>"
                             );
                         }
-                        let graphemes = if graphemes.is_empty() {
+                        if graphemes.is_empty() {
                             anyhow::bail!("<lexeme> without <grapheme>");
-                        } else {
-                            std::mem::take(&mut graphemes)
-                        };
-                        for g in graphemes {
-                            lexemes.push(Lexeme {
-                                grapheme: g,
-                                phoneme: phoneme.clone(),
-                                alias: alias.clone(),
-                            });
+                        }
+                        // Emit phoneme lexemes first (preserving alternate
+                        // order), then alias lexemes.
+                        let gs = std::mem::take(&mut graphemes);
+                        for p in &phonemes {
+                            for g in &gs {
+                                lexemes.push(Lexeme {
+                                    grapheme: g.clone(),
+                                    phoneme: p.clone(),
+                                    alias: None,
+                                });
+                            }
+                        }
+                        for a in &aliases {
+                            for g in &gs {
+                                lexemes.push(Lexeme {
+                                    grapheme: g.clone(),
+                                    phoneme: String::new(),
+                                    alias: Some(a.clone()),
+                                });
+                            }
                         }
                     }
                     _ => {}
@@ -214,10 +235,15 @@ pub fn pls_to_lexemes(pls: &str) -> anyhow::Result<Vec<Lexeme>> {
     Ok(lexemes)
 }
 
-/// Filter to phoneme-only rows (drops alias substitutions).
+/// Lexeme rows with alias substitutions dropped — the subset that maps
+/// grapheme→IPA rather than grapheme→word-substitution.
 #[must_use]
-pub fn phoneme_rows(rows: &[(String, String)]) -> Vec<(String, String)> {
-    rows.to_vec()
+pub fn phoneme_rows(lexemes: &[Lexeme]) -> Vec<(String, String)> {
+    lexemes
+        .iter()
+        .filter(|lx| lx.alias.is_none())
+        .map(|lx| (lx.grapheme.clone(), lx.phoneme.clone()))
+        .collect()
 }
 
 fn escape(s: &str) -> String {
@@ -311,6 +337,44 @@ mod tests {
                 ("judgement".to_string(), "ˈdʒʌdʒ.mənt".to_string()),
             ]
         );
+    }
+
+    #[test]
+    fn multiple_phoneme_alternates_fan_out() {
+        let xml = r#"<lexicon version="1.0" xmlns="http://www.w3.org/2005/01/pronunciation-lexicon" xml:lang="en">
+  <lexeme><grapheme>read</grapheme><phoneme>riːd</phoneme><phoneme>red</phoneme></lexeme>
+</lexicon>"#;
+        let rows = pls_to_rows(xml).unwrap();
+        assert_eq!(
+            rows,
+            vec![
+                ("read".to_string(), "riːd".to_string()),
+                ("read".to_string(), "red".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn phoneme_and_alias_lexeme_keeps_both() {
+        let xml = r#"<lexicon version="1.0" xmlns="http://www.w3.org/2005/01/pronunciation-lexicon" xml:lang="en">
+  <lexeme><grapheme>read</grapheme><phoneme>riːd</phoneme><alias>peruse</alias></lexeme>
+</lexicon>"#;
+        let lexemes = pls_to_lexemes(xml).unwrap();
+        assert_eq!(lexemes.len(), 2);
+        assert_eq!(lexemes[0].phoneme, "riːd");
+        assert!(lexemes[0].alias.is_none());
+        assert_eq!(lexemes[1].alias.as_deref(), Some("peruse"));
+        // phoneme_rows keeps only the pronunciation lexeme.
+        let rows = phoneme_rows(&lexemes);
+        assert_eq!(rows, vec![("read".to_string(), "riːd".to_string())]);
+    }
+
+    #[test]
+    fn empty_phoneme_or_alias_is_rejected() {
+        let xml = r#"<lexicon version="1.0" xmlns="http://www.w3.org/2005/01/pronunciation-lexicon" xml:lang="en">
+  <lexeme><grapheme>x</grapheme><alias></alias></lexeme>
+</lexicon>"#;
+        assert!(pls_to_rows(xml).is_err());
     }
 
     #[test]
