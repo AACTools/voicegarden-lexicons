@@ -27,6 +27,7 @@
 //! Phonetisaurus when present → letter-name spelling), ready to hand to
 //! `floravox_core::synth::Synthesizer`.
 
+pub mod notation;
 pub mod pls;
 
 use anyhow::{anyhow, Context};

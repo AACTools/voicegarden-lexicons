@@ -11,6 +11,7 @@ exclude = ["staging/", "audit/", "scripts/", "docs/", "distill*/", "expanded*/",
 
 [dependencies]
 quick-xml = "0.37"
+ipa-translate = "0.2"
 floravox-g2p = "0.6.0"
 memmap2 = "0.9"
 anyhow = "1"
