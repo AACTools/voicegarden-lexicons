@@ -25,7 +25,7 @@ import tempfile
 import urllib.request
 from pathlib import Path
 
-FLORAVOX_TAG = os.environ.get("FLORAVOX_TAG", "v0.5.0")
+FLORAVOX_TAG = os.environ.get("FLORAVOX_TAG", "v0.8.5")
 
 # Language table: code -> (source kind, pypi package or None for core
 # gruut, bcp47-ish, license string, source url for provenance).

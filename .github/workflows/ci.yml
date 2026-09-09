@@ -18,7 +18,7 @@ jobs:
 
       - name: Install floravox tools
         run: |
-          cargo install -q --git https://github.com/AACTools/floravox --tag v0.6.0 floravox-g2p --bin floravox-fst-compile --bin floravox-train-phonetisaurus
+          cargo install -q --locked --version 0.8.5 floravox-g2p --bin floravox-fst-compile --bin floravox-train-phonetisaurus
 
       - name: Fetcher crate tests
         run: cargo test
@@ -48,7 +48,7 @@ jobs:
           set -euxo pipefail
           mkdir -p /tmp/smoke && tar xzf dist/de.tar.gz -C /tmp/smoke
           # direct lookup through the floravox CLI
-          cargo install -q --git https://github.com/AACTools/floravox --tag v0.6.0 floravox-cli --bin floravox
+          cargo install -q --locked --version 0.8.5 floravox-cli --bin floravox
           floravox g2p --lexicon /tmp/smoke/de guten tag welt
 
       - uses: actions/upload-artifact@v4
@@ -67,7 +67,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install floravox tools
         run: |
-          cargo install -q --git https://github.com/AACTools/floravox --tag v0.6.0 floravox-g2p --bin floravox-fst-compile --bin floravox-train-phonetisaurus
+          cargo install -q --locked --version 0.8.5 floravox-g2p --bin floravox-fst-compile --bin floravox-train-phonetisaurus
       # Rebuild WITH per-language WFST training (the per-push build job
       # skips it): ~3 h across all languages, release tags only.
       - name: Build all bundles (with training)
