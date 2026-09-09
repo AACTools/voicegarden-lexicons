@@ -27,6 +27,8 @@
 //! Phonetisaurus when present → letter-name spelling), ready to hand to
 //! `floravox_core::synth::Synthesizer`.
 
+pub mod pls;
+
 use anyhow::{anyhow, Context};
 use flate2::read::GzDecoder;
 use serde::Deserialize;
@@ -120,7 +122,10 @@ impl LexiconArchive {
     /// # Errors
     ///
     /// Network/IO or manifest-parse failures.
-    pub fn new_expanded(base: impl Into<String>, cache: impl Into<PathBuf>) -> anyhow::Result<Self> {
+    pub fn new_expanded(
+        base: impl Into<String>,
+        cache: impl Into<PathBuf>,
+    ) -> anyhow::Result<Self> {
         Self::new_in(base, cache, "expanded.json", "")
     }
 
@@ -219,8 +224,11 @@ impl LexiconArchive {
             self.subdir,
             entry.file
         );
-        let bytes = get_bytes(&format!("{}/{}", self.base.trim_end_matches('/'), self.subdir), &entry.file)
-            .with_context(|| format!("downloading {url}"))?;
+        let bytes = get_bytes(
+            &format!("{}/{}", self.base.trim_end_matches('/'), self.subdir),
+            &entry.file,
+        )
+        .with_context(|| format!("downloading {url}"))?;
         let got = hash_hex(&bytes);
         if got != entry.sha256 {
             return Err(anyhow!(
@@ -259,8 +267,15 @@ impl LexiconArchive {
             .parent()
             .filter(|p| !p.as_os_str().is_empty());
         let bytes = match get_bytes(
-            &format!("{}/{}", base.trim_end_matches('/'), dir.map_or(String::new(), |d| format!("{}/", d.display()))),
-            Path::new(name).file_name().and_then(|n| n.to_str()).unwrap_or(name),
+            &format!(
+                "{}/{}",
+                base.trim_end_matches('/'),
+                dir.map_or(String::new(), |d| format!("{}/", d.display()))
+            ),
+            Path::new(name)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or(name),
         ) {
             Ok(b) => {
                 let _ = fs::write(&cached, &b);

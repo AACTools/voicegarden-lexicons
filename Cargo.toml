@@ -10,6 +10,7 @@ categories = ["accessibility", "text-processing"]
 exclude = ["staging/", "audit/", "scripts/", "docs/", "distill*/", "expanded*/", "results*/", "corpus*/", "session*"]
 
 [dependencies]
+quick-xml = "0.37"
 floravox-g2p = "0.6.0"
 memmap2 = "0.9"
 anyhow = "1"
