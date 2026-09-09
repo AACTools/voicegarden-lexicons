@@ -171,6 +171,13 @@ pub fn pls_to_lexemes(pls: &str) -> anyhow::Result<Vec<Lexeme>> {
                     text.push_str(&t.unescape().map_err(|e| anyhow::anyhow!("PLS text: {e}"))?);
                 }
             }
+            Ok(Event::CData(c)) => {
+                // CDATA is legal element content in PLS; treat it as text
+                // so alternates wrapped in it are not silently dropped.
+                if in_grapheme || in_phoneme || in_alias {
+                    text.push_str(&String::from_utf8_lossy(c.as_ref()));
+                }
+            }
             Ok(Event::End(e)) => {
                 let name = e.local_name();
                 match name.as_ref() {
@@ -367,6 +374,25 @@ mod tests {
         // phoneme_rows keeps only the pronunciation lexeme.
         let rows = phoneme_rows(&lexemes);
         assert_eq!(rows, vec![("read".to_string(), "riːd".to_string())]);
+    }
+
+    #[test]
+    fn cdata_content_is_collected_not_dropped() {
+        let xml = r#"<lexicon version="1.0" xmlns="http://www.w3.org/2005/01/pronunciation-lexicon" xml:lang="en">
+  <lexeme><grapheme>UN</grapheme><alias><![CDATA[United Nations]]></alias></lexeme>
+</lexicon>"#;
+        let rows = pls_to_rows(xml).unwrap();
+        assert_eq!(rows, vec![("UN".to_string(), "United Nations".to_string())]);
+    }
+
+    #[test]
+    fn mixed_lexeme_keeps_cdata_alias_alongside_phoneme() {
+        let xml = r#"<lexicon version="1.0" xmlns="http://www.w3.org/2005/01/pronunciation-lexicon" xml:lang="en">
+  <lexeme><grapheme>read</grapheme><phoneme>riːd</phoneme><alias><![CDATA[peruse]]></alias></lexeme>
+</lexicon>"#;
+        let lexemes = pls_to_lexemes(xml).unwrap();
+        assert_eq!(lexemes.len(), 2);
+        assert_eq!(lexemes[1].alias.as_deref(), Some("peruse"));
     }
 
     #[test]
