@@ -22,7 +22,7 @@
 //! assert_eq!(convert("perro", Notation::Sampa("es")).unwrap(), "pero");
 //!
 //! // ARPABET (CMUdict): spaces + optional stress digits
-//! assert_eq!(convert("K AE1 T", Notation::Arpabet).unwrap(), "ˈkæt");
+//! assert_eq!(convert("K AE1 T", Notation::Arpabet).unwrap(), "kˈæt");
 //! ```
 
 use std::collections::HashMap;
