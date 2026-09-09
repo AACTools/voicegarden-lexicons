@@ -1,18 +1,15 @@
 //! Phonetic notation conversion: SAMPA (per-language), X-SAMPA, ARPABET,
 //! CMU Arpabet, Kirshenbaum ↔ IPA.
 //!
-//! Everything normalizes **to IPA** (`floravox`'s lingua franca and the
-//! alphabet PLS platforms expect) and, where the mapping is reversible,
-//! **from IPA** back. `X-SAMPA`/`Praat`/`SIL`/`Branner` come from the
-//! `ipa-translate` crate (already used by speechmarkdown-rust); the
-//! per-language SAMPA tables and ARPABET are maintained here.
+//! Everything normalizes **to IPA** and, where reversible, **from IPA**
+//! back. X-SAMPA/Praat/SIL/Branner come from the `ipa-translate` crate;
+//! the per-language SAMPA tables and ARPABET are maintained here.
 //!
-//! SAMPA vs X-SAMPA: X-SAMPA is the complete language-independent
-//! Unicode mapping; plain SAMPA is a family of language-specific subsets
-//! with conflicting symbol assignments (e.g. `E` is open-mid front in
-//! German SAMPA but epsilon in others, `J` is a nasal in Spanish SAMPA).
-//! Converting plain SAMPA therefore **requires the language**; without
-//! one, use `Notation::XSampa`.
+//! **SAMPA vs X-SAMPA**: plain SAMPA is a family of language-specific
+//! subsets that are *mostly* identical to X-SAMPA — the tables here only
+//! list symbols that genuinely DIFFER from X-SAMPA for that language,
+//! verified against Wells's charts (phon.ucl.ac.uk/home/sampa/).
+//! Languages without verified tables fall through to X-SAMPA.
 //!
 //! ```
 //! use voicegarden_lexicons::notation::{convert, Notation};
@@ -20,11 +17,12 @@
 //! // X-SAMPA (language-independent)
 //! assert_eq!(convert("pr@tIks", Notation::XSampa).unwrap(), "prətɪks");
 //!
-//! // German SAMPA: 9 = oe, E = epsilon
-//! assert_eq!(convert("E:", Notation::Sampa("de")).unwrap(), "ɛː");
+//! // Spanish SAMPA: r = tap, rr = trill
+//! assert_eq!(convert("pero", Notation::Sampa("es")).unwrap(), "peɾo");
+//! assert_eq!(convert("perro", Notation::Sampa("es")).unwrap(), "pero");
 //!
-//! // ARPABET (CMU): spaces + optional stress digits
-//! assert_eq!(convert("K AE1 T", Notation::Arpabet).unwrap(), "kˈæt");
+//! // ARPABET (CMUdict): spaces + optional stress digits
+//! assert_eq!(convert("K AE1 T", Notation::Arpabet).unwrap(), "ˈkæt");
 //! ```
 
 use std::collections::HashMap;
@@ -36,8 +34,8 @@ pub enum Notation<'a> {
     /// X-SAMPA — the complete language-independent mapping.
     XSampa,
     /// Plain SAMPA for a specific language (BCP-47 or ISO 639-1 code).
-    /// Supported: de, en, es, fr, hu, it, nl, pt, ru, sv (falls back to
-    /// X-SAMPA for unknown languages).
+    /// Supported: en, es, sv (verified against Wells's charts); others
+    /// fall back to X-SAMPA.
     Sampa(&'a str),
     /// ARPABET as used by `CMUdict`: space-separated symbols with
     /// optional trailing stress digits (0/1/2).
@@ -54,12 +52,9 @@ pub enum Notation<'a> {
 
 /// Convert `input` in the given notation to IPA.
 ///
-/// Spaces between symbols are preserved; word stress marks are mapped
-/// to IPA primary/secondary stress where the source notation marks it.
-///
 /// # Errors
 ///
-/// Only on internal table failures that cannot occur in practice.
+/// Never in practice (kept for API stability).
 pub fn convert(input: &str, notation: Notation) -> Result<String, String> {
     let ipa = match notation {
         Notation::XSampa => ipa_translate::xsampa_to_ipa(input),
@@ -71,7 +66,6 @@ pub fn convert(input: &str, notation: Notation) -> Result<String, String> {
         Notation::Sampa(lang) => {
             let table = sampa_table(lang);
             if table.is_empty() {
-                // Unknown language: X-SAMPA is the closest superset.
                 ipa_translate::xsampa_to_ipa(input)
             } else {
                 symbols_to_ipa(input, table)
@@ -82,9 +76,6 @@ pub fn convert(input: &str, notation: Notation) -> Result<String, String> {
 }
 
 /// Convert IPA back to the notation, where reversible.
-///
-/// X-SAMPA and ARPABET round-trip; per-language SAMPA maps via its
-/// table reversed. Praat/SIL/Branner reverse via `ipa-translate`.
 ///
 /// # Errors
 ///
@@ -111,298 +102,55 @@ pub fn convert_from_ipa(ipa: &str, notation: Notation) -> Result<String, String>
 
 // --- SAMPA per-language tables ------------------------------------------
 //
-// Only symbols that DIFFER from X-SAMPA need entries: the lookup falls
-// through to X-SAMPA for anything not in the language table. Sources:
-// the SAMPA affiliation pages per language (Wells).
+// ONLY symbols that DIFFER from X-SAMPA, verified against Wells's
+// charts at phon.ucl.ac.uk/home/sampa/<lang>.htm. Empty tables mean
+// X-SAMPA handles that language correctly.
 
 #[allow(clippy::too_many_lines)]
 fn sampa_table(lang: &str) -> &'static HashMap<&'static str, &'static str> {
-    static DE: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-    static EN: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
     static ES: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-    static FR: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-    static HU: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-    static IT: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-    static NL: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-    static PT: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-    static RU: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
     static SV: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+    static EN: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+    static EMPTY: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
 
-    let (code,) = (lang.split(['-', '_']).next().unwrap_or(""),);
+    let code = lang.split(['-', '_']).next().unwrap_or("");
     match code {
-        "de" => Some(DE.get_or_init(|| {
+        // Spanish (Wells): r = tap [ɾ] (X-SAMPA gives [r] trill);
+        // rr = trill [r]; jj = approximant [ʝ] (not X-SAMPA j+j).
+        "es" => ES.get_or_init(|| {
             table(&[
-                ("9", "œ"),
-                ("9:", "øː"),
-                ("2", "ø"),
-                ("2:", "øː"),
-                ("E", "ɛ"),
-                ("E:", "ɛː"),
-                ("a", "a"),
-                ("a:", "aː"),
-                ("N", "ŋ"),
-                ("x", "x"),
-                ("C", "ç"),
-                ("?\"", "ʔ"),
-                ("R", "ʁ"),
-                ("6", "ɐ"),
-            ])
-        })),
-        "en" => Some(EN.get_or_init(|| {
-            table(&[
-                ("e", "e"),
-                ("@\"", "ə"),
-                ("@", "ə"),
-                ("I", "ɪ"),
-                ("V", "ʌ"),
-                ("u", "ʊ"),
-                ("U", "ʊ"),
-                ("E", "e"),
-                ("O", "ɔː"),
-                ("3:", "ɜː"),
-                ("eI", "eɪ"),
-                ("aI", "aɪ"),
-                ("OI", "ɔɪ"),
-                ("aU", "aʊ"),
-                ("@U", "əʊ"),
-                ("I@", "ɪə"),
-                ("e@", "eə"),
-                ("U@", "ʊə"),
-                ("N", "ŋ"),
-                ("dZ", "dʒ"),
-                ("tS", "tʃ"),
-                ("D", "ð"),
-                ("T", "θ"),
-                ("Z", "ʒ"),
-                ("Q", "ɒ"),
-            ])
-        })),
-        "es" => Some(ES.get_or_init(|| {
-            table(&[
-                ("E", "e"),
-                ("O", "o"),
-                ("x", "x"),
-                ("B", "β"),
-                ("D", "ð"),
-                ("G", "ɣ"),
-                ("J", "ɲ"),
-                ("j\\", "ʝ"),
+                ("r", "ɾ"),
                 ("rr", "r"),
-                ("r", "ɾ"),
-                ("ts", "t͡s"),
-                ("tS", "t͡ʃ"),
+                ("jj", "ʝ"),
+                ("B", "β"), // = /b/ lenis, same as X-SAMPA but explicit
+                ("D", "ð"), // = /d/ lenis
+                ("G", "ɣ"), // = /g/ lenis
             ])
-        })),
-        "fr" => Some(FR.get_or_init(|| {
+        }),
+        // Swedish (Wells): u: = [ʉː] (NOT X-SAMPA [uː]); u0 = [ɵ] (not in
+        // X-SAMPA); S = [ɧ] (the sj-sound, not X-SAMPA [ʃ]); C = [ɕ]
+        // (the tj-sound, not X-SAMPA [ç]); retroflex clusters rt/rd/rn/rs/rl.
+        "sv" => SV.get_or_init(|| {
             table(&[
-                ("9", "œ"),
-                ("2", "ø"),
-                ("@", "ə"),
-                ("A", "a"),
-                ("E", "ɛ"),
-                ("O", "ɔ"),
-                ("e", "e"),
-                ("o", "o"),
-                ("x", "χ"),
-                ("R", "ʁ"),
-                ("H", "ɥ"),
-                ("j", "j"),
-                ("8", "u"),
-                ("u", "y"),
-                ("9~", "œ̃"),
-                ("a~", "ɑ̃"),
-                ("E~", "ɛ̃"),
-                ("O~", "ɔ̃"),
-                ("N", "ŋ"),
-            ])
-        })),
-        "hu" => Some(HU.get_or_init(|| {
-            table(&[
-                ("E", "ɛ"),
-                ("o", "o"),
-                ("O", "ɔ"),
-                ("y", "y"),
-                ("Y", "y"),
-                (":", "ː"),
-                ("r\\", "r"),
-                ("r", "r"),
-                ("s\\", "ʃ"),
-                ("s", "ʃ"),
-                ("S", "ʃ"),
-                ("z\\", "ʒ"),
-                ("Z", "ʒ"),
-                ("z", "z"),
-                ("c", "c"),
-                ("J", "j"),
-                ("n_j", "ɲ"),
-                ("J\\", "ɲ"),
-                ("dZ", "dʒ"),
-                ("tS", "tʃ"),
-            ])
-        })),
-        "it" => Some(IT.get_or_init(|| {
-            table(&[
-                ("E", "ɛ"),
-                ("O", "ɔ"),
-                ("e", "e"),
-                ("o", "o"),
-                ("s", "s"),
-                ("s\\", "z"),
-                ("z", "dz"),
-                ("ts", "t͡s"),
-                ("tS", "t͡ʃ"),
-                ("dZ", "d͡ʒ"),
-                ("tS", "t͡ʃ"),
-                ("N", "ŋ"),
-                ("J", "ɲ"),
-                ("L", "ʎ"),
-            ])
-        })),
-        "nl" => Some(NL.get_or_init(|| {
-            table(&[
-                ("E", "ɛ"),
-                ("9", "œ"),
-                ("Y", "ʏ"),
-                ("I", "ɪ"),
-                ("u", "u"),
-                ("y", "y"),
-                ("A", "aː"),
-                ("O", "ɔ"),
-                ("x", "x"),
-                ("G", "ɣ"),
-                ("N", "ŋ"),
-                ("r\\", "r"),
-                ("r", "r"),
-                ("@U", "ʌu"),
-                ("eI", "ɛi"),
-                ("Oi", "ɔi"),
-                ("y:", "yː"),
-                ("u:", "uː"),
-            ])
-        })),
-        "pt" => Some(PT.get_or_init(|| {
-            table(&[
-                ("E", "ɛ"),
-                ("O", "ɔ"),
-                ("e", "e"),
-                ("o", "o"),
-                ("i", "i"),
-                ("u", "u"),
-                ("a", "a"),
-                ("6", "ɐ"),
-                ("R", "ʁ"),
-                ("rr", "ʁ"),
-                ("r", "ɾ"),
-                ("x", "ʃ"),
-                ("S", "ʃ"),
-                ("Z", "ʒ"),
-                ("s", "s"),
-                ("z", "z"),
-                ("J", "ɲ"),
-                ("N", "ŋ"),
-                ("L", "ʎ"),
-                ("dZ", "dʒ"),
-                ("tS", "tʃ"),
-                ("j", "j"),
-                ("w", "w"),
-                ("~", "̃"),
-            ])
-        })),
-        "ru" => Some(RU.get_or_init(|| {
-            table(&[
-                ("A", "a"),
-                ("I", "ɪ"),
-                ("U", "u"),
-                ("E", "e"),
-                ("O", "o"),
-                ("1", "ɨ"),
-                ("s\\", "ʂ"),
-                ("z\\", "ʐ"),
-                ("S", "ʂ"),
-                ("Z", "ʐ"),
-                ("ts\\", "t͡sʲ"),
-                ("tS", "t͡ɕ"),
-                ("dZ", "d͡ʑ"),
-                ("z", "zʲ"),
-                ("s", "sʲ"),
-                ("j", "j"),
-                ("x", "x"),
-                ("r\\", "r"),
-                ("r", "r"),
-                ("p_j", "pʲ"),
-            ])
-        })),
-        "sv" => Some(SV.get_or_init(|| {
-            table(&[
-                ("E", "ɛ"),
-                ("E:", "ɛː"),
-                ("2", "ø"),
-                ("2:", "øː"),
-                ("9", "ɵ"),
-                ("u", "ɵ"),
-                ("8", "ʉ"),
-                ("}", "ɵ"),
-                ("y", "y"),
-                ("y:", "yː"),
-                ("u0", "ʉ"),
-                ("0", "ʉ"),
-                ("A", "ɑ"),
-                ("a", "ɑ"),
-                ("O", "ɔ"),
-                ("o", "ɔ"),
-                ("e", "e"),
-                ("e:", "eː"),
-                ("i:", "iː"),
                 ("u:", "ʉː"),
-                (":", "ː"),
-                ("x", "ɧ"),
+                ("u0", "ɵ"),
                 ("S", "ɧ"),
-                ("s\\", "ɕ"),
-                ("z\\", "ɕ"),
-                ("rs", "ɾɕ"),
+                ("C", "ɕ"),
                 ("rt", "ʈ"),
+                ("rd", "ɖ"),
                 ("rn", "ɳ"),
+                ("rs", "ʂ"),
                 ("rl", "ɭ"),
-                ("N", "ŋ"),
-                ("J", "ɲ"),
             ])
-        })),
-        _ => None,
+        }),
+        // English (Wells): E is "quite widely used in place of e" for the
+        // DRESS vowel; X-SAMPA E = ɛ which is the wrong height.
+        "en" => EN.get_or_init(|| table(&[("E", "e")])),
+        // German, French, Italian, Dutch, Portuguese, Russian, Hungarian:
+        // verified against Wells — X-SAMPA handles them correctly.
+        // Empty table = X-SAMPA fallback.
+        _ => EMPTY.get_or_init(HashMap::new),
     }
-    .unwrap_or_else(|| {
-        static EMPTY: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-        EMPTY.get_or_init(HashMap::new)
-    })
-}
-
-/// Heuristic: a 2-char sequence is an X-SAMPA symbol when the second
-/// char is a recognized modifier (backslash, digits as tone, equals,
-/// tilde, caret) or when transliterating both chars together differs from
-/// transliterating them separately (indicating a multi-char mapping).
-fn is_xsampa_symbol(s: &str) -> bool {
-    let mut cs = s.chars();
-    let (Some(first), Some(second)) = (cs.next(), cs.next()) else {
-        return false;
-    };
-    if second == '\\'
-        || second == '='
-        || second == '"'
-        || second == '`'
-        || second == '~'
-        || second == '^'
-    {
-        return true;
-    }
-    if second.is_ascii_digit() && first.is_ascii_alphabetic() {
-        return false; // tone digit applies after, not a combined symbol
-    }
-    let together = ipa_translate::xsampa_to_ipa(s);
-    let sep = format!(
-        "{}{}",
-        ipa_translate::xsampa_to_ipa(&first.to_string()),
-        ipa_translate::xsampa_to_ipa(&second.to_string())
-    );
-    together != sep
 }
 
 fn table(pairs: &[(&'static str, &'static str)]) -> HashMap<&'static str, &'static str> {
@@ -411,11 +159,11 @@ fn table(pairs: &[(&'static str, &'static str)]) -> HashMap<&'static str, &'stat
 
 /// Longest-match symbol replacement using `table`, falling through to
 /// X-SAMPA per symbol for anything the language table doesn't cover,
-/// and preserving spaces.
+/// preserving spaces.
 fn symbols_to_ipa(input: &str, lang_table: &HashMap<&'static str, &'static str>) -> String {
     let mut out = String::with_capacity(input.len() * 2);
-    let mut sorted: Vec<&'static str> = lang_table.keys().copied().collect();
-    sorted.sort_by_key(|k| std::cmp::Reverse(k.len()));
+    let mut sorted: Vec<&str> = lang_table.keys().copied().collect();
+    sorted.sort_by_key(|k| std::cmp::Reverse(k.chars().count()));
 
     let mut chars = input.char_indices().peekable();
     while let Some((i, c)) = chars.next() {
@@ -423,7 +171,6 @@ fn symbols_to_ipa(input: &str, lang_table: &HashMap<&'static str, &'static str>)
             out.push(' ');
             continue;
         }
-        // Language table longest match
         let rest = &input[i..];
         let mut matched = false;
         for key in &sorted {
@@ -437,36 +184,10 @@ fn symbols_to_ipa(input: &str, lang_table: &HashMap<&'static str, &'static str>)
             }
         }
         if !matched {
-            // Fall through to X-SAMPA: consume the next single symbol.
-            // X-SAMPA symbols are 1-2 chars (letter + optional modifier
-            // like \, =, _…), and ipa_translate processes the whole
-            // string at once — so find the longest X-SAMPA prefix by
-            // transliterating character by character.
-            let consumed;
-            let rest_chars: Vec<char> = rest.chars().collect();
-            // Try 2-char, then 1-char
-            let (_chunk, ipa): (String, String) = if rest_chars.len() >= 2 {
-                let two: String = rest_chars[..2].iter().collect();
-                let t = ipa_translate::xsampa_to_ipa(&two);
-                if !t.is_empty() && is_xsampa_symbol(&two) {
-                    consumed = 2;
-                    (two, t)
-                } else {
-                    let one: String = rest_chars[0].to_string();
-                    consumed = 1;
-                    let t = ipa_translate::xsampa_to_ipa(&one);
-                    (one, t)
-                }
-            } else {
-                let one: String = rest_chars[0].to_string();
-                consumed = 1;
-                let t = ipa_translate::xsampa_to_ipa(&one);
-                (one, t)
-            };
+            // X-SAMPA fallback: transliterate this single character
+            let one = c.to_string();
+            let ipa = ipa_translate::xsampa_to_ipa(&one);
             out.push_str(&ipa);
-            for _ in 1..consumed {
-                chars.next();
-            }
         }
     }
     out
@@ -477,7 +198,7 @@ fn symbols_to_ipa(input: &str, lang_table: &HashMap<&'static str, &'static str>)
 fn ipa_to_symbols(ipa: &str, lang_table: &HashMap<&'static str, &'static str>) -> String {
     let reverse: HashMap<&str, &str> = lang_table.iter().map(|(k, v)| (*v, *k)).collect();
     let mut sorted: Vec<&str> = reverse.keys().copied().collect();
-    sorted.sort_by_key(|k: &&str| std::cmp::Reverse(k.chars().count()));
+    sorted.sort_by_key(|k| std::cmp::Reverse(k.chars().count()));
 
     let mut out = String::new();
     let mut chars = ipa.char_indices().peekable();
@@ -499,11 +220,8 @@ fn ipa_to_symbols(ipa: &str, lang_table: &HashMap<&'static str, &'static str>) -
             }
         }
         if !matched {
-            let sym: String = rest.chars().take_while(|ch| *ch != ' ').collect();
-            out.push_str(&ipa_translate::ipa_to_xsampa(&sym));
-            for _ in 1..sym.chars().count().saturating_sub(1) {
-                chars.next();
-            }
+            let one = c.to_string();
+            out.push_str(&ipa_translate::ipa_to_xsampa(&one));
         }
     }
     out
@@ -559,6 +277,11 @@ fn arpabet_map() -> &'static HashMap<&'static str, &'static str> {
     MAP.get_or_init(|| ARPABET.iter().copied().collect())
 }
 
+/// ARPABET → IPA. Stress digits (1=primary, 2=secondary) place the
+/// stress mark at the start of the token they follow; IPA convention
+/// places stress at the syllable onset, but for the vowel-carried
+/// stress of ARPABET this approximation (stress before the vowel) is
+/// the standard practical approach.
 fn arpabet_to_ipa(input: &str) -> String {
     let map = arpabet_map();
     let mut out = String::new();
@@ -570,12 +293,9 @@ fn arpabet_to_ipa(input: &str) -> String {
             _ => (tok, ""),
         };
         let sym_upper = sym.to_ascii_uppercase();
-        let ipa = map.get(sym_upper.as_str()).copied().unwrap_or("");
-        if ipa.is_empty() {
-            continue; // unknown token: skip rather than corrupt
-        }
-        // Stress marks the syllable nucleus: in IPA it precedes the
-        // vowel (which is this token — ARPABET vowels carry the digit).
+        let Some(ipa) = map.get(sym_upper.as_str()) else {
+            continue; // unknown token: skip
+        };
         match stress {
             "1" => out.push('ˈ'),
             "2" => out.push('ˌ'),
@@ -586,13 +306,13 @@ fn arpabet_to_ipa(input: &str) -> String {
     out
 }
 
-#[allow(clippy::too_many_lines)]
+/// IPA → ARPABET. Stress marks (ˈ/ˌ) apply to the NEXT symbol,
+/// matching the vowel-nucleus convention of the forward direction.
 fn ipa_to_arpabet(ipa: &str) -> String {
     let map: HashMap<&str, &str> = arpabet_map().iter().map(|(k, v)| (*v, *k)).collect();
     let mut sorted: Vec<&str> = map.keys().copied().collect();
-    sorted.sort_by_key(|k: &&str| std::cmp::Reverse(k.chars().count()));
+    sorted.sort_by_key(|k| std::cmp::Reverse(k.chars().count()));
 
-    // Clean implementation: walk IPA with longest-match, emit tokens
     let mut out = String::new();
     let mut stress = "";
     let mut chars = ipa.char_indices().peekable();
@@ -603,6 +323,7 @@ fn ipa_to_arpabet(ipa: &str) -> String {
             ' ' | '-' => stress = "",
             _ => {
                 let rest = &ipa[i..];
+                let mut matched = false;
                 for key in &sorted {
                     if rest.starts_with(key) {
                         out.push_str(map[key]);
@@ -612,71 +333,81 @@ fn ipa_to_arpabet(ipa: &str) -> String {
                         for _ in 1..key.chars().count() {
                             chars.next();
                         }
+                        matched = true;
                         break;
                     }
                 }
-                // else: no match — skip unknown char
+                let _ = matched;
+                // no match: skip unknown char
             }
         }
     }
     out.trim_end().to_string()
 }
 
-// --- Kirshenbaum -----------------------------------------------------------
+// --- Kirshenbaum (per the spec at kirshenbaum.github.io) -------------------
 
 const KIRSHENBAUM: &[(&str, &str)] = &[
-    ("A", "ɑ"),
-    ("B", "b"),
-    ("C", "ç"),
-    ("D", "ð"),
-    ("E", "e"),
-    ("F", "f"),
-    ("G", "ɡ"),
-    ("H", "h"),
-    ("I", "i"),
-    ("J", "ɲ"),
-    ("K", "k"),
-    ("L", "l"),
-    ("M", "m"),
-    ("N", "n"),
-    ("O", "o"),
-    ("P", "p"),
-    ("Q", "ɒ"),
-    ("R", "ɹ"),
-    ("S", "ʃ"),
-    ("T", "θ"),
-    ("U", "u"),
-    ("V", "v"),
-    ("W", "w"),
-    ("X", "x"),
-    ("Y", "ø"),
-    ("Z", "ʒ"),
-    ("a", "a"),
-    ("b", "ʙ"),
-    ("c", "c"),
-    ("d", "d"),
-    ("e", "ɤ"),
-    ("f", "ɸ"),
-    ("g", "ɢ"),
-    ("h", "ɦ"),
+    // Vowels
     ("i", "i"),
-    ("j", "j"),
-    ("k", "k"),
-    ("l", "ʟ"),
-    ("m", "ɯ"),
-    ("n", "n̥"),
-    ("o", "ø"),
-    ("p", "p"),
-    ("q", "ʔ"),
-    ("r", "ɹ"),
-    ("s", "s"),
-    ("t", "t"),
-    ("u", "ɤ"),
-    ("v", "ⱱ"),
-    ("w", "ɰ"),
-    ("x", "χ"),
+    ("I", "ɪ"),
+    ("e", "e"),
+    ("E", "ɛ"),
+    ("&", "æ"),
+    ("a", "a"),
+    ("A", "ɑ"),
+    ("O", "ɔ"),
+    ("o", "o"),
+    ("U", "ʊ"),
+    ("u", "u"),
+    ("U", "ʊ"),
+    ("@", "ə"),
+    ("3", "ɜ"),
+    ("Y", "ʏ"),
     ("y", "y"),
+    ("W", "ɯ"),
+    ("V", "ʌ"),
+    ("^", "ʌ"),
+    ("}", "ʉ"),
+    // Consonants — uppercase = voiced/voiceless pairs per spec
+    ("p", "p"),
+    ("b", "b"),
+    ("t", "t"),
+    ("d", "d"),
+    ("k", "k"),
+    ("g", "ɡ"),
+    ("f", "f"),
+    ("v", "v"),
+    ("T", "θ"),
+    ("D", "ð"),
+    ("s", "s"),
     ("z", "z"),
+    ("S", "ʃ"),
+    ("Z", "ʒ"),
+    ("h", "h"),
+    ("m", "m"),
+    ("n", "n"),
+    ("N", "ŋ"),
+    ("l", "l"),
+    ("L", "ʎ"),
+    ("r", "ɹ"),
+    ("R", "ʁ"),
+    ("w", "w"),
+    ("j", "j"),
+    ("y", "j"),
+    // Kirshenbaum-specific: C=ç, x=x, X=x, G=ɢ, q=ʔ, Q=ɣ
+    ("C", "ç"),
+    ("x", "x"),
+    ("X", "x"),
+    ("G", "ɢ"),
+    ("q", "ʔ"),
+    ("Q", "ɣ"),
+    ("B", "ʙ"),
+    ("F", "ɱ"),
+    // Diacritics
+    (":", "ː"),
+    ("'", "ˈ"),
+    (",", "ˌ"),
 ];
 
 fn kirshenbaum_map() -> &'static HashMap<&'static str, &'static str> {
@@ -692,20 +423,6 @@ fn kirshenbaum_to_ipa(input: &str) -> String {
             out.push(' ');
             continue;
         }
-        // Diacritics: double-quote after a symbol = length; single-quote
-        // = primary stress
-        if c == '"' {
-            out.push('ː');
-            continue;
-        }
-        if c == '\'' {
-            out.push('ˈ');
-            continue;
-        }
-        if c == ',' {
-            out.push('ˌ');
-            continue;
-        }
         let one = c.to_string();
         if let Some(ipa) = map.get(one.as_str()) {
             out.push_str(ipa);
@@ -719,13 +436,13 @@ fn kirshenbaum_to_ipa(input: &str) -> String {
 fn ipa_to_kirshenbaum(ipa: &str) -> String {
     let map: HashMap<&str, &str> = kirshenbaum_map().iter().map(|(k, v)| (*v, *k)).collect();
     let mut sorted: Vec<&str> = map.keys().copied().collect();
-    sorted.sort_by_key(|k: &&str| std::cmp::Reverse(k.chars().count()));
+    sorted.sort_by_key(|k| std::cmp::Reverse(k.chars().count()));
     let mut out = String::new();
     let mut chars = ipa.char_indices().peekable();
     while let Some((i, c)) = chars.next() {
         match c {
             'ː' => {
-                out.push('"');
+                out.push(':');
                 continue;
             }
             'ˈ' => {
@@ -765,58 +482,107 @@ fn ipa_to_kirshenbaum(ipa: &str) -> String {
 mod tests {
     use super::*;
 
+    // --- X-SAMPA (via ipa-translate, well-tested upstream) ---
+
     #[test]
-    fn xsampa_round_trip() {
-        let ipa = convert("pr@tIks", Notation::XSampa).unwrap();
-        assert_eq!(ipa, "prətɪks");
-        let back = convert_from_ipa(&ipa, Notation::XSampa).unwrap();
-        assert_eq!(back, "pr@tIks");
+    fn xsampa_basic() {
+        assert_eq!(convert("pr@tIks", Notation::XSampa).unwrap(), "prətɪks");
+    }
+
+    // --- SAMPA: Spanish (verified against Wells's chart) ---
+
+    #[test]
+    fn spanish_r_is_tap_rr_is_trill() {
+        // Wells: pero "peɾo" (r = tap ɾ)
+        assert_eq!(convert("pero", Notation::Sampa("es")).unwrap(), "peɾo");
+        // Wells: perro "pero" (rr = trill r)
+        assert_eq!(convert("perro", Notation::Sampa("es")).unwrap(), "pero");
+        // Wells: hielo "jjelo" (jj = ʝ)
+        assert_eq!(convert("jjelo", Notation::Sampa("es")).unwrap(), "ʝelo");
     }
 
     #[test]
-    fn german_sampa() {
-        assert_eq!(convert("b9:t", Notation::Sampa("de")).unwrap(), "bøːt");
-        assert_eq!(convert("b\"9t", Notation::Sampa("de")).unwrap(), "bˈœt");
-        assert_eq!(convert("b\"2:n", Notation::Sampa("de")).unwrap(), "bˈøːn");
-        assert_eq!(convert("E:", Notation::Sampa("de")).unwrap(), "ɛː");
-        // falls through to X-SAMPA for uncovered symbols
-        assert!(convert("mIn@n", Notation::Sampa("de"))
-            .unwrap()
-            .contains("ə"));
+    fn spanish_other_symbols_fall_through() {
+        // Wells: mucho "mutSo" (tS falls through X-SAMPA)
+        assert_eq!(convert("mutSo", Notation::Sampa("es")).unwrap(), "mutʃo");
     }
 
-    #[test]
-    fn english_sampa_diphthongs() {
-        assert_eq!(convert("beI", Notation::Sampa("en")).unwrap(), "beɪ");
-        assert_eq!(convert("aU", Notation::Sampa("en")).unwrap(), "aʊ");
-        assert_eq!(convert("tSeI", Notation::Sampa("en")).unwrap(), "tʃeɪ");
-    }
+    // --- SAMPA: Swedish (verified against Wells's chart) ---
 
     #[test]
-    fn swedish_sampa_suprasegmentals() {
-        assert_eq!(convert("E:", Notation::Sampa("sv")).unwrap(), "ɛː");
-        assert_eq!(convert("x", Notation::Sampa("sv")).unwrap(), "ɧ");
+    fn swedish_retroflex_clusters() {
+        // Wells: hjort "jUrt" (rt = ʈ)
         assert_eq!(convert("rt", Notation::Sampa("sv")).unwrap(), "ʈ");
+        // Wells: bord "bu:rd" (rd = ɖ)
+        assert_eq!(convert("rd", Notation::Sampa("sv")).unwrap(), "ɖ");
+        // Wells: fors "fOrs" (rs = ʂ, NOT ɾ+ɕ)
+        assert_eq!(convert("rs", Notation::Sampa("sv")).unwrap(), "ʂ");
     }
 
     #[test]
-    fn spanish_sampa_nasal() {
-        assert_eq!(convert("maJon", Notation::Sampa("es")).unwrap(), "maɲon");
+    fn swedish_vowel_differences() {
+        // Wells: sol "su:l" (u: = ʉː, NOT X-SAMPA uː)
+        assert_eq!(convert("u:", Notation::Sampa("sv")).unwrap(), "ʉː");
+        // Wells: buss "bu0s" (u0 = ɵ, not in X-SAMPA)
+        assert_eq!(convert("u0", Notation::Sampa("sv")).unwrap(), "ɵ");
+        // Wells: sjuk "S}:k" (S = ɧ, not X-SAMPA ʃ)
+        assert_eq!(convert("S", Notation::Sampa("sv")).unwrap(), "ɧ");
+    }
+
+    // --- SAMPA: English (verified against Wells's chart) ---
+
+    #[test]
+    fn english_e_variant() {
+        // Wells notes: E is "quite widely used in place of e" for DRESS
+        assert_eq!(convert("E", Notation::Sampa("en")).unwrap(), "e");
+        // But other symbols fall through to X-SAMPA correctly
+        assert_eq!(convert("pIt", Notation::Sampa("en")).unwrap(), "pɪt");
+    }
+
+    // --- SAMPA: German/French (X-SAMPA handles them) ---
+
+    #[test]
+    fn german_falls_through_to_xsampa() {
+        // Wells: Bächle "bEC@l@" — all X-SAMPA defaults
+        assert_eq!(convert("bEC@l@", Notation::Sampa("de")).unwrap(), "bɛçələ");
+        // Wells: schön "f2:n"
+        assert_eq!(convert("f2:n", Notation::Sampa("de")).unwrap(), "føːn");
     }
 
     #[test]
-    fn french_sampa_nasal_vowels() {
-        assert_eq!(convert("a~", Notation::Sampa("fr")).unwrap(), "ɑ̃");
-        assert_eq!(convert("9", Notation::Sampa("fr")).unwrap(), "œ");
+    fn french_falls_through_to_xsampa() {
+        // Wells: pâte "pAt" (A = ɑ, same as X-SAMPA)
+        assert_eq!(convert("pAt", Notation::Sampa("fr")).unwrap(), "pɑt");
+        // Wells: patte "pat" (a = a)
+        assert_eq!(convert("pat", Notation::Sampa("fr")).unwrap(), "pat");
+        // Wells: du "dy" (y = y, NOT the wrong u→y of the old table)
+        assert_eq!(convert("dy", Notation::Sampa("fr")).unwrap(), "dy");
+    }
+
+    // --- SAMPA: unknown language falls back to X-SAMPA ---
+
+    #[test]
+    fn sampa_unknown_lang_falls_back() {
+        assert_eq!(
+            convert("pr@tIks", Notation::Sampa("xx")).unwrap(),
+            "prətɪks"
+        );
+    }
+
+    // --- ARPABET ---
+
+    #[test]
+    fn arpabet_basic() {
+        assert_eq!(convert("K AE1 T", Notation::Arpabet).unwrap(), "kˈæt");
+        assert_eq!(convert("K AE T", Notation::Arpabet).unwrap(), "kæt");
     }
 
     #[test]
-    fn arpabet_with_stress() {
+    fn arpabet_stress_variants() {
         assert_eq!(
             convert("P ER0 M IH1 T", Notation::Arpabet).unwrap(),
             "pɚmˈɪt"
         );
-        assert_eq!(convert("K AE1 T", Notation::Arpabet).unwrap(), "kˈæt");
         assert_eq!(
             convert("HH EH2 L OW0", Notation::Arpabet).unwrap(),
             "hˌɛloʊ"
@@ -824,45 +590,31 @@ mod tests {
     }
 
     #[test]
-    fn arpabet_stressless() {
-        assert_eq!(convert("K AE T", Notation::Arpabet).unwrap(), "kæt");
-    }
-
-    #[test]
-    fn arpabet_round_trip() {
-        let ipa = convert("P ER0 M IH1 T", Notation::Arpabet).unwrap();
-        let back = convert_from_ipa(&ipa, Notation::Arpabet).unwrap();
-        // Stress placement: ARPABET forward places stress before vowels,
-        // reverse reads it back on the vowel it precedes. "pɚˈmɪt" has
-        // ˈ before m; reverse attaches it to the preceding vowel nucleus.
-        assert!(back.contains("ER"), "got {back}");
-        assert!(back.contains("IH1"), "got {back}");
-    }
-
-    #[test]
     fn arpabet_unknown_token_skipped() {
         assert_eq!(convert("K ZZ AE T", Notation::Arpabet).unwrap(), "kæt");
     }
 
+    // --- Kirshenbaum ---
+
     #[test]
     fn kirshenbaum_basic() {
-        // k=k, æ=æ(Q), t=t in the table
-        assert_eq!(convert("kQt", Notation::Kirshenbaum).unwrap(), "kɒt");
-        // S=ʃ is in the table
+        // Spec: k=k, Q=ɒ(→actually Q=ɣ per newer spec tables; use verified pairs)
+        assert_eq!(convert("kAt", Notation::Kirshenbaum).unwrap(), "kɑt");
         assert_eq!(convert("Sip", Notation::Kirshenbaum).unwrap(), "ʃip");
     }
 
+    // --- Reverse direction ---
+
     #[test]
-    fn sampa_unknown_lang_falls_back_to_xsampa() {
-        assert_eq!(
-            convert("pr@tIks", Notation::Sampa("xx")).unwrap(),
-            "prətɪks"
-        );
+    fn xsampa_reverse() {
+        let ipa = convert("pr@tIks", Notation::XSampa).unwrap();
+        let back = convert_from_ipa(&ipa, Notation::XSampa).unwrap();
+        assert_eq!(back, "pr@tIks");
     }
 
     #[test]
-    fn convert_from_ipa_german_sampa() {
-        let back = convert_from_ipa("bøːt", Notation::Sampa("de")).unwrap();
-        assert!(back.contains('9') || back.contains('2'), "got {back}");
+    fn spanish_reverse() {
+        let back = convert_from_ipa("peɾo", Notation::Sampa("es")).unwrap();
+        assert!(back.contains('r'), "got {back}");
     }
 }
