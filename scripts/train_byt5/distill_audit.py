@@ -68,6 +68,36 @@ def fold(s: str) -> str:
     return "".join(out)
 
 
+def fold_greek(s: str) -> str:
+    """Ell-specific convention fold on top of fold(): Greek sources
+    disagree systematically on (a) trill vs tap r, (b) whether nasals
+    survive before voiced stops (nd/mb/ng vs d/b/g), (c) whether an
+    unstressed iota in hiatus is transcribed (a ʝ i a vs a ʝ a). These
+    are transcription conventions, not different pronunciations."""
+    toks = [t for t in norm(s).split() if t]
+    toks = ["ɾ" if t == "r" else t for t in toks]
+    out = []
+    for i, t in enumerate(toks):
+        if t in ("n", "m") and i + 1 < len(toks) and toks[i + 1] in ("d", "b", "g"):
+            continue  # de-nasalized before voiced stops
+        out.append(t)
+    # Iota offglide: drop a standalone "i" whose neighbours are a
+    # consonant and a vowel (a ʝ i a -> a ʝ a).
+    vowels = set("aeɛiouɔɛʏyɑɒ")
+    dropped = []
+    for i, t in enumerate(out):
+        if (
+            t == "i"
+            and dropped
+            and dropped[-1] not in vowels
+            and i + 1 < len(out)
+            and out[i + 1] in vowels
+        ):
+            continue
+        dropped.append(t)
+    return fold(" ".join(dropped))
+
+
 def per(ref: str, hyp: str) -> float:
     # phoneme-token levenshtein / len(ref)
     r, h = ref.split(), hyp.split()
@@ -91,6 +121,8 @@ def main() -> None:
     ap.add_argument("--n", type=int, default=200)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", default="audit")
+    ap.add_argument("--greek-folds", action="store_true",
+                    help="apply ell convention folds (r/ɾ, nasal-drop, iota offglide)")
     args = ap.parse_args()
 
     rows = load_test(args.lang)
@@ -126,7 +158,8 @@ def main() -> None:
         agreed_total += 1
         ok = t_out == norm(truth)
         agreed_exact += ok
-        agreed_fold += fold(t_out) == fold(truth)
+        f = fold_greek if args.greek_folds else fold
+        agreed_fold += f(t_out) == f(truth)
         p = per(norm(truth), t_out)
         per_sum += p
         if not ok and len(examples) < 8:

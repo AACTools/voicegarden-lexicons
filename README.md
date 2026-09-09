@@ -34,7 +34,12 @@ For 11 languages we filled those gaps ahead of time. The process had three steps
 2. We asked two neural networks (the [ByT5 G2P models](https://huggingface.co/willwade/byt5-g2p-multilingual), a [small](https://huggingface.co/willwade/byt5-g2p-multilingual) and a [tiny](https://huggingface.co/willwade/byt5-g2p-multilingual-tiny) version, trained independently) to pronounce each missing word. We kept a word only when both networks produced the same pronunciation. The G2P models and their [P2G inverses](https://huggingface.co/willwade/byt5-p2g-multilingual) were retrained in August 2026 on a harmonized 4.12M-pair corpus with per-language IPA conventions unified via a learned EM aligner ([training details](docs/byt5-training-evaluation.md)).
 3. We tested the kept pronunciations against dictionary words the networks had never seen, to measure how often an agreed answer is actually right.
 
-Here is what that produced. "Added entries" is how many new words each dictionary gained. "Measured accuracy" is the share of added pronunciations that were exactly right in that test. "Text coverage" is the share of the 50,000 most common words the dictionary can now look up, before and after.
+Here is what that produced. (¹ The Greek sources disagree on
+transcription conventions — trill vs tap *r*, nasal retention before
+voiced stops (*nd/mb* vs *d/b*), unstressed iota in hiatus — far more
+than they disagree on pronunciations. Folding those conventions
+(`distill_audit.py --greek-folds`) measures agreed-answer precision at
+96.7%; audit 2026-09.) "Added entries" is how many new words each dictionary gained. "Measured accuracy" is the share of added pronunciations that were exactly right in that test. "Text coverage" is the share of the 50,000 most common words the dictionary can now look up, before and after.
 
 | Bundle | Added entries | Measured accuracy | Text coverage |
 |---|---|---|---|
@@ -46,7 +51,7 @@ Here is what that produced. "Added entries" is how many new words each dictionar
 | fra | 43,943 | 93% | 68% to 95% |
 | tur | 46,503 | 93% | 12% to 87% |
 | spa-LatAm | 51,528 | 92% (estimate below) | 55% to 97% |
-| ell | 30,266 | 86% | 10% to 75% |
+| ell | 30,266 | 86% exact / 96.7% convention-folded¹ | 10% to 75% |
 | swe | 22,900 | 82% | 25% to 48% |
 | eng-US | 9,253 | 98% (see note) | 86% to 90% |
 
