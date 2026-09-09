@@ -34,8 +34,9 @@ pub enum Notation<'a> {
     /// X-SAMPA — the complete language-independent mapping.
     XSampa,
     /// Plain SAMPA for a specific language (BCP-47 or ISO 639-1 code).
-    /// Supported: en, es, sv (verified against Wells's charts); others
-    /// fall back to X-SAMPA.
+    /// Verified against Wells's charts: en, es, sv, nl, pt, ru (with
+    /// language-specific entries); de, fr, it (verified as X-SAMPA
+    /// identical — empty tables). Others fall back to X-SAMPA.
     Sampa(&'a str),
     /// ARPABET as used by `CMUdict`: space-separated symbols with
     /// optional trailing stress digits (0/1/2).
@@ -111,6 +112,9 @@ fn sampa_table(lang: &str) -> &'static HashMap<&'static str, &'static str> {
     static ES: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
     static SV: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
     static EN: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+    static NL: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+    static PT: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+    static RU: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
     static EMPTY: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
 
     let code = lang.split(['-', '_']).next().unwrap_or("");
@@ -146,9 +150,47 @@ fn sampa_table(lang: &str) -> &'static HashMap<&'static str, &'static str> {
         // English (Wells): E is "quite widely used in place of e" for the
         // DRESS vowel; X-SAMPA E = ɛ which is the wrong height.
         "en" => EN.get_or_init(|| table(&[("E", "e")])),
-        // German, French, Italian, Dutch, Portuguese, Russian, Hungarian:
-        // verified against Wells — X-SAMPA handles them correctly.
-        // Empty table = X-SAMPA fallback.
+        // Italian (Wells): verified — all symbols map identically to
+        // X-SAMPA (E=ɛ, O=ɔ, J=ɲ, L=ʎ, ts/dz/tS/dZ decompose correctly).
+        // Falls through to the catch-all (X-SAMPA fallback).
+        // Dutch (Wells): Au = [ʌu] (NOT X-SAMPA ɑ+u = ɑu — the Dutch
+        // essential diphthong has a centralized first element).
+        // Ei and 9y decompose correctly via X-SAMPA (ɛ+i, œ+y).
+        "nl" => NL.get_or_init(|| table(&[("Au", "ʌu")])),
+        // Portuguese (Wells): r = tap [ɾ] like Spanish; R = uvular.
+        // 6=ɐ, E=ɛ, O=ɔ, J=ɲ, L=ʎ all match X-SAMPA.
+        "pt" => PT.get_or_init(|| table(&[("r", "ɾ")])),
+        // Russian (Wells): S=[ʂ] and Z=[ʐ] are retroflex sibilants (not
+        // X-SAMPA ʃ/ʒ); tS=[t͡ɕ] is the Russian postalveolar affricate
+        // (not X-SAMPA t͡ʃ). Palatalization uses ' after the consonant
+        // (NOT X-SAMPA _j).
+        "ru" => RU.get_or_init(|| {
+            table(&[
+                ("S", "ʂ"),
+                ("Z", "ʐ"),
+                ("tS", "t͡ɕ"),
+                ("ts", "t͡s"),
+                // Palatalized consonants: C' → Cʲ
+                ("p'", "pʲ"),
+                ("b'", "bʲ"),
+                ("t'", "tʲ"),
+                ("d'", "dʲ"),
+                ("k'", "kʲ"),
+                ("g'", "gʲ"),
+                ("f'", "fʲ"),
+                ("v'", "vʲ"),
+                ("s'", "sʲ"),
+                ("z'", "zʲ"),
+                ("m'", "mʲ"),
+                ("n'", "nʲ"),
+                ("l'", "lʲ"),
+                ("r'", "rʲ"),
+                ("x'", "xʲ"),
+            ])
+        }),
+        // German, French (verified — X-SAMPA handles them correctly).
+        // Hungarian: no Wells chart exists; X-SAMPA fallback is the safe
+        // default (better than invented mappings).
         _ => EMPTY.get_or_init(HashMap::new),
     }
 }
@@ -560,6 +602,55 @@ mod tests {
     }
 
     // --- SAMPA: unknown language falls back to X-SAMPA ---
+
+    // --- SAMPA: Italian (verified — X-SAMPA handles everything) ---
+
+    #[test]
+    fn italian_falls_through_to_xsampa() {
+        // Wells: cena "tSena" — tS decomposes to t͡ʃ via X-SAMPA
+        assert_eq!(convert("tSena", Notation::Sampa("it")).unwrap(), "tʃena");
+        // Wells: zitto "tsitto"
+        assert_eq!(convert("tsitto", Notation::Sampa("it")).unwrap(), "tsitto");
+    }
+
+    // --- SAMPA: Dutch (verified against Wells) ---
+
+    #[test]
+    fn dutch_diphthong_au() {
+        // Wells: goud "xAut" (Au = ʌu, NOT X-SAMPA ɑu)
+        assert_eq!(convert("Au", Notation::Sampa("nl")).unwrap(), "ʌu");
+        // Wells: fijn "fEin" (Ei = ɛi via X-SAMPA decomposition)
+        assert_eq!(convert("Ei", Notation::Sampa("nl")).unwrap(), "ɛi");
+    }
+
+    // --- SAMPA: Portuguese (verified against Wells) ---
+
+    #[test]
+    fn portuguese_r_is_tap() {
+        // Wells: caro "karu" (r = tap ɾ)
+        assert_eq!(convert("karu", Notation::Sampa("pt")).unwrap(), "kaɾu");
+    }
+
+    // --- SAMPA: Russian (verified against Wells) ---
+
+    #[test]
+    fn russian_retroflex_sibilants() {
+        // Wells: šar "S"ar" (S = ʂ retroflex, not ʃ)
+        assert_eq!(convert("S", Notation::Sampa("ru")).unwrap(), "ʂ");
+        // Wells: žir "Z"1r" (Z = ʐ retroflex, not ʒ)
+        assert_eq!(convert("Z", Notation::Sampa("ru")).unwrap(), "ʐ");
+        // Wells: čaj "tS'"aj" (tS = t͡ɕ)
+        assert_eq!(convert("tS", Notation::Sampa("ru")).unwrap(), "t͡ɕ");
+    }
+
+    #[test]
+    fn russian_palatalization() {
+        // Wells: pit' "p'"it'" (p' = pʲ)
+        assert_eq!(convert("p'", Notation::Sampa("ru")).unwrap(), "pʲ");
+        assert_eq!(convert("s'", Notation::Sampa("ru")).unwrap(), "sʲ");
+        // Wells: den' "d'"en'" (d' = dʲ)
+        assert_eq!(convert("d'", Notation::Sampa("ru")).unwrap(), "dʲ");
+    }
 
     #[test]
     fn sampa_unknown_lang_falls_back() {
