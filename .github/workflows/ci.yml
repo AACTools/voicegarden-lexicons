@@ -48,7 +48,7 @@ jobs:
           set -euxo pipefail
           mkdir -p /tmp/smoke && tar xzf dist/de.tar.gz -C /tmp/smoke
           # direct lookup through the floravox CLI
-          cargo install -q --locked --version 0.8.5 floravox-cli --bin floravox
+          cargo install -q --locked --version 0.8.1 floravox-cli --bin floravox
           floravox g2p --lexicon /tmp/smoke/de guten tag welt
 
       - uses: actions/upload-artifact@v4
