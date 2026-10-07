@@ -29,6 +29,8 @@ FLORAVOX_TAG = os.environ.get("FLORAVOX_TAG", "v0.8.5")
 
 # Language table: code -> (source kind, pypi package or None for core
 # gruut, bcp47-ish, license string, source url for provenance).
+ROOT = Path(__file__).parent
+
 LANGUAGES: dict[str, dict] = {
     "ca": {"pkg": "gruut-lang-ca", "bcp47": "ca", "license": "MIT",
            "name": "Catalan"},
@@ -60,6 +62,16 @@ LANGUAGES: dict[str, dict] = {
 
 # English alternates / extras (not gruut).
 EXTRAS: dict[str, dict] = {
+    "en-GB": {
+        "kind": "staging",
+        # kaikki (Wiktionary) UK/RP IPA primary + gruut en-US fallback
+        # rows for words Wiktionary lacks UK tags for (function words,
+        # inflections). See staging/en-GB/ and NOTICE inside the bundle.
+        "bcp47": "en-GB",
+        "license": "CC-BY-SA-3.0 (kaikki primary) + MIT (gruut fallback rows)",
+        "name": "English (UK/RP, Wiktionary IPA + gruut fills)",
+        "path": "staging/en-GB/lexicon.tsv",
+    },
     "en-cmudict": {
         "kind": "cmudict",
         "bcp47": "en-US",
@@ -173,11 +185,25 @@ def build_lang(
             if not extra:
                 print(f"  !! unknown language {lang}")
                 return None
-            src = td / "cmudict.dict"
-            download(extra["url"], src)
-            n = cmudict_to_tsv(src, td / "lex.tsv")
-            source = "github:cmusphinx/cmudict"
-            license_ = extra["license"]
+            if extra.get("kind") == "staging":
+                staging_src = ROOT / extra["path"]
+                if not staging_src.is_file():
+                    print(f"  !! staging source missing: {staging_src}")
+                    return None
+                n = sum(
+                    1
+                    for line in staging_src.read_text(encoding="utf-8").splitlines()
+                    if line.strip() and "\t" in line
+                )
+                shutil.copyfile(staging_src, td / "lex.tsv")
+                source = extra.get("source", f"staging:{extra['path']}")
+                license_ = extra["license"]
+            else:
+                src = td / "cmudict.dict"
+                download(extra["url"], src)
+                n = cmudict_to_tsv(src, td / "lex.tsv")
+                source = "github:cmusphinx/cmudict"
+                license_ = extra["license"]
 
         # compile with floravox-fst-compile
         tsv = td / "lex.tsv"
@@ -270,6 +296,17 @@ def main() -> int:
     work = Path(tempfile.mkdtemp(prefix="vgl-build-"))
 
     langs = args.langs.split(",") if args.langs else list(LANGUAGES) + list(EXTRAS)
+
+    # subset builds merge into the existing manifest instead of clobbering
+    prior_path = dist / "lexicons.json"
+    prior: dict[str, dict] = {}
+    if args.langs and prior_path.exists():
+        try:
+            for e in json.loads(prior_path.read_text())["languages"]:
+                prior[e["lang"]] = e
+        except (json.JSONDecodeError, KeyError):
+            pass
+
     entries = []
     for lang in langs:
         entry = build_lang(
@@ -278,12 +315,14 @@ def main() -> int:
         )
         if entry:
             entries.append(entry)
+            prior[entry["lang"]] = entry
 
+    languages = list(prior.values()) if args.langs else entries
     manifest = {
         "version": args.version,
         "format": "voicegarden-lexicons/1",
         "generator": f"floravox-fst-compile {FLORAVOX_TAG}",
-        "languages": entries,
+        "languages": sorted(languages, key=lambda e: e["lang"]),
     }
     (dist / "lexicons.json").write_text(json.dumps(manifest, indent=1) + "\n")
     print(f"\nwrote {dist / 'lexicons.json'} ({len(entries)} languages)")

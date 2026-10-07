@@ -20,6 +20,7 @@ Each bundle is a `<lang>.tar.gz` with five files:
 | Bundle | Entries | | Bundle | Entries |
 |---|---|---|---|---|
 | de | 277,912 | | ru | 545,315 |
+| en-GB | 169,484 | | | |
 | en | 124,384 | | es | 595,857 |
 | en-cmudict | 135,166 | | pt | 81,219 |
 | fr | 90,114 | | + ca, cs, fa, it, nl, sv, sw | |
