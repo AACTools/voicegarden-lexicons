@@ -162,16 +162,27 @@ def load_lexicon(path: Path) -> dict[str, list[str]]:
 
 def align(source: dict[str, list[str]], target: dict[str, list[str]],
           out_path: Path) -> dict[str, int]:
-    """Write the pair table for every word in both lexicons."""
+    """Write the pair table for every word in both lexicons.
+
+    One line per DISTINCT source phoneme sequence (homophones collapse
+    onto the first word's entry — matches the documented first-wins
+    contract and the Rust consumer's `or_insert`).
+    """
     overlap = sorted(set(source) & set(target))
     stats = {"source": len(source), "target": len(target),
-             "overlap": len(overlap), "written": 0}
+             "overlap": len(overlap), "written": 0, "deduped": 0}
+    seen: set[str] = set()
     with out_path.open("w", encoding="utf-8") as out:
         for word in overlap:
             src, tgt = source[word], target[word]
             if not src or not tgt:
                 continue
-            out.write(f"{'|'.join(src)}\t{' '.join(tgt)}\n")
+            src_str = "|".join(src)
+            if src_str in seen:
+                stats["deduped"] += 1
+                continue
+            seen.add(src_str)
+            out.write(f"{src_str}\t{' '.join(tgt)}\n")
             stats["written"] += 1
     return stats
 
@@ -215,7 +226,8 @@ def main() -> None:
     print(f"gruut:       {stats['source']} words  ({args.gruut})")
     print(f"reference:   {stats['target']} words  ({ref_name})")
     print(f"overlap:     {stats['overlap']} words")
-    print(f"pairs:       {stats['written']} → {args.out}")
+    print(f"pairs:       {stats['written']} → {args.out}"
+          f" ({stats['deduped']} homophone sequences collapsed)")
 
 
 if __name__ == "__main__":
