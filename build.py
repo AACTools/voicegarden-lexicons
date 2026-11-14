@@ -31,32 +31,68 @@ FLORAVOX_TAG = os.environ.get("FLORAVOX_TAG", "v0.8.5")
 # gruut, bcp47-ish, license string, source url for provenance).
 ROOT = Path(__file__).parent
 
+# License labels carry TWO layers (issue #1): the gruut-lang package
+# scaffolding is MIT (Michael Hansen), but the LEXICON DATA inside
+# derives from Wiktionary via Kyubyong/pron_dictionaries (which
+# extracts from Wiktionary dumps and declares no license of its own).
+# The defensible data license is CC BY-SA (Wiktionary's grant).
+# Confirmed chain (pron_dictionaries prebuilt): de es fr it pt ru.
+# Inferred chain (gruut-lang packs, same approach, not in the
+# prebuilt list): ca cs fa nl sv sw — labeled with a "provenance
+# inferred" note pending per-language confirmation.
+# en: gruut core package; provenance under separate audit.
 LANGUAGES: dict[str, dict] = {
-    "ca": {"pkg": "gruut-lang-ca", "bcp47": "ca", "license": "MIT",
+    "ca": {"pkg": "gruut-lang-ca", "bcp47": "ca",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Catalan"},
-    "cs": {"pkg": "gruut-lang-cs", "bcp47": "cs", "license": "MIT",
+    "cs": {"pkg": "gruut-lang-cs", "bcp47": "cs",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Czech"},
-    "de": {"pkg": "gruut-lang-de", "bcp47": "de-DE", "license": "MIT",
+    "de": {"pkg": "gruut-lang-de", "bcp47": "de-DE",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "German"},
-    "en": {"pkg": None, "bcp47": "en-US", "license": "MIT",
+    "en": {"pkg": None, "bcp47": "en-US",
+           "data_license": "TBD (gruut core en lexicon, provenance under audit)",
+           "license": "MIT (package; data provenance under audit)",
            "name": "English (US, gruut)"},
-    "es": {"pkg": "gruut-lang-es", "bcp47": "es-ES", "license": "MIT",
+    "es": {"pkg": "gruut-lang-es", "bcp47": "es-ES",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Spanish"},
-    "fa": {"pkg": "gruut-lang-fa", "bcp47": "fa", "license": "MIT",
+    "fa": {"pkg": "gruut-lang-fa", "bcp47": "fa",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Persian"},
-    "fr": {"pkg": "gruut-lang-fr", "bcp47": "fr-FR", "license": "MIT",
+    "fr": {"pkg": "gruut-lang-fr", "bcp47": "fr-FR",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "French"},
-    "it": {"pkg": "gruut-lang-it", "bcp47": "it-IT", "license": "MIT",
+    "it": {"pkg": "gruut-lang-it", "bcp47": "it-IT",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Italian"},
-    "nl": {"pkg": "gruut-lang-nl", "bcp47": "nl-NL", "license": "MIT",
+    "nl": {"pkg": "gruut-lang-nl", "bcp47": "nl-NL",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Dutch"},
-    "pt": {"pkg": "gruut-lang-pt", "bcp47": "pt-PT", "license": "MIT",
+    "pt": {"pkg": "gruut-lang-pt", "bcp47": "pt-PT",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Portuguese"},
-    "ru": {"pkg": "gruut-lang-ru", "bcp47": "ru-RU", "license": "MIT",
+    "ru": {"pkg": "gruut-lang-ru", "bcp47": "ru-RU",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Russian"},
-    "sv": {"pkg": "gruut-lang-sv", "bcp47": "sv-SE", "license": "MIT",
+    "sv": {"pkg": "gruut-lang-sv", "bcp47": "sv-SE",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Swedish"},
-    "sw": {"pkg": "gruut-lang-sw", "bcp47": "sw", "license": "MIT",
+    "sw": {"pkg": "gruut-lang-sw", "bcp47": "sw",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Swahili"},
 }
 
@@ -257,6 +293,20 @@ def build_lang(
             for f in bundle_files:
                 tar.add(f, arcname=f.name)
             notice = f"voicegarden-lexicons {lang}\nsource: {source}\nlicense: {license_}\n"
+            dl = (meta or EXTRAS[lang]).get("data_license", "")
+            if "CC-BY-SA" in dl:
+                notice += (
+                    "data provenance: Wiktionary (via Kyubyong/pron_dictionaries\n"
+                    "  -> gruut-lang); CC BY-SA 4.0, (c) Wiktionary contributors.\n"
+                    "  https://creativecommons.org/licenses/by-sa/4.0/\n"
+                    "  Adaptations must carry the same license + attribution.\n"
+                )
+                if "inferred" in dl:
+                    notice += (
+                        "  (provenance inferred -- gruut-lang pack not in the\n"
+                        "  pron_dictionaries prebuilt list; per-language\n"
+                        "  confirmation pending, see issue #1)\n"
+                    )
             if ph_license:
                 notice += f"phonetisaurus.fst: {PHONETISAURUS_EN['url']} ({ph_license})\n"
             info = tarfile.TarInfo("NOTICE")
