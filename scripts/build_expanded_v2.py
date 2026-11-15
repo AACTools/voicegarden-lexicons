@@ -119,13 +119,20 @@ def build(tag: str, out: Path) -> dict | None:
                   (lexicon_txt, lexicon_txt.name),
                   (wfst, "phonetisaurus.fst")]
         source = ("dictionary: voicegarden-lexicons staging (gruut/"
-                  "wikipron, MIT / CC BY-SA 4.0); "
+                  "wikipron harvest of Wiktionary); "
                   "added entries distilled from willwade/"
                   "byt5-g2p-multilingual v2 (small+tiny agreement)")
+        license_ = "CC-BY-SA-4.0 (data: Wiktionary) + MIT (tooling)"
         notice = (f"voicegarden-lexicons {tag} (expanded v2)\n"
                   f"source: {source}\n"
-                  f"license: MIT; distilled entries inherit training-data "
-                  f"licenses (WikiPron CC BY-SA 4.0)\n")
+                  f"license: {license_}\n"
+                  "data provenance: dictionary entries from Wiktionary via\n"
+                  "  gruut-lang (Kyubyong/pron_dictionaries chain) and\n"
+                  "  WikiPron; distilled entries from willwade/\n"
+                  "  byt5-g2p-multilingual v2, trained on the same data.\n"
+                  "  CC BY-SA 4.0, (c) Wiktionary contributors.\n"
+                  "  https://creativecommons.org/licenses/by-sa/4.0/\n"
+                  "  Adaptations must carry the same license + attribution.\n")
         tar_path = out / f"{tag}.tar.gz"
         with tarfile.open(tar_path, "w:gz") as tar:
             for f, arcname in bundle:
@@ -145,7 +152,7 @@ def build(tag: str, out: Path) -> dict | None:
         "distill_agreement": agreement,
         "audit_exact": None,  # needs distill_audit.py run
         "three_vote_filtered": three_vote,
-        "license": "MIT",
+        "license": license_,
         "source": source,
         "phonetisaurus": metrics,
         "file": f"{tag}.tar.gz",

@@ -1,5 +1,5 @@
-use voicegarden_lexicons::LexiconArchive;
 use floravox_g2p::TokenPhonemizer as _;
+use voicegarden_lexicons::LexiconArchive;
 
 fn main() -> anyhow::Result<()> {
     let archive = LexiconArchive::default_expanded()?;
@@ -14,9 +14,14 @@ fn main() -> anyhow::Result<()> {
             _ => "denemekten",
         };
         let out = g2p.phonemize_token(w).join(" ");
-        let wfst = b.phonetisaurus.as_ref()
-            .map(|p| p.phonemize(w).map(|v| v.join(" ")).unwrap_or_default());
-        println!("{lang:10} {w:12} lexicon: {out:30} wfst: {}", wfst.unwrap_or_default());
+        let wfst = b
+            .phonetisaurus
+            .as_ref()
+            .map(|p| p.phonemize(w).map_or(String::new(), |v| v.join(" ")));
+        println!(
+            "{lang:10} {w:12} lexicon: {out:30} wfst: {}",
+            wfst.unwrap_or_default()
+        );
     }
     Ok(())
 }

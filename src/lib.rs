@@ -439,7 +439,8 @@ mod tests {
         use floravox_g2p::TokenPhonemizer as _;
         let mut g2p = bundle.phonemizer().unwrap();
         assert_eq!(g2p.phonemize_token("guten").len(), 5);
-        assert!(!g2p.phonemize_token("zzzz").is_empty()); // spelling fallback
+        // spelling fallback emits several phones (letter names), not zero
+        assert!(g2p.phonemize_token("zzzz").len() > 1);
 
         // second fetch hits the cache (stamp matches)
         let again = archive.fetch("xx").unwrap();

@@ -42,7 +42,7 @@
               }
             ]
           },
-          "file": {"type": "string", "pattern": "^[a-z0-9-]+\\.tar\\.gz$"},
+          "file": {"type": "string", "pattern": "^[a-zA-Z0-9-]+\\.tar\\.gz$"},
           "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
           "size_bytes": {"type": "integer"},
           "format": {"const": "floravox-fst-lexicon/1"},
