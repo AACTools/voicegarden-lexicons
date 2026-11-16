@@ -247,7 +247,6 @@ def main() -> int:
             eval_steps=args.eval_steps,
             save_strategy="steps",
             save_steps=args.save_steps,
-            group_by_length=True,
             label_smoothing_factor=0.0 if args.no_smoothing else 0.1,
             save_total_limit=2,
             load_best_model_at_end=True,
