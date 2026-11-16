@@ -249,6 +249,10 @@ def main() -> int:
             save_steps=args.save_steps,
             label_smoothing_factor=0.0 if args.no_smoothing else 0.1,
             save_total_limit=2,
+            # the training image's safetensors is too new for this
+            # transformers line ("non contiguous tensor" on save);
+            # .bin checkpoints avoid it entirely
+            save_safetensors=False,
             load_best_model_at_end=True,
             metric_for_best_model="exact_match",
             greater_is_better=True,
