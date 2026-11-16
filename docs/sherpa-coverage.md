@@ -21,7 +21,13 @@ from `CUNY-CL/wikipron` `data/scrape/summary.tsv` (broad phonemic files,
 | pt_PT | `pt` | `por-PT` | — |
 | ru_RU | `ru` | — | 0% drop |
 | pl_PL | — | `pol` | **audited this pass**: 0.158% drop vs `piper-pl_PL-gosia-medium` tokens (204,409 words, digits excluded); unresolved = `r̝`×323 (WikiPron's notation for graphemic *rz*, ≈ `ʐ` — a one-symbol wrapper fold takes the drop to ~0.003%), ã×4, ‿×1, é×1 |
-| ar_JO, hi_IN, id_ID, tr_TR, ur_PK, fa_IR, pl_PL, ro_RO, sk_SK, sl_SI, sv_SE, nl_NL/BE, ca_ES, cs_CZ, da_DK, el_GR, fi_FI | (base where gruut has a pack) | ara/hin/ind/tur/urd/fas/pol/ron/slk/slv/swe/nld | — |
+| ar_JO, hi_IN, id_ID, tr_TR, ur_PK, fa_IR, pl_PL, ro_RO, sk_SK, sl_SI, sv_SE†, nl_NL/BE, ca_ES, cs_CZ, da_DK, el_GR, fi_FI | (base where gruut has a pack) | ara/hin/ind/tur/urd/fas/pol/ron/slk/slv/swe/nld | — |
+
+† **sv is no longer gruut-built**: gruut-lang-sv carries Swedish tone
+digits the sv voices cannot consume (12,063 rows, 58.9% word-drop —
+found by the round-3 shipped-artifact audit). The base `sv` bundle now
+builds from the folded staging union (`staging/swe/merged.tsv`,
+`fold_swedish.py`), 22,766 entries, audited vs sv_SE-alma.
 
 **pt_BR note (issue #3):** the base `pt` bundle is gruut `pt-PT` data
 (bcp47 `pt-PT`). pt_BR voices should resolve to the **expanded `por-BR`**

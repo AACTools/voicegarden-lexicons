@@ -58,6 +58,7 @@ AUDITS = {
     "staging/mlt/merged.tsv": ("coqui-mt-cv", 91.488, None),  # grapheme voice
     "staging/nob/merged.tsv": ("piper-no_NO-talesyntese-medium", 0.000, 0.05),
     "staging/sqi/merged.tsv": ("piper-sq_AL-edon-medium", 0.452, 1.0),
+    "staging/swe/merged.tsv": ("piper-sv_SE-alma-medium", 0.114, 0.5),
 }
 
 # expanded-tier artifacts (the tarball lexicons consumers actually
@@ -67,6 +68,7 @@ EXPANDED_AUDITS = {
     "dist/expanded-v2/fin.tar.gz": ("piper-fi_FI-harri-medium", 0.05),
     "dist/expanded-v2/swe.tar.gz": ("piper-sv_SE-alma-medium", 1.0),
     "dist/expanded-v2/nob.tar.gz": ("piper-no_NO-talesyntese-medium", 1.0),
+    "dist/sv.tar.gz": ("piper-sv_SE-alma-medium", 0.5),
 }
 TIE = "\u0361"
 
@@ -157,7 +159,10 @@ def main() -> int:
     for tgz, (voice, threshold) in sorted(EXPANDED_AUDITS.items()):
         path = REPO / tgz
         if not path.exists():
-            continue  # expanded tier not built locally (CI base-only job)
+            # never pass vacuously: a listed artifact that is missing
+            # (typo, unbuilt tier) is a gate failure, not a skip
+            failures.append(f"{tgz}: artifact missing — build it or fix the audit table")
+            continue
         with tarfile.open(path) as tar:
             lex = tar.extractfile("lexicon.txt")
             if lex is None:

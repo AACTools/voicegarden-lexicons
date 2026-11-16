@@ -89,10 +89,9 @@ LANGUAGES: dict[str, dict] = {
            "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Russian"},
-    "sv": {"pkg": "gruut-lang-sv", "bcp47": "sv-SE",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
-           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
-           "name": "Swedish"},
+    "sv": None,  # moved to EXTRAS: gruut-lang-sv carries Swedish tone
+                 # marks the voices cannot consume — built from the folded
+                 # staging union instead (see EXTRAS["sv"])
     "sw": {"pkg": "gruut-lang-sw", "bcp47": "sw",
            "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
@@ -245,13 +244,25 @@ EXTRAS: dict[str, dict] = {
             "note": "dictionary-only: the Han WFST was 19 MB at 30% exact / "
                     "64% coverage — OOV words fall back char-wise to the "
                     "dictionary (every Han char carries an entry)"},
+    "sv": {"kind": "staging", "bcp47": "sv-SE",
+           "name": "Swedish",
+           "path": "staging/swe/merged.tsv",
+           "source": "gruut-lang-sv 2.0.1 (PyPI) + WikiPron fills via staging",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
+           "note": "built from the folded staging union, NOT the raw gruut "
+                   "pack: gruut-lang-sv marks Swedish pitch accents with "
+                   "tone digits the sv voices cannot consume (12,063 rows, "
+                   "58.9% word-drop). scripts/fold_swedish.py + the "
+                   "variants merge; audited vs sv_SE-alma"},
     "zh": {"kind": "staging", "bcp47": "zh-CN", "name": "Mandarin Chinese (simplified Han)",
            "path": "staging/cmn/wikipron.folded.tsv", "wikipron": True,
            "source": "wikipron:cmn_hani_standard_broad.tsv",
            "no_train": True,
            "note": "Chao tone contours folded to espeak tone digits 1-5 "
                    "(scripts/fold_mandarin.py), validated against "
-                   "piper-zh_CN-huayan-medium tokens.txt (0.10% corpus drop). "
+                   "piper-zh_CN-huayan-medium tokens.txt (0.005% corpus "
+                   "drop, digit words excluded). "
                    "No Phonetisaurus: Han-grapheme alignment yields an 82 MB "
                    "model at only 33% exact / 68% coverage — OOV words should "
                    "fall back char-wise to the dictionary (every Han char "
@@ -501,6 +512,10 @@ def build_lang(
                         "  pron_dictionaries prebuilt list; per-language\n"
                         "  confirmation pending, see issue #1)\n"
                     )
+                if extra.get("small"):
+                    notice += f"note: {extra['small']}\n"
+                if extra.get("note"):
+                    notice += f"note: {extra['note']}\n"
             if ph_license:
                 notice += f"phonetisaurus.fst: {PHONETISAURUS_EN['url']} ({ph_license})\n"
             info = tarfile.TarInfo("NOTICE")

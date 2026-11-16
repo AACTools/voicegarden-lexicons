@@ -29,7 +29,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
-# voice locale -> intended bundle; must mirror examples/consumer_smoke.rs
+# voice locale -> expected bundle in the BASE manifest; must mirror
+# examples/consumer_smoke.rs (the smoke covers the expanded tier below)
 RESOLUTION = {
     "de_DE": "de", "en_US": "en", "en_GB": "en-GB", "fr_FR": "fr",
     "es_ES": "es", "it_IT": "it", "pt_BR": "pt", "ru_RU": "ru",
@@ -41,8 +42,11 @@ RESOLUTION = {
     "no_NO": "no", "sq_AL": "sq", "yue": "yue",
     "hu_HU": "hu", "ka_GE": "ka", "zh_CN": "zh", "ko_KO": "ko",
     "uk_UA": "uk", "vi_VN": "vi", "ne_NP": "ne", "lv_LV": "lv",
-    "fi_FI": "fin", "sv_SE": "swe",
-    "is_IS": "isl", "pl_PL": "pol", "nb_NO": "nob",
+}
+# voice locale -> expected bundle in the EXPANDED manifest
+EXPANDED_RESOLUTION = {
+    "fi_FI": "fin", "is_IS": "isl", "pl_PL": "pol",
+    "nb_NO": "nob", "sv_SE": "swe",
 }
 BLOCKED = {"ku_TR": "no-data", "tn_ZA": "no-data"}
 
@@ -152,16 +156,16 @@ def resolve(manifest: dict, want: str) -> str | None:
 
 def check_resolution(base: dict, expanded: dict) -> list[str]:
     errs: list[str] = []
-    expanded_only = {"isl", "pol", "nob", "fin", "swe"}
     for voice, want in RESOLUTION.items():
-        if want in expanded_only:
-            got = resolve(expanded, voice)
-        else:
-            got = resolve(base, voice) or resolve(expanded, voice)
+        got = resolve(base, voice)
         if got != want:
-            errs.append(f"{voice}: resolved to {got!r}, expected {want!r}")
+            errs.append(f"base: {voice}: resolved to {got!r}, expected {want!r}")
+    for voice, want in EXPANDED_RESOLUTION.items():
+        got = resolve(expanded, voice) if expanded else None
+        if got != want:
+            errs.append(f"expanded: {voice}: resolved to {got!r}, expected {want!r}")
     for voice, why in BLOCKED.items():
-        got = resolve(base, voice) or resolve(expanded, voice)
+        got = resolve(base, voice) or (resolve(expanded, voice) if expanded else None)
         if got is not None:
             errs.append(f"{voice}: documented blocked:{why} but resolves to {got!r}")
     return errs
@@ -201,7 +205,7 @@ def main() -> int:
     failures: list[str] = []
     base = json.loads((dist / "lexicons.json").read_text())
     has_expanded = not args.skip_expanded and (exp_dir / "expanded.json").exists()
-    expanded = json.loads((exp_dir / "expanded.json").read_text()) if has_expanded else base
+    expanded = json.loads((exp_dir / "expanded.json").read_text()) if has_expanded else None
 
     failures += check_manifest_schema(base)
     if has_expanded:
@@ -214,7 +218,8 @@ def main() -> int:
         failures += errs
         print(f"expanded manifest: {len(expanded['languages'])} languages, {exp_bundles} bundles verified")
     failures += check_resolution(base, expanded)
-    print(f"resolution table: {len(RESOLUTION)} voices, {len(BLOCKED)} blocked")
+    print(f"resolution table: {len(RESOLUTION)} base + "
+          f"{len(EXPANDED_RESOLUTION)} expanded voices, {len(BLOCKED)} blocked")
 
     if args.baseline:
         bl = args.baseline
