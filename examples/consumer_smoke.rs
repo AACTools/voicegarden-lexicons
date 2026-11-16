@@ -123,8 +123,7 @@ fn main() -> anyhow::Result<()> {
             b.phonetisaurus
                 .as_ref()
                 .and_then(|p| p.phonemize(oov))
-                .map(|v| v.join(" "))
-                .unwrap_or_default()
+                .map_or_else(String::new, |v| v.join(" "))
         } else {
             oov.chars()
                 .map(|c| g2p.phonemize_token(&c.to_string()).join(" "))
