@@ -249,10 +249,6 @@ def main() -> int:
             save_steps=args.save_steps,
             label_smoothing_factor=0.0 if args.no_smoothing else 0.1,
             save_total_limit=2,
-            # the training image's safetensors is too new for this
-            # transformers line ("non contiguous tensor" on save);
-            # .bin checkpoints avoid it entirely
-            save_safetensors=False,
             load_best_model_at_end=True,
             metric_for_best_model="exact_match",
             greater_is_better=True,
@@ -264,6 +260,17 @@ def main() -> int:
             seed=args.seed,
             report_to=[],
         )
+        # keep legacy-compat flags only where the installed transformers
+        # still accepts them (5.x dropped group_by_length AND
+        # save_safetensors from TrainingArguments)
+        import inspect
+        sig = inspect.signature(Seq2SeqTrainingArguments.__init__).parameters
+        if "group_by_length" in sig:
+            kwargs["group_by_length"] = True
+        if "save_safetensors" in sig:
+            # 4.44-era saves with the training image's newer safetensors
+            # raised "non contiguous tensor"; .bin checkpoints avoid it
+            kwargs["save_safetensors"] = False
         targs = Seq2SeqTrainingArguments(**kwargs)
 
         callbacks = []
