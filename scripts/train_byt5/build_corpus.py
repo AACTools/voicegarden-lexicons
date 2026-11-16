@@ -95,7 +95,12 @@ def main() -> int:
             continue
         rows: list[tuple[str, str]] = []
         seen: set[tuple[str, str]] = set()
-        for src in [merged, d / "kaikki.tsv"]:
+        # merged.tsv carries everything: primary + folded kaikki fills
+        # (merge_sources.py prefers kaikki.folded.tsv). Reading raw
+        # kaikki.tsv here would double-count words AND reintroduce
+        # unfolded conventions into the corpus — the exact
+        # contamination class clean_distill.py had to mop up.
+        for src in [merged]:
             if not src.exists():
                 continue
             for line in src.read_text(encoding="utf-8").splitlines():

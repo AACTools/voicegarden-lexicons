@@ -17,18 +17,20 @@ non-commercial.
 
 ## Next, highest leverage first
 
-0. **ByT5 v3 retraining prep (this PR)**: `langs.json` now carries the
-   seven new harvest locales (hun kat kor ukr vie nep lav → 149
-   languages) so `scripts/train_byt5/build_corpus.py` can fold the
-   new staged corpora into the v3 training set. v3 corpus would gain:
-   hu 67.8k, uk 55.2k, ko 35.2k, kat 24.6k, vi 28.7k (plus the kaikki
-   inflected fills for isl/fin and the folded conventions for
-   sr/hr/af/cy/ml/nob — all now single-convention per language, which
-   is exactly what the v2 harmonization was for). Distillation v3 for
-   the new expanded candidates follows the same small+tiny agreement
-   gate; the distill corpus must be built from the FOLDED merged
-   files (clean_distill.py exists because v2's wasn't — see the swe
-   incident).
+0. **ByT5 v3 retraining prep (DONE — corpus built)**: `langs.json`
+   carries 149 languages (7 new); `scripts/train_byt5/build_corpus.py`
+   rebuilt the corpus from the folded staging unions: **4.31M train
+   rows over 151 languages** (v2: 4.12M/136), and the phone inventory
+   dropped 7,574 → **1,672 symbols** — the v2 corpus was carrying
+   duplicate unfolded conventions (the same contamination class the
+   review loop removed from the bundles; the builder no longer re-reads
+   raw kaikki.tsv over the folded merges). New languages: hun 66k,
+   kor 34k, kat 24k, ukr 54k, vie 28k, nep 2k, lav 1.7k; grown: lt
+   25k, it 89k, nl 69k, fin 170k, isl 15k. **Remaining: the GPU
+   training run itself** (small+tiny G2P and P2G, the v2 recipe —
+   ~$18 at v2 cloud rates per docs/byt5-training-evaluation.md), then
+   distill-v3 for the 24 base-only locales using the small+tiny
+   agreement gate, built from the folded merged files only.
 1. **kaikki for the remaining blocked locales** — done for uk/kor/vie/
    nep/lav (this PR). Finnish pulled and merged. Swedish-language
    wiktionary dump for swe enrichment (en.wiktionary is IPA-poor
