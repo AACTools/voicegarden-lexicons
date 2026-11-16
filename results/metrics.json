@@ -103,17 +103,17 @@
   }
  },
  {
-  "entries": 167178,
+  "entries": 174010,
   "g2p": {
    "coverage": 100.0,
-   "exact": 96.4,
-   "per": 0.7
+   "exact": 97.0,
+   "per": 0.6
   },
   "lang": "fin",
   "p2g": {
-   "cer": 40.8,
-   "coverage": 99.9,
-   "exact": 15.9
+   "cer": 47.6,
+   "coverage": 99.8,
+   "exact": 10.4
   }
  },
  {
@@ -1864,6 +1864,62 @@
    "cer": 76.4,
    "coverage": 57.4,
    "exact": 0.9
+  }
+ },
+ {
+  "entries": 55209,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 80.2,
+   "per": 4.1
+  },
+  "lang": "ukr",
+  "p2g": {
+   "cer": 37.6,
+   "coverage": 99.3,
+   "exact": 16.3
+  }
+ },
+ {
+  "entries": 28749,
+  "g2p": {
+   "coverage": 99.9,
+   "exact": 83.1,
+   "per": 3.3
+  },
+  "lang": "vie",
+  "p2g": {
+   "cer": 62.2,
+   "coverage": 97.3,
+   "exact": 4.5
+  }
+ },
+ {
+  "entries": 2135,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 70.1,
+   "per": 8.2
+  },
+  "lang": "nep",
+  "p2g": {
+   "cer": 53.4,
+   "coverage": 95.3,
+   "exact": 8.4
+  }
+ },
+ {
+  "entries": 1704,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 38.6,
+   "per": 14.5
+  },
+  "lang": "lav",
+  "p2g": {
+   "cer": 51.7,
+   "coverage": 90.4,
+   "exact": 7.2
   }
  }
 ]

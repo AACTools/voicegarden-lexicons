@@ -885,6 +885,48 @@
     "zul"
    ],
    "bcp47": "zu"
+  },
+  "hun": {
+   "aliases": [
+    "hun"
+   ],
+   "bcp47": "hu"
+  },
+  "kat": {
+   "aliases": [
+    "kat"
+   ],
+   "bcp47": "ka"
+  },
+  "kor": {
+   "aliases": [
+    "kor"
+   ],
+   "bcp47": "ko"
+  },
+  "ukr": {
+   "aliases": [
+    "ukr"
+   ],
+   "bcp47": "uk"
+  },
+  "vie": {
+   "aliases": [
+    "vie"
+   ],
+   "bcp47": "vi"
+  },
+  "nep": {
+   "aliases": [
+    "nep"
+   ],
+   "bcp47": "ne"
+  },
+  "lav": {
+   "aliases": [
+    "lav"
+   ],
+   "bcp47": "lv"
   }
  },
  "note": "BCP-47 -> internal corpus tag resolution for the byt5 g2p/p2g models",

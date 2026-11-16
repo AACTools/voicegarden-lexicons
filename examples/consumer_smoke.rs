@@ -18,7 +18,7 @@ use voicegarden_lexicons::LexiconArchive;
 /// (voice locale as the wrapper passes it, bundle we expect, one word
 /// that must be in the dictionary, one OOV word for the WFST tier).
 /// Every locale the sherpa piper/coqui/mimic3 families ship, minus the
-/// documented blocked set (ku, tn, ne, vi, uk, lv — see
+/// documented blocked set (ku, tn — no lexical data anywhere; see
 /// docs/sherpa-coverage.md).
 const CASES: &[(&str, &str, &str, &str)] = &[
     ("de_DE", "de", "guten", "floravoxisches"),
@@ -57,10 +57,16 @@ const CASES: &[(&str, &str, &str, &str)] = &[
     ("ka_GE", "ka", "გამარჯობა", "კონსტრუქცია"),
     ("zh_CN", "zh", "你好", "建设"),
     ("ko_KO", "ko", "안녕", "건설"),
+    ("uk_UA", "uk", "привіт", "конструктивізму"),
+    ("vi_VN", "vi", "xin chào", "kiến thiết vậy"),
+    ("ne_NP", "ne", "नमस्ते", "निर्माण"),
+    ("lv_LV", "lv", "sveiki", "konstruktīvisms"),
+    ("fi_FI", "fin", "terve", "kiitos"),
+    ("sv_SE", "swe", "hej", "konstruktivismen"),
+    ("nb_NO", "nob", "hei", "konstruktivisme"),
     // expanded tier (dictionary + distilled)
     ("is_IS", "isl", "þrjátíu", "þrjátíuátta"),
     ("pl_PL", "pol", "dzień", "konstruktiwizmem"),
-    ("nb_NO", "nob", "hei", "konstruktivisme"),
 ];
 
 fn main() -> anyhow::Result<()> {
@@ -75,11 +81,11 @@ fn main() -> anyhow::Result<()> {
 
     let mut failures = 0;
     for (voice, bundle_id, word, oov) in CASES {
-        let arch = if *bundle_id == "isl" || *bundle_id == "pol" || *bundle_id == "nob" {
-            &expanded_archive
-        } else {
-            &archive
-        };
+        let arch = if matches!(*bundle_id, "isl" | "pol" | "nob" | "fin" | "swe") {
+        &expanded_archive
+    } else {
+        &archive
+    };
         let entry = arch.entry(voice).unwrap_or_else(|| {
             panic!("FAIL {voice}: no manifest entry (expected {bundle_id})");
         });

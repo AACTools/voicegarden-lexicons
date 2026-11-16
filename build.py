@@ -89,10 +89,9 @@ LANGUAGES: dict[str, dict] = {
            "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Russian"},
-    "sv": {"pkg": "gruut-lang-sv", "bcp47": "sv-SE",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
-           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
-           "name": "Swedish"},
+    "sv": None,  # moved to EXTRAS: gruut-lang-sv carries Swedish tone
+                 # marks the voices cannot consume — built from the folded
+                 # staging union instead (see EXTRAS["sv"])
     "sw": {"pkg": "gruut-lang-sw", "bcp47": "sw",
            "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
@@ -117,6 +116,12 @@ EXTRAS: dict[str, dict] = {
         "license": "BSD-2-Clause-like (CMUDict)",
         "name": "English (CMUDict, ARPABET→IPA)",
         "url": "https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict",
+        # ARPABET rows: fst-compile converts them, but Phonetisaurus
+        # training panics ("empty grapheme table") — ships
+        # dictionary-only, as originally intended (see the WFST note
+        # below). Without this flag, full rebuilds silently dropped
+        # the bundle (that is how v0.4.0 lost it).
+        "no_train": True,
     },
     # WikiPron-harvested locales (issue #5): broad-phonemic scrapes of
     # Wiktionary, CC BY-SA 4.0. Bundles keyed to the piper voice locale
@@ -124,10 +129,14 @@ EXTRAS: dict[str, dict] = {
     # and holdout metrics live in staging/<iso3>/ (harvest_and_train).
     "af": {"kind": "staging", "bcp47": "af", "name": "Afrikaans",
            "path": "staging/afr/merged.tsv", "wikipron": True,
-           "source": "wikipron:afr_latn_broad_filtered.tsv"},
+           "source": "wikipron:afr_latn_broad_filtered.tsv",
+           "note": "folded (scripts/fold_afrikaans.py): chi->x, ɦ->h, "
+                   "ʋ->v, glide breves; 0.386% drop vs the mimic3-af voice"},
     "cy": {"kind": "staging", "bcp47": "cy", "name": "Welsh",
            "path": "staging/cym/merged.tsv", "wikipron": True,
-           "source": "wikipron:cym_latn_broad.tsv"},
+           "source": "wikipron:cym_latn_broad.tsv",
+           "note": "folded (scripts/fold_welsh.py): voiceless sonorants "
+                   "-> plain; 0.014% drop vs cy_GB-bu_tts"},
     "et": {"kind": "staging", "bcp47": "et", "name": "Estonian",
            "path": "staging/est/merged.tsv", "wikipron": True,
            "source": "wikipron:est_latn_broad.tsv"},
@@ -142,10 +151,15 @@ EXTRAS: dict[str, dict] = {
            "source": "wikipron:guj_gujr_broad.tsv"},
     "hr": {"kind": "staging", "bcp47": "hr", "name": "Croatian (Latin script)",
            "path": "staging/hbs/lexicon-hr.tsv", "wikipron": True,
-           "source": "wikipron:hbs_latn_broad_filtered.tsv"},
+           "source": "wikipron:hbs_latn_broad_filtered.tsv",
+           "note": "Serbo-Croatian pitch accents folded to plain vowels "
+                   "(scripts/fold_serbian.py) — 0.000% drop vs the sr voice "
+                   "inventory; audit via scripts/audit_voice_tokens.py"},
     "sr": {"kind": "staging", "bcp47": "sr", "name": "Serbian (Cyrillic script)",
            "path": "staging/hbs/lexicon-sr.tsv", "wikipron": True,
-           "source": "wikipron:hbs_cyrl_broad_filtered.tsv"},
+           "source": "wikipron:hbs_cyrl_broad_filtered.tsv",
+           "note": "pitch accents folded (scripts/fold_serbian.py); "
+                   "0.000% drop vs piper-sr_RS-serbski_institut-medium"},
     "kk": {"kind": "staging", "bcp47": "kk", "name": "Kazakh",
            "path": "staging/kaz/merged.tsv", "wikipron": True,
            "source": "wikipron:kaz_cyrl_broad.tsv",
@@ -162,21 +176,31 @@ EXTRAS: dict[str, dict] = {
     "lb": {"kind": "staging", "bcp47": "lb", "name": "Luxembourgish",
            "path": "staging/ltz/merged.tsv", "wikipron": True,
            "source": "wikipron:ltz_latn_broad.tsv"},
+    "lv": {"kind": "staging", "bcp47": "lv", "name": "Latvian",
+           "path": "staging/lav/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Latvian (English Wiktionary extraction)",
+           "small": "thin extraction (1,704 words) — WFST carries most words",
+           "note": "folded (scripts/fold_latvian.py): pitch-accented/macrone "
+                   "vowels to plain long vowels (espeak lv marks no tones); "
+                   "0.235% per-word drop vs lv_LV-aivars"},
     "lt": {"kind": "staging", "bcp47": "lt", "name": "Lithuanian",
            "path": "staging/lit/merged.tsv", "wikipron": True,
            "source": "wikipron:lit_latn_broad.tsv",
            "small": "thin scrape (437 words) — WFST carries most words"},
     "ml": {"kind": "staging", "bcp47": "ml", "name": "Malayalam",
            "path": "staging/mal/merged.tsv", "wikipron": True,
-           "source": "wikipron:mal_mlym_broad.tsv"},
+           "source": "wikipron:mal_mlym_broad.tsv",
+           "note": "folded (scripts/fold_malayalam.py): ä->aː, ʱ->ʰ, "
+                   "dentals; 0.021% drop vs ml_IN-arjun"},
     "mt": {"kind": "staging", "bcp47": "mt", "name": "Maltese",
            "path": "staging/mlt/merged.tsv", "wikipron": True,
            "source": "wikipron:mlt_latn_broad_filtered.tsv"},
     "no": {"kind": "staging", "bcp47": "no", "name": "Norwegian (Bokmål)",
            "path": "staging/nob/merged.tsv", "wikipron": True,
            "source": "wikipron:nob_latn_broad_filtered.tsv",
-           "note": "Bokmål scrape; the expanded-v2 'nob' bundle (bcp47 nb) "
-                   "carries the distilled superset"},
+           "note": "tonal accents folded (scripts/fold_norwegian.py); "
+                   "0.000% drop vs no_NO-talesyntese; the expanded 'nob' "
+                   "bundle (bcp47 nb) carries the distilled superset"},
     "ka": {"kind": "staging", "bcp47": "ka", "name": "Georgian",
            "path": "staging/kat/kaikki.folded.tsv", "kaikki": True,
            "source": "kaikki:Georgian (English Wiktionary extraction)",
@@ -190,6 +214,29 @@ EXTRAS: dict[str, dict] = {
     "sq": {"kind": "staging", "bcp47": "sq", "name": "Albanian",
            "path": "staging/sqi/merged.tsv", "wikipron": True,
            "source": "wikipron:sqi_latn_broad.tsv"},
+    "ne": {"kind": "staging", "bcp47": "ne", "name": "Nepali",
+           "path": "staging/nep/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Nepali (English Wiktionary extraction)",
+           "small": "thin extraction (2,135 words) — WFST carries most words",
+           "note": "folded (scripts/fold_nepali.py): aspiration as ʰ "
+                   "tokens, nasal vowels as vowel+̃ — both verified in the "
+                   "ne voices' phoneme inventories; 0.05% drop vs "
+                   "ne_NP-google-medium"},
+    "uk": {"kind": "staging", "bcp47": "uk", "name": "Ukrainian",
+           "path": "staging/ukr/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Ukrainian (English Wiktionary extraction)",
+           "note": "folded (scripts/fold_ukrainian.py): glide breves to "
+                   "j/w per espeak convention; 0.004% drop vs "
+                   "uk_UA-lada — the ukrainian_tts voice is grapheme-based "
+                   "(Cyrillic tokens) and needs no lexicon"},
+    "vi": {"kind": "staging", "bcp47": "vi", "name": "Vietnamese (Hanoi)",
+           "path": "staging/vie/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Vietnamese (English Wiktionary extraction)",
+           "note": "Chao tone letters folded to the espeak tone digits "
+                   "(scripts/fold_vietnamese.py; ngang=1 huyền=2 sắc=3 "
+                   "hỏi=4 ngã=5 nặng=6, per espeak's ph_vietnam phoneme "
+                   "definitions — tone 7 is the clause-final ngang "
+                   "variant, not lexical); 0.010% drop vs vi_VN-vais1000"},
     "yue": {"kind": "staging", "bcp47": "yue", "name": "Cantonese (Han script)",
             "path": "staging/yue/merged.tsv", "wikipron": True,
             "source": "wikipron:yue_hani_standard_broad.tsv",
@@ -197,13 +244,25 @@ EXTRAS: dict[str, dict] = {
             "note": "dictionary-only: the Han WFST was 19 MB at 30% exact / "
                     "64% coverage — OOV words fall back char-wise to the "
                     "dictionary (every Han char carries an entry)"},
+    "sv": {"kind": "staging", "bcp47": "sv-SE",
+           "name": "Swedish",
+           "path": "staging/swe/merged.tsv",
+           "source": "gruut-lang-sv 2.0.1 (PyPI) + WikiPron fills via staging",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
+           "note": "built from the folded staging union, NOT the raw gruut "
+                   "pack: gruut-lang-sv marks Swedish pitch accents with "
+                   "tone digits the sv voices cannot consume (12,063 rows, "
+                   "58.9% word-drop). scripts/fold_swedish.py + the "
+                   "variants merge; audited vs sv_SE-alma"},
     "zh": {"kind": "staging", "bcp47": "zh-CN", "name": "Mandarin Chinese (simplified Han)",
            "path": "staging/cmn/wikipron.folded.tsv", "wikipron": True,
            "source": "wikipron:cmn_hani_standard_broad.tsv",
            "no_train": True,
            "note": "Chao tone contours folded to espeak tone digits 1-5 "
                    "(scripts/fold_mandarin.py), validated against "
-                   "piper-zh_CN-huayan-medium tokens.txt (0.10% corpus drop). "
+                   "piper-zh_CN-huayan-medium tokens.txt (0.005% corpus "
+                   "drop, digit words excluded). "
                    "No Phonetisaurus: Han-grapheme alignment yields an 82 MB "
                    "model at only 33% exact / 68% coverage — OOV words should "
                    "fall back char-wise to the dictionary (every Han char "
@@ -357,7 +416,20 @@ def build_lang(
         # k2-fsa/sherpa-onnx#3731) — same data, consumable by every
         # sherpa-onnx binding with zero code.
         lexicon_txt = td / "lexicon.txt"
-        shutil.copyfile(tsv, lexicon_txt)
+        if extra.get("kind") == "cmudict":
+            # ARPABET rows must convert to spaced IPA (the crate's own
+            # notation table, via examples/arpabet) — raw CMUdict lines
+            # are space-separated ARPABET and unusable by sherpa readers
+            subprocess.run(
+                ["cargo", "build", "--release", "--quiet", "--example", "arpabet"],
+                cwd=ROOT, check=True, capture_output=True,
+            )
+            conv = ROOT / "target/release/examples/arpabet"
+            with lexicon_txt.open("wb") as lf:
+                with tsv.open("rb") as src:
+                    subprocess.run([str(conv)], stdin=src, stdout=lf, check=True)
+        else:
+            shutil.copyfile(tsv, lexicon_txt)
         bundle_files = [
             stem.with_suffix(".fst"),
             stem.with_suffix(".pho"),
@@ -440,6 +512,10 @@ def build_lang(
                         "  pron_dictionaries prebuilt list; per-language\n"
                         "  confirmation pending, see issue #1)\n"
                     )
+                if extra.get("small"):
+                    notice += f"note: {extra['small']}\n"
+                if extra.get("note"):
+                    notice += f"note: {extra['note']}\n"
             if ph_license:
                 notice += f"phonetisaurus.fst: {PHONETISAURUS_EN['url']} ({ph_license})\n"
             info = tarfile.TarInfo("NOTICE")
@@ -491,6 +567,7 @@ def main() -> int:
             pass
 
     entries = []
+    failed: list[str] = []
     for lang in langs:
         entry = build_lang(
             lang.strip(), work, dist, args.version,
@@ -499,6 +576,21 @@ def main() -> int:
         if entry:
             entries.append(entry)
             prior[entry["lang"]] = entry
+        else:
+            failed.append(lang.strip())
+    if failed:
+        # a full build must never silently shrink the manifest (that is
+        # how v0.4.0 lost en-cmudict for two releases)
+        print(f"\n!! {len(failed)} bundle(s) FAILED to build: {', '.join(failed)}")
+        if not args.langs:
+            print("!! full build — refusing to write a manifest that "
+                  "silently drops published bundles")
+            for lang in failed:
+                print(f"!! missing from this build: {lang}")
+            return 1
+        # subset builds continue (incremental workflow), but CI and
+        # humans get a hard-to-miss warning
+        print("::warning::subset build dropped bundles: " + ", ".join(failed))
 
     languages = list(prior.values()) if args.langs else entries
     manifest = {

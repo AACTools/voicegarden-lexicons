@@ -29,7 +29,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
-# voice locale -> intended bundle; must mirror examples/consumer_smoke.rs
+# voice locale -> expected bundle in the BASE manifest; must mirror
+# examples/consumer_smoke.rs (the smoke covers the expanded tier below)
 RESOLUTION = {
     "de_DE": "de", "en_US": "en", "en_GB": "en-GB", "fr_FR": "fr",
     "es_ES": "es", "it_IT": "it", "pt_BR": "pt", "ru_RU": "ru",
@@ -40,10 +41,14 @@ RESOLUTION = {
     "lb_LU": "lb", "lt": "lt", "ml_IN": "ml", "mt": "mt",
     "no_NO": "no", "sq_AL": "sq", "yue": "yue",
     "hu_HU": "hu", "ka_GE": "ka", "zh_CN": "zh", "ko_KO": "ko",
-    "is_IS": "isl", "pl_PL": "pol", "nb_NO": "nob",
+    "uk_UA": "uk", "vi_VN": "vi", "ne_NP": "ne", "lv_LV": "lv",
 }
-BLOCKED = {"ku_TR": "no-data", "tn_ZA": "no-data", "ne_NP": "conventions",
-           "vi_VN": "conventions", "uk_UA": "conventions", "lv_LV": "conventions"}
+# voice locale -> expected bundle in the EXPANDED manifest
+EXPANDED_RESOLUTION = {
+    "fi_FI": "fin", "is_IS": "isl", "pl_PL": "pol",
+    "nb_NO": "nob", "sv_SE": "swe",
+}
+BLOCKED = {"ku_TR": "no-data", "tn_ZA": "no-data"}
 
 
 def sha256(path: Path) -> str:
@@ -123,31 +128,64 @@ def check_bundles(manifest: dict, dist: Path) -> tuple[list[str], int]:
 
 
 def resolve(manifest: dict, want: str) -> str | None:
+    """Mirrors LexiconArchive::entry(): exact lang, exact bcp47, then
+    longest-shared-bcp47-prefix with plain ids winning ties."""
     want = want.lower().replace("_", "-")
     short = want.split("-")[0]
-    for e in manifest["languages"]:
+    langs = manifest["languages"]
+    for e in langs:
         if e["lang"].lower() == want or e["bcp47"].lower() == want:
             return e["lang"]
-    for e in manifest["languages"]:
-        if e["bcp47"].split("-")[0] == short:
-            return e["lang"]
-    return None
+    want_parts = want.split("-")
+    best, best_key = None, -1
+    for e in langs:
+        p = e["bcp47"].split("-")[0]
+        if p != short:
+            continue
+        parts = e["bcp47"].lower().split("-")
+        shared = 0
+        for a, b in zip(want_parts, parts):
+            if a != b:
+                break
+            shared += 1
+        key = shared * 2 + int(e["lang"].lower() == short)
+        if key > best_key:
+            best, best_key = e["lang"], key
+    return best
 
 
 def check_resolution(base: dict, expanded: dict) -> list[str]:
     errs: list[str] = []
-    expanded_only = {"isl", "pol", "nob"}
     for voice, want in RESOLUTION.items():
-        if want in expanded_only:
-            got = resolve(expanded, voice)
-        else:
-            got = resolve(base, voice) or resolve(expanded, voice)
+        got = resolve(base, voice)
         if got != want:
-            errs.append(f"{voice}: resolved to {got!r}, expected {want!r}")
+            errs.append(f"base: {voice}: resolved to {got!r}, expected {want!r}")
+    for voice, want in EXPANDED_RESOLUTION.items():
+        got = resolve(expanded, voice) if expanded else None
+        if got != want:
+            errs.append(f"expanded: {voice}: resolved to {got!r}, expected {want!r}")
     for voice, why in BLOCKED.items():
-        got = resolve(base, voice) or resolve(expanded, voice)
+        got = resolve(base, voice) or (resolve(expanded, voice) if expanded else None)
         if got is not None:
             errs.append(f"{voice}: documented blocked:{why} but resolves to {got!r}")
+    return errs
+
+
+def check_no_regression(candidate: dict, baseline: dict) -> list[str]:
+    """PR rule: bundles only expand — no language disappears, no
+    per-language entry count decreases. Entry *counts* may legitimately
+    change when a dictionary is rebuilt from a better source; shrinking
+    still flags loudly so it can only ever happen deliberately."""
+    errs: list[str] = []
+    base = {e["lang"]: e for e in baseline["languages"]}
+    cand = {e["lang"]: e for e in candidate["languages"]}
+    for lang, entry in base.items():
+        if lang not in cand:
+            errs.append(f"REGRESSION: bundle {lang!r} in baseline is gone")
+        elif cand[lang]["entries"] < entry["entries"]:
+            errs.append(
+                f"REGRESSION: {lang} shrank {entry['entries']} -> {cand[lang]['entries']}"
+            )
     return errs
 
 
@@ -155,24 +193,49 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dist", default="dist")
     ap.add_argument("--expanded", default="dist/expanded-v2")
+    ap.add_argument("--skip-expanded", action="store_true",
+                    help="skip the expanded-tier checks (CI release job "
+                    "builds the base tier only)")
+    ap.add_argument("--baseline", help="published lexicons.json (path or URL) "
+                    "to assert expand-only changes")
     args = ap.parse_args()
     dist = REPO / args.dist
     exp_dir = REPO / args.expanded
 
     failures: list[str] = []
     base = json.loads((dist / "lexicons.json").read_text())
-    expanded = json.loads((exp_dir / "expanded.json").read_text())
+    has_expanded = not args.skip_expanded and (exp_dir / "expanded.json").exists()
+    expanded = json.loads((exp_dir / "expanded.json").read_text()) if has_expanded else None
 
     failures += check_manifest_schema(base)
-    failures += check_manifest_schema(expanded)
+    if has_expanded:
+        failures += check_manifest_schema(expanded)
     errs, bundles = check_bundles(base, dist)
     failures += errs
     print(f"base manifest: {len(base['languages'])} languages, {bundles} bundles verified")
-    errs, exp_bundles = check_bundles(expanded, exp_dir)
-    failures += exp_bundles and errs or errs
-    print(f"expanded manifest: {len(expanded['languages'])} languages, {exp_bundles} bundles verified")
+    if has_expanded:
+        errs, exp_bundles = check_bundles(expanded, exp_dir)
+        failures += errs
+        print(f"expanded manifest: {len(expanded['languages'])} languages, {exp_bundles} bundles verified")
     failures += check_resolution(base, expanded)
-    print(f"resolution table: {len(RESOLUTION)} voices, {len(BLOCKED)} blocked")
+    print(f"resolution table: {len(RESOLUTION)} base + "
+          f"{len(EXPANDED_RESOLUTION)} expanded voices, {len(BLOCKED)} blocked")
+
+    if args.baseline:
+        bl = args.baseline
+        if bl.startswith("http"):
+            import urllib.request
+            with urllib.request.urlopen(bl, timeout=60) as r:
+                baseline = json.load(r)
+        else:
+            baseline = json.loads(Path(bl).read_text())
+        failures += check_no_regression(base, baseline)
+        n_base = len(baseline["languages"])
+        new_langs = sorted({e["lang"] for e in base["languages"]}
+                           - {e["lang"] for e in baseline["languages"]})
+        print(f"expand-only check vs baseline: {n_base} -> "
+              f"{len(base['languages'])} languages (+{len(new_langs)}: "
+              f"{', '.join(new_langs) or 'none'})")
 
     if failures:
         print(f"\nFAILURES ({len(failures)}):")

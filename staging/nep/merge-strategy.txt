@@ -1,0 +1,1 @@
+kaikki-only + nepali fold (scripts/fold_nepali.py)
