@@ -37,17 +37,20 @@ ROOT = Path(__file__).parent
 # extracts from Wiktionary dumps and declares no license of its own).
 # The defensible data license is CC BY-SA (Wiktionary's grant).
 # Confirmed chain (pron_dictionaries prebuilt): de es fr it pt ru.
-# Inferred chain (gruut-lang packs, same approach, not in the
-# prebuilt list): ca cs fa nl sv sw — labeled with a "provenance
-# inferred" note pending per-language confirmation.
+# ca cs fa nl sv sw: inspected 2026-11 (issue #3) — the packaged
+# lexicons carry Wiktionary-extraction fingerprints (affix lemmas
+# '-ák'/'-procentig', "'s-Gravenhage" compounds, conjugation-table
+# forms + 'word(2)' homograph keys, loanword entries); no upstream
+# statement exists in the sdists themselves. Labelled CC BY-SA with
+# the inspection recorded here and in docs/sherpa-coverage.md.
 # en: gruut core package; provenance under separate audit.
 LANGUAGES: dict[str, dict] = {
     "ca": {"pkg": "gruut-lang-ca", "bcp47": "ca",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Catalan"},
     "cs": {"pkg": "gruut-lang-cs", "bcp47": "cs",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Czech"},
     "de": {"pkg": "gruut-lang-de", "bcp47": "de-DE",
@@ -63,7 +66,7 @@ LANGUAGES: dict[str, dict] = {
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Spanish"},
     "fa": {"pkg": "gruut-lang-fa", "bcp47": "fa",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Persian"},
     "fr": {"pkg": "gruut-lang-fr", "bcp47": "fr-FR",
@@ -75,7 +78,7 @@ LANGUAGES: dict[str, dict] = {
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Italian"},
     "nl": {"pkg": "gruut-lang-nl", "bcp47": "nl-NL",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Dutch"},
     "pt": {"pkg": "gruut-lang-pt", "bcp47": "pt-PT",
@@ -87,11 +90,11 @@ LANGUAGES: dict[str, dict] = {
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Russian"},
     "sv": {"pkg": "gruut-lang-sv", "bcp47": "sv-SE",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Swedish"},
     "sw": {"pkg": "gruut-lang-sw", "bcp47": "sw",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, provenance inferred)",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "Swahili"},
 }
@@ -115,6 +118,62 @@ EXTRAS: dict[str, dict] = {
         "name": "English (CMUDict, ARPABET→IPA)",
         "url": "https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict",
     },
+    # WikiPron-harvested locales (issue #5): broad-phonemic scrapes of
+    # Wiktionary, CC BY-SA 4.0. Bundles keyed to the piper voice locale
+    # codes so the fetcher resolves them by bcp47 prefix. Training FSTs
+    # and holdout metrics live in staging/<iso3>/ (harvest_and_train).
+    "af": {"kind": "staging", "bcp47": "af", "name": "Afrikaans",
+           "path": "staging/afr/merged.tsv", "wikipron": True,
+           "source": "wikipron:afr_latn_broad_filtered.tsv"},
+    "cy": {"kind": "staging", "bcp47": "cy", "name": "Welsh",
+           "path": "staging/cym/merged.tsv", "wikipron": True,
+           "source": "wikipron:cym_latn_broad.tsv"},
+    "et": {"kind": "staging", "bcp47": "et", "name": "Estonian",
+           "path": "staging/est/merged.tsv", "wikipron": True,
+           "source": "wikipron:est_latn_broad.tsv"},
+    "eu": {"kind": "staging", "bcp47": "eu", "name": "Basque",
+           "path": "staging/eus/merged.tsv", "wikipron": True,
+           "source": "wikipron:eus_latn_broad.tsv"},
+    "ga": {"kind": "staging", "bcp47": "ga", "name": "Irish",
+           "path": "staging/gle/merged.tsv", "wikipron": True,
+           "source": "wikipron:gle_latn_broad.tsv"},
+    "gu": {"kind": "staging", "bcp47": "gu", "name": "Gujarati",
+           "path": "staging/guj/merged.tsv", "wikipron": True,
+           "source": "wikipron:guj_gujr_broad.tsv"},
+    "hr": {"kind": "staging", "bcp47": "hr", "name": "Croatian (Latin script)",
+           "path": "staging/hbs/lexicon-hr.tsv", "wikipron": True,
+           "source": "wikipron:hbs_latn_broad_filtered.tsv"},
+    "sr": {"kind": "staging", "bcp47": "sr", "name": "Serbian (Cyrillic script)",
+           "path": "staging/hbs/lexicon-sr.tsv", "wikipron": True,
+           "source": "wikipron:hbs_cyrl_broad_filtered.tsv"},
+    "kk": {"kind": "staging", "bcp47": "kk", "name": "Kazakh",
+           "path": "staging/kaz/merged.tsv", "wikipron": True,
+           "source": "wikipron:kaz_cyrl_broad.tsv",
+           "small": "thin scrape (669 words) — WFST carries most words"},
+    "lb": {"kind": "staging", "bcp47": "lb", "name": "Luxembourgish",
+           "path": "staging/ltz/merged.tsv", "wikipron": True,
+           "source": "wikipron:ltz_latn_broad.tsv"},
+    "lt": {"kind": "staging", "bcp47": "lt", "name": "Lithuanian",
+           "path": "staging/lit/merged.tsv", "wikipron": True,
+           "source": "wikipron:lit_latn_broad.tsv",
+           "small": "thin scrape (437 words) — WFST carries most words"},
+    "ml": {"kind": "staging", "bcp47": "ml", "name": "Malayalam",
+           "path": "staging/mal/merged.tsv", "wikipron": True,
+           "source": "wikipron:mal_mlym_broad.tsv"},
+    "mt": {"kind": "staging", "bcp47": "mt", "name": "Maltese",
+           "path": "staging/mlt/merged.tsv", "wikipron": True,
+           "source": "wikipron:mlt_latn_broad_filtered.tsv"},
+    "no": {"kind": "staging", "bcp47": "no", "name": "Norwegian (Bokmål)",
+           "path": "staging/nob/merged.tsv", "wikipron": True,
+           "source": "wikipron:nob_latn_broad_filtered.tsv",
+           "note": "Bokmål scrape; the expanded-v2 'nob' bundle (bcp47 nb) "
+                   "carries the distilled superset"},
+    "sq": {"kind": "staging", "bcp47": "sq", "name": "Albanian",
+           "path": "staging/sqi/merged.tsv", "wikipron": True,
+           "source": "wikipron:sqi_latn_broad.tsv"},
+    "yue": {"kind": "staging", "bcp47": "yue", "name": "Cantonese (Han script)",
+            "path": "staging/yue/merged.tsv", "wikipron": True,
+            "source": "wikipron:yue_hani_standard_broad.tsv"},
 }
 
 # NOTE: per-language Phonetisaurus WFSTs are a planned addition, to be
@@ -183,6 +242,7 @@ def build_lang(
     train_iters: int | None = None,
 ) -> dict | None:
     meta = LANGUAGES.get(lang)
+    extra = EXTRAS.get(lang) or {}
     print(f"== {lang}")
     with tempfile.TemporaryDirectory(dir=work) as td:
         td = Path(td)
@@ -217,7 +277,6 @@ def build_lang(
                 source = "PyPI:gruut"
                 license_ = meta["license"]
         else:
-            extra = EXTRAS.get(lang)
             if not extra:
                 print(f"  !! unknown language {lang}")
                 return None
@@ -233,7 +292,11 @@ def build_lang(
                 )
                 shutil.copyfile(staging_src, td / "lex.tsv")
                 source = extra.get("source", f"staging:{extra['path']}")
-                license_ = extra["license"]
+                license_ = extra.get(
+                    "license",
+                    "CC-BY-SA-4.0 (data: Wiktionary via WikiPron) + MIT (tooling)"
+                    if extra.get("wikipron") else None,
+                )
             else:
                 src = td / "cmudict.dict"
                 download(extra["url"], src)
@@ -294,14 +357,32 @@ def build_lang(
                 tar.add(f, arcname=f.name)
             notice = f"voicegarden-lexicons {lang}\nsource: {source}\nlicense: {license_}\n"
             dl = (meta or EXTRAS[lang]).get("data_license", "")
-            if "CC-BY-SA" in dl:
+            if extra.get("wikipron"):
+                notice += (
+                    "data provenance: WikiPron scrape of Wiktionary\n"
+                    "  (https://github.com/CUNY-CL/wikipron), CC BY-SA 4.0,\n"
+                    "  (c) Wiktionary contributors.\n"
+                    "  https://creativecommons.org/licenses/by-sa/4.0/\n"
+                    "  Adaptations must carry the same license + attribution.\n"
+                )
+                if extra.get("small"):
+                    notice += f"note: {extra['small']}\n"
+                if extra.get("note"):
+                    notice += f"note: {extra['note']}\n"
+            elif "CC-BY-SA" in dl:
                 notice += (
                     "data provenance: Wiktionary (via Kyubyong/pron_dictionaries\n"
                     "  -> gruut-lang); CC BY-SA 4.0, (c) Wiktionary contributors.\n"
                     "  https://creativecommons.org/licenses/by-sa/4.0/\n"
                     "  Adaptations must carry the same license + attribution.\n"
                 )
-                if "inferred" in dl:
+                if "confirmed by inspection" in dl:
+                    notice += (
+                        "  (gruut-lang pack has no upstream statement; Wiktionary\n"
+                        "  extraction confirmed by inspection 2026-11 — see\n"
+                        "  docs/sherpa-coverage.md)\n"
+                    )
+                elif "inferred" in dl:
                     notice += (
                         "  (provenance inferred -- gruut-lang pack not in the\n"
                         "  pron_dictionaries prebuilt list; per-language\n"

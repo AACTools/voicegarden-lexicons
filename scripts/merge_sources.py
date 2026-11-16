@@ -2,12 +2,16 @@
 """Merge gruut + WikiPron staging TSVs into one lexicon.txt per language.
 
 Inputs (any may be missing):
+  staging/<lang>/manual.tsv     word\tph1 ph2 ...   (curated fixes; wins over all)
   staging/<lang>/gruut.tsv      word\tph1 ph2 ...   (segmented, stress-marked)
   staging/<lang>/wikipron.tsv   word\tpʰ1 pʰ2 ...  (broad phonemic, spaced)
 
 Output: staging/<lang>/merged.tsv
 
 Rules:
+- manual.tsv rows win on word conflicts (hand-verified corrections and
+  fills — e.g. the Icelandic number words the scrape missed; see
+  staging/isl/manual.tsv and issue #5).
 - gruut rows win on word conflicts (consistent segmentation + stress is
   what the voices expect).
 - --strategy union: WikiPron fills words gruut lacks. WARNING: the two
@@ -57,8 +61,14 @@ def main() -> int:
     args = ap.parse_args()
 
     d = Path(args.staging) / args.lang
+    manual = load(d / "manual.tsv")
     gruut = load(d / "gruut.tsv")
     wiki = load(d / "wikipron.tsv")
+    # script/dialect sidecars (e.g. wikipron-cyrl.tsv beside the Latin
+    # hbs file): union in; the primary file wins on key overlap.
+    for side in sorted(d.glob("wikipron-*.tsv")):
+        for w, p in load(side).items():
+            wiki.setdefault(w, p)
 
     strategy = args.strategy
     if strategy == "auto":
@@ -107,11 +117,19 @@ def main() -> int:
                 new += 1
 
     merged = source
+    n_manual = 0
+    for w, p in manual.items():
+        if merged.get(w) != p:
+            merged[w] = p
+            n_manual += 1
 
     out = d / "merged.tsv"
     with out.open("w", encoding="utf-8") as f:
         for w in sorted(merged):
             f.write(f"{w}\t{merged[w]}\n")
+
+    if n_manual:
+        print(f"  manual.tsv: {n_manual} entries applied (overrides + fills)")
 
     extra = f"; {strategy_note}" if strategy == "variants" else ""
     print(

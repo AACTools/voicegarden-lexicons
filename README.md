@@ -15,15 +15,24 @@ Each bundle is a `<lang>.tar.gz` with five files:
 | `lexicon.txt` | the same dictionary as plain text (`word<TAB>phonemes`), in the format sherpa-onnx reads, so Python, C, C++, and Node programs can use it directly |
 | `NOTICE` | where the data came from and its license |
 
-`lexicons.json` lists every bundle with its download URL, SHA-256, size, entry count, and license. Fourteen languages are published:
+`lexicons.json` lists every bundle with its download URL, SHA-256, size, entry count, and license. Thirty languages are published:
 
 | Bundle | Entries | | Bundle | Entries |
 |---|---|---|---|---|
 | de | 277,912 | | ru | 545,315 |
-| en-GB | 169,484 | | | |
-| en | 124,384 | | es | 595,857 |
-| en-cmudict | 135,166 | | pt | 81,219 |
-| fr | 90,114 | | + ca, cs, fa, it, nl, sv, sw | |
+| en-GB | 169,484 | | es | 595,857 |
+| en | 124,384 | | sr | 23,169 |
+| en-cmudict | 135,166 | | hr | 26,346 |
+| fr | 90,114 | | pt | 81,219 |
+| yue | 106,238 | | mt | 15,789 |
+| eu | 11,977 | | cy | 14,579 |
+| ga | 9,546 | | ml | 9,477 |
+| sq | 4,866 | | gu | 4,086 |
+| lb | 3,797 | | et | 2,747 |
+| no | 2,714 | | af | 2,073 |
+| kk | 669 * | | lt | 437 * |
+
+Plus the gruut-sourced ca, cs, fa, it, nl, sv, sw. The `af`–`yue` bundles are WikiPron scrapes of Wiktionary (CC BY-SA 4.0), keyed to the locale codes of the piper voices that need them — [docs/sherpa-coverage.md](docs/sherpa-coverage.md) maps every sherpa piper voice locale to a bundle (or records why none exists yet: `blocked:no-data`, or `blocked:conventions` where WikiPron only has narrow transcriptions). *kk and lt are very thin scrapes; most words fall through to the guesser.
 
 ## Expanded bundles: filling in the missing words
 
@@ -94,6 +103,7 @@ What we have not done: a fair accuracy comparison against espeak on the same tes
 |---|---|---|
 | [gruut](https://pypi.org/project/gruut/) | MIT | ca, cs, de, en, es, fa, fr, it, nl, pt, ru, sv, sw |
 | [CMUDict](https://github.com/cmusphinx/cmudict) | BSD-style | en (alternate `en-cmudict` bundle) |
+| [WikiPron](https://github.com/CUNY-CL/wikipron) (Wiktionary scrape) | CC BY-SA 4.0 | af, cy, et, eu, ga, gu, hr, kk, lb, lt, ml, mt, no, sq, sr, yue |
 
 gruut is the phonemizer piper's non-English voices were trained with, so its symbol choices match what those voices expect. As a check, we sampled 236,000 symbols from the German lexicon against piper's `de_DE-thorsten` voice: none failed to resolve.
 
@@ -152,6 +162,8 @@ You need python3, curl, and `cargo install --locked floravox-g2p --bin floravox-
 | Doc | What it covers |
 |---|---|
 | [docs/build.md](docs/build.md) | the build pipeline, end to end |
+| [docs/sherpa-coverage.md](docs/sherpa-coverage.md) | sherpa piper voice ↔ bundle coverage map; what's blocked and why |
+| [docs/espeak-data-verification.md](docs/espeak-data-verification.md) | what espeak-ng-data in voice archives contains, and how it can verify (never source) bundles |
 | [docs/distill-audit.md](docs/distill-audit.md) | how the expanded bundles were tested: per-language accuracy, the double-check filter, and the ten languages we rejected |
 | [docs/byt5-training-evaluation.md](docs/byt5-training-evaluation.md) | how the ByT5 models were trained and how well it worked (v1 + v2 harmonized retrain) |
 | [floravox examples](https://github.com/AACTools/floravox/tree/main/examples) | Python and Node.js examples for ByT5 ONNX inference |
