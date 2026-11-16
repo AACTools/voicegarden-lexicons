@@ -70,10 +70,14 @@ IPA-poor there — 5.6k); Finnish (4.4 GB dump) not yet pulled.
 | ka | ka | piper-ka_GE (1×3) | kaikki Georgian, folded | 24,647 | **0.004%** vs natia-medium; g2p 99.0%/PER 0.2% |
 | ko | ko | mimic3-ko_KO (1) | kaikki Korean, folded | 35,159 | **0.13%** vs kss tokens; laryngeal contrasts merged (see fold note) |
 | uk | uk | piper-uk_UA-lada + coqui (lada only — ukrainian_tts is grapheme-based) | kaikki Ukrainian, folded | 55,209 | **0.004%** vs lada; glide breves → j/w; g2p 80.2% |
-| vi | vi | piper-vi_VN (3×3) | kaikki Vietnamese (Hanoi), folded | 28,749 | **0.014%** vs vais1000; Chao tone letters → espeak digits (ngang=7, verified against espeak-ng's own phonemization) |
-| ne | ne | piper-ne_NP (3) + mimic3 (1) | kaikki Nepali, folded | 2,135 ⚠ | **0.05%** vs ne-google; aspiration as ʰ tokens, nasal vowels as vowel+̃ (both in the model inventory) |
-| lv | lv | piper-lv_LV (1×3) | kaikki Latvian, folded | 1,704 ⚠ | **0.23%** vs aivars; pitch accents → plain long vowels (espeak marks no tones) |
-| zh | zh-CN | piper-zh_CN (2×3+6) | WikiPron cmn, folded | 147,316 | **0.107%** vs huayan-medium; dictionary-only (Han WFSTs are huge and weak — OOV falls back char-wise to the dictionary) |
+| vi | vi | piper-vi_VN (3×3) | kaikki Vietnamese (Hanoi), folded | 28,749 | **0.010%** vs vais1000; Chao tone letters → espeak tone digits (ngang=1 huyền=2 sắc=3 hỏi=4 ngã=5 nặng=6, per espeak's ph_vietnam definitions — tone 7 is espeak's clause-final ngang variant, not a lexical tone) |
+| ne | ne | piper-ne_NP (3) + mimic3 (1) | kaikki Nepali, folded | 2,135 ⚠ | **0.047%** vs ne-google; aspiration as ʰ tokens, nasal vowels as vowel+̃ (both verified in the model inventory) |
+| lv | lv | piper-lv_LV (1×3) | kaikki Latvian, folded | 1,704 ⚠ | **0.235%** per-word vs aivars; pitch accents → plain long vowels (espeak marks no tones) |
+| zh | zh-CN | piper-zh_CN (2×3+6) | WikiPron cmn, folded | 147,316 | **0.005%** vs huayan-medium (digit words excluded, the wrapper-audit method); dictionary-only (Han WFSTs are huge and weak — OOV falls back char-wise to the dictionary) |
+
+All numbers recomputable: `python3 scripts/audit_voice_tokens.py`
+(vendored inventories in `audit/voice-tokens/`, wired into
+`make check-release`).
 
 Convention folds (the `blocked:conventions` unlock pattern — per-language
 rules validated against the target voice's `tokens.txt`):
@@ -94,6 +98,18 @@ rules validated against the target voice's `tokens.txt`):
   laryngeal contrast (plain/aspirated/fortis/unreleased) merged to
   plain — the ko voice family's token inventory distinguishes none of
   it (validated against kss's 50 tokens, 0.13% drop).
+- **sr/hr** (`scripts/fold_serbian.py`): the four-way Serbo-Croatian
+  pitch-accent diacritics (ǎ ě ǒ ȃ …) folded to plain vowels, length
+  kept — the sr voice's inventory carries none of the marks. Caught by
+  the new voice-token audit: the v0.5.0/v0.5.1 `sr` bundle measured
+  **98.7% drop** against its own voice before this fold (sr was never
+  voice-audited when it shipped). Both scripts re-folded from the hbs
+  union; now 0.000%.
+- **fin** (`scripts/fold_finnish.py`): the Wiktionary juncture mark ˣ
+  (attached in WikiPron rows, standalone in kaikki) is not in the fi
+  voices' inventory — the published expanded `fin` bundle measured
+  **15.50% drop** vs harri (26,967 of 174,010 words). Stripped;
+  0.005%. The bundle was rebuilt with kaikki inflected fills included.
 - **SIGMORPHON 2020 G2P data** (15 languages incl. geo/hun/kor/lit/vie/
   ice, Wiktionary-derived) inspected as a fold reference: conventions
   match kaikki closely (hun 94% exact on shared words after

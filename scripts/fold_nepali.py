@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """Fold Nepali kaikki IPA to the piper ne voice's conventions.
 
-kaikki/Wiktionary Nepali uses breathy-voiced IPA (ɡʱ, ʌ̤, ä̤), the
-fronted ä for the long open vowel, and dental/unreleased diacritics.
-espeak-ng Nepali — which the piper ne voices consume — marks
-aspiration with a separate `#` token after the consonant (verified:
-`espeak-ng -v ne --pho` renders घर as g#...), and the voices' token
-inventories carry `#` but not ʰ or the breathy diacritic.
+kaikki/Wiktionary Nepali uses breathy-voiced IPA (ɡ ʱ as separate
+tokens, ʌ̤ ä̤), the fronted ä for the long open vowel, and dental /
+unreleased / laminal diacritics. The ne voices' espeak-derived token
+inventories ship ʰ and ̃ as STANDALONE tokens (verified against
+ne_NP-google-medium tokens.txt: ʰ ∈ vocab, ̃ ∈ vocab) — while espeak's
+internal --pho notation writes g#/breathing its own way, the model
+consumes the IPA decomposition.
 
-Fold: ʰ → `#` (espeak's own aspiration marker, emitted as a separate
-token after the consonant); breathy-voice diacritic on vowels
-stripped (aspiration contrast preserved on the consonant); ä → aː;
-dental/unreleased/advanced/creaky diacritics and glide breves
-stripped; link marks dropped.
+Fold: standalone ʱ and trailing ʰ → a separate ʰ token after the
+consonant; nasalized vowels → vowel + ̃; breathy-voice diacritic on
+vowels stripped (the consonant aspiration carries the lexical
+contrast); ä → aː; dental/unreleased/advanced/laminal diacritics and
+glide breves stripped; link marks dropped.
 
 Usage: scripts/fold_nepali.py  (staging/nep/kaikki.tsv ->
        staging/nep/kaikki.folded.tsv)
@@ -27,7 +28,7 @@ REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "staging/nep/kaikki.tsv"
 DST = REPO / "staging/nep/kaikki.folded.tsv"
 
-STRIP = "̞̤̪̠̯͈̣̚"
+STRIP = "̞̤̪̠̯͈̣̻̚"
 
 
 def fold_token(ph: str) -> list[str]:

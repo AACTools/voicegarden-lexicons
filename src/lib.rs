@@ -166,9 +166,9 @@ impl LexiconArchive {
     /// Resolve a language code (or BCP-47 prefix) to its entry.
     ///
     /// Match order: exact bundle id, then exact bcp47, then — among all
-    /// entries sharing the primary subtag — the one whose bcp47 shares
-    /// the longest prefix with the request (`en-GB-scotland` → `en-GB`,
-    /// not the plain `en`), plain ids first.
+    /// entries sharing the primary subtag — the one sharing the longest
+    /// bcp47 prefix with the request (`en-GB-scotland` → `en-GB`, not
+    /// the plain `en`); a plain id only breaks ties at equal depth.
     #[must_use]
     pub fn entry(&self, lang: &str) -> Option<&LanguageEntry> {
         let want = lang.to_ascii_lowercase().replace('_', "-");

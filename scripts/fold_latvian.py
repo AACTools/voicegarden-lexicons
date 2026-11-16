@@ -8,8 +8,10 @@ what the lv voice consumes — writes plain long vowels (verified:
 `espeak-ng -v lv --pho` renders māja as m'a:ja, no tone markers).
 
 Fold: any vowel carrying a macron or pitch-accent mark becomes base
-vowel + ː (tone information is lost — espeak loses it too). Thin
-scrape, NOTICE-flagged like kk/lt.
+vowel + ː (tone information is lost — espeak loses it too); glide
+breves stripped (i̯ → i, same as the Ukrainian fold); laminal /
+dental / linking marks stripped. Tone information is lost by design —
+espeak lv marks no tones. Thin scrape, NOTICE-flagged like kk/lt.
 
 Usage: scripts/fold_latvian.py  (staging/lav/kaikki.tsv ->
        staging/lav/kaikki.folded.tsv)
@@ -24,18 +26,26 @@ REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "staging/lav/kaikki.tsv"
 DST = REPO / "staging/lav/kaikki.folded.tsv"
 
+# length/pitch marks on Latvian vowels (macron, grave, circumflex,
+# breve, caron, diaeresis, double macron below)
 MARKS = set("̄̀̂̆̌̈̿")
+# other marks stripped outright (glide breve, laminal, dental, linking)
+STRIP = set("̯̻̪‿")
 
 
 def fold_token(ph: str) -> list[str]:
+    ph = "".join(c for c in ph if c not in STRIP)
     nfd = unicodedata.normalize("NFD", ph)
     if any(c in MARKS for c in nfd):
-        base = "".join(c for c in nfd if c not in MARKS and unicodedata.category(c) != "Mn")
+        base = "".join(
+            c for c in nfd
+            if c not in MARKS and unicodedata.category(c) != "Mn"
+        )
         base = unicodedata.normalize("NFC", base)
-        if base and base not in ("ː",):
+        if base and base != "ː":
             return [base, "ː"]
         return []
-    return [ph]
+    return [ph] if ph else []
 
 
 def main() -> int:

@@ -3,13 +3,16 @@
 
 kaikki/Wiktionary Vietnamese (Hanoi) writes tones as Chao tone-LETTER
 runs (˧˧ ˧˦ ˧˨ ˨˩ ˧˩ ˦ˀ˥); the piper vi voices' espeak-derived
-inventories carry tone DIGITS. The mapping below was derived from
-espeak-ng itself (`espeak-ng -v vi --pho` on the six-tone ma-set:
-ngang=7, huyền=2, sắc=3, hỏi=4, ngã=5, nặng=6) and the observed
-kaikki contours (má/mà/mả/mã/mạ spot-verified).
+inventories carry tone DIGITS. The mapping follows espeak-ng's
+phoneme definitions (phsource/ph_vietnam): 1=ngang, 2=huyền, 3=sắc,
+4=hỏi, 5=ngã, 6=nặng. Note tone 7 is espeak's clause-final FALLING
+variant of ngang — isolated-word checks mis-derive it, so mid-sentence
+behavior is authoritative (verified: `echo "ma ba" | espeak-ng -v vi
+-q -x` → tone 1 mid-clause, 7 only clause-final; use 1 here).
 
 Also folded: unreleased/advanced stop diacritics (t̚ k̚ p̚ k̟̚ ŋ̟ →
-plain), ï→i, nasalization ~ dropped; tie-bar labiovelars (k͡p) keep
+plain), ï→i, stray superscript digit tone marks (⁶ ³ …) mapped through
+the same table, nasalization ~ dropped; tie-bar labiovelars (k͡p) keep
 their tie for the runtime ladder to char-split.
 
 Usage: scripts/fold_vietnamese.py  (staging/vie/kaikki.tsv ->
@@ -25,8 +28,9 @@ SRC = REPO / "staging/vie/kaikki.tsv"
 DST = REPO / "staging/vie/kaikki.folded.tsv"
 
 TL = set("˧˨˦˩˥ˀ")
+SUPDIG = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
 TONES = {
-    "˧˧": "7",   # ngang (level 33)
+    "˧˧": "1",   # ngang (level 33) — tone 7 is its clause-final variant
     "˧˦": "3",   # sắc (rising 35)
     "˧˥": "3",   # sắc variant 35
     "˨˥": "3",
@@ -37,7 +41,7 @@ TONES = {
     "˨ˀ˨ˀ": "5",
     "˧˨": "6",   # nặng (glottalized fall 32)
     "˩˩": "6",
-    "˩": "6", "˨": "2", "˧": "7", "˦": "3", "˥": "3",  # single-letter residue
+    "˩": "6", "˨": "2", "˧": "1", "˦": "3", "˥": "3",  # single-letter residue
 }
 STRIP = "̟̚"
 
@@ -46,6 +50,7 @@ def fold_token(ph: str) -> list[str]:
     if ph == "~":
         return []
     ph = ph.translate({ord(c): None for c in STRIP}).replace("ï", "i")
+    ph = ph.translate(SUPDIG)
     return [ph] if ph else []
 
 
@@ -59,16 +64,27 @@ def main() -> int:
             out: list[str] = []
             i = 0
             while i < len(toks):
-                if toks[i][0] in TL:
+                if toks[i][0] in TL or toks[i][0] in "⁰¹²³⁴⁵⁶⁷⁸⁹":
                     j = i
-                    while j < len(toks) and toks[j][0] in TL:
+                    letters = []
+                    digits = []
+                    while j < len(toks) and (
+                        toks[j][0] in TL or toks[j][0] in "⁰¹²³⁴⁵⁶⁷⁸⁹"
+                    ):
+                        if toks[j][0] in TL:
+                            letters.append(toks[j])
+                        else:
+                            digits.append(toks[j].translate(SUPDIG))
                         j += 1
-                    run = "".join(toks[i:j])
-                    tone = TONES.get(run)
-                    if tone is None:  # unknown contour: level tone
-                        tone = "7"
-                        unmapped_tones += 1
-                    out.append(tone)
+                    if letters:
+                        tone = TONES.get("".join(letters))
+                        if tone is None:  # unknown contour: level tone
+                            tone = "1"
+                            unmapped_tones += 1
+                        out.append(tone)
+                    # stray superscript digits are already tone digits;
+                    # pass through as ASCII
+                    out.extend(digits)
                     i = j
                     continue
                 out.extend(fold_token(toks[i]))

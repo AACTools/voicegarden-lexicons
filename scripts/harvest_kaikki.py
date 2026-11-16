@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 import unicodedata
 from pathlib import Path
 
@@ -89,45 +90,53 @@ def main() -> int:
     args = ap.parse_args()
 
     dump = Path(args.dump) if args.dump else Path(f"/tmp/opencode/kaikki/{args.lang}.jsonl")
-    if not dump.is_file():
-        raise SystemExit(f"dump not found: {dump}")
-
     out_dir = Path(args.staging) / args.iso
     out_dir.mkdir(parents=True, exist_ok=True)
     tsv = out_dir / "kaikki.tsv"
 
-    seen: set[str] = set()
-    n_lines = n_words = 0
-    with tsv.open("w", encoding="utf-8") as out:
-        with dump.open(encoding="utf-8") as f:
-            for line in f:
-                n_lines += 1
-                try:
-                    entry = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                word = entry.get("word")
-                if not word:
-                    continue
-                word = unicodedata.normalize("NFC", word.strip())
-                if not word or word in seen:
-                    continue
-                sounds = entry.get("sounds") or []
-                ipa = next((s.get("ipa") for s in sounds if s.get("ipa")), None)
-                if not ipa:
-                    continue
-                pron = normalise_ipa(ipa)
-                if not pron:
-                    continue
-                seen.add(word)
-                out.write(f"{word}\t{pron}\n")
-                n_words += 1
-                if args.limit_words and n_words >= args.limit_words:
-                    break
+    if args.dump == "-":
+        n_words = harvest_stream(sys.stdin, tsv, args.limit_words)
+        (out_dir / "LICENSE.kaikki").write_text(LICENCE, encoding="utf-8")
+        print(f"{args.lang}: {n_words} words with IPA (streamed) -> {tsv}")
+        return 0
+    if not dump.is_file():
+        raise SystemExit(f"dump not found: {dump}")
 
+    with dump.open(encoding="utf-8") as f:
+        n_words = harvest_stream(f, tsv, args.limit_words)
     (out_dir / "LICENSE.kaikki").write_text(LICENCE, encoding="utf-8")
-    print(f"{args.lang}: {n_words} words with IPA from {n_lines} entries -> {tsv}")
+    print(f"{args.lang}: {n_words} words with IPA -> {tsv}")
     return 0
+
+
+def harvest_stream(f, tsv: Path, limit_words: int = 0) -> int:
+    seen: set[str] = set()
+    n_words = 0
+    with tsv.open("w", encoding="utf-8") as out:
+        for line in f:
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            word = entry.get("word")
+            if not word:
+                continue
+            word = unicodedata.normalize("NFC", word.strip())
+            if not word or word in seen:
+                continue
+            sounds = entry.get("sounds") or []
+            ipa = next((s.get("ipa") for s in sounds if s.get("ipa")), None)
+            if not ipa:
+                continue
+            pron = normalise_ipa(ipa)
+            if not pron:
+                continue
+            seen.add(word)
+            out.write(f"{word}\t{pron}\n")
+            n_words += 1
+            if limit_words and n_words >= limit_words:
+                break
+    return n_words
 
 
 if __name__ == "__main__":

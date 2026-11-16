@@ -18,10 +18,13 @@ fn main() {
     let stdin = std::io::stdin();
     let stdout = std::io::stdout();
     let mut out = std::io::BufWriter::new(stdout.lock());
+    let mut dropped_symbols = 0usize;
+    let mut lines_with_drops = 0usize;
     for line in stdin.lock().lines().map_while(Result::ok) {
         let mut it = line.split_whitespace();
         let Some(word) = it.next() else { continue };
         let mut phones: Vec<String> = Vec::new();
+        let mut dropped_here = 0usize;
         for sym in it {
             // split trailing stress digit: AE1 -> ˈ + AE
             let (stress, base) = match sym.as_bytes() {
@@ -40,13 +43,32 @@ fn main() {
             if !stress.is_empty() {
                 phones.push(stress.to_string());
             }
-            match voicegarden_lexicons::notation::convert(base, voicegarden_lexicons::notation::Notation::Arpabet) {
+            match voicegarden_lexicons::notation::convert(
+                base,
+                voicegarden_lexicons::notation::Notation::Arpabet,
+            ) {
                 Ok(ipa) if !ipa.is_empty() => phones.push(ipa),
-                _ => {}
+                _ => {
+                    // unknown ARPABET symbol: a phoneset update must fail
+                    // the build loudly, not silently shorten lines
+                    dropped_symbols += 1;
+                    dropped_here += 1;
+                    eprintln!("unknown ARPABET symbol: {sym}");
+                }
             }
+        }
+        if dropped_here > 0 {
+            lines_with_drops += 1;
         }
         if !phones.is_empty() {
             let _ = writeln!(out, "{}\t{}", word, phones.join(" "));
         }
+    }
+    if dropped_symbols > 0 {
+        eprintln!(
+            "arpabet: {dropped_symbols} unknown symbol(s) on {lines_with_drops} line(s) \
+             — refusing (a CMUdict phoneset change must be handled, not dropped)"
+        );
+        std::process::exit(1);
     }
 }

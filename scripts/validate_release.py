@@ -123,15 +123,30 @@ def check_bundles(manifest: dict, dist: Path) -> tuple[list[str], int]:
 
 
 def resolve(manifest: dict, want: str) -> str | None:
+    """Mirrors LexiconArchive::entry(): exact lang, exact bcp47, then
+    longest-shared-bcp47-prefix with plain ids winning ties."""
     want = want.lower().replace("_", "-")
     short = want.split("-")[0]
-    for e in manifest["languages"]:
+    langs = manifest["languages"]
+    for e in langs:
         if e["lang"].lower() == want or e["bcp47"].lower() == want:
             return e["lang"]
-    for e in manifest["languages"]:
-        if e["bcp47"].split("-")[0] == short:
-            return e["lang"]
-    return None
+    want_parts = want.split("-")
+    best, best_key = None, -1
+    for e in langs:
+        p = e["bcp47"].split("-")[0]
+        if p != short:
+            continue
+        parts = e["bcp47"].lower().split("-")
+        shared = 0
+        for a, b in zip(want_parts, parts):
+            if a != b:
+                break
+            shared += 1
+        key = shared * 2 + int(e["lang"].lower() == short)
+        if key > best_key:
+            best, best_key = e["lang"], key
+    return best
 
 
 def check_resolution(base: dict, expanded: dict) -> list[str]:
@@ -173,6 +188,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dist", default="dist")
     ap.add_argument("--expanded", default="dist/expanded-v2")
+    ap.add_argument("--skip-expanded", action="store_true",
+                    help="skip the expanded-tier checks (CI release job "
+                    "builds the base tier only)")
     ap.add_argument("--baseline", help="published lexicons.json (path or URL) "
                     "to assert expand-only changes")
     args = ap.parse_args()
@@ -181,16 +199,19 @@ def main() -> int:
 
     failures: list[str] = []
     base = json.loads((dist / "lexicons.json").read_text())
-    expanded = json.loads((exp_dir / "expanded.json").read_text())
+    has_expanded = not args.skip_expanded and (exp_dir / "expanded.json").exists()
+    expanded = json.loads((exp_dir / "expanded.json").read_text()) if has_expanded else base
 
     failures += check_manifest_schema(base)
-    failures += check_manifest_schema(expanded)
+    if has_expanded:
+        failures += check_manifest_schema(expanded)
     errs, bundles = check_bundles(base, dist)
     failures += errs
     print(f"base manifest: {len(base['languages'])} languages, {bundles} bundles verified")
-    errs, exp_bundles = check_bundles(expanded, exp_dir)
-    failures += exp_bundles and errs or errs
-    print(f"expanded manifest: {len(expanded['languages'])} languages, {exp_bundles} bundles verified")
+    if has_expanded:
+        errs, exp_bundles = check_bundles(expanded, exp_dir)
+        failures += errs
+        print(f"expanded manifest: {len(expanded['languages'])} languages, {exp_bundles} bundles verified")
     failures += check_resolution(base, expanded)
     print(f"resolution table: {len(RESOLUTION)} voices, {len(BLOCKED)} blocked")
 

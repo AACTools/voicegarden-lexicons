@@ -73,9 +73,13 @@ jobs:
           cargo install -q --locked --version 0.8.5 floravox-g2p --bin floravox-fst-compile --bin floravox-train-phonetisaurus
       # Rebuild WITH per-language WFST training (the per-push build job
       # skips it): ~3 h across all languages, release tags only.
+      # BASE TIER ONLY: the expanded tier (distill-v2 data, gitignored)
+      # is built locally and its assets uploaded from the release
+      # machine — the local `make check-release` gate covers both tiers
+      # before any tag is pushed.
       - name: Build all bundles (with training)
         run: python3 build.py --out dist --version "${GITHUB_REF_NAME}"
-      - name: Validate manifest against schema
+      - name: Validate base manifest + gate what CI can see
         run: |
           python3 -m pip install jsonschema
           python3 - <<'EOF2'
@@ -83,6 +87,9 @@ jobs:
           jsonschema.validate(json.load(open("dist/lexicons.json")), json.load(open("schema.json")))
           print("manifest OK")
           EOF2
+          python3 scripts/validate_release.py --skip-expanded --baseline \
+            "https://github.com/AACTools/voicegarden-lexicons/releases/download/v0.5.1/lexicons.json" \
+            || echo "::error::expand-only/validation failed — refusing to release" && exit 1
       - name: Release
         uses: softprops/action-gh-release@v2
         with:

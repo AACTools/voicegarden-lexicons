@@ -148,10 +148,15 @@ EXTRAS: dict[str, dict] = {
            "source": "wikipron:guj_gujr_broad.tsv"},
     "hr": {"kind": "staging", "bcp47": "hr", "name": "Croatian (Latin script)",
            "path": "staging/hbs/lexicon-hr.tsv", "wikipron": True,
-           "source": "wikipron:hbs_latn_broad_filtered.tsv"},
+           "source": "wikipron:hbs_latn_broad_filtered.tsv",
+           "note": "Serbo-Croatian pitch accents folded to plain vowels "
+                   "(scripts/fold_serbian.py) — 0.000% drop vs the sr voice "
+                   "inventory; audit via scripts/audit_voice_tokens.py"},
     "sr": {"kind": "staging", "bcp47": "sr", "name": "Serbian (Cyrillic script)",
            "path": "staging/hbs/lexicon-sr.tsv", "wikipron": True,
-           "source": "wikipron:hbs_cyrl_broad_filtered.tsv"},
+           "source": "wikipron:hbs_cyrl_broad_filtered.tsv",
+           "note": "pitch accents folded (scripts/fold_serbian.py); "
+                   "0.000% drop vs piper-sr_RS-serbski_institut-medium"},
     "kk": {"kind": "staging", "bcp47": "kk", "name": "Kazakh",
            "path": "staging/kaz/merged.tsv", "wikipron": True,
            "source": "wikipron:kaz_cyrl_broad.tsv",
@@ -174,7 +179,7 @@ EXTRAS: dict[str, dict] = {
            "small": "thin extraction (1,704 words) — WFST carries most words",
            "note": "folded (scripts/fold_latvian.py): pitch-accented/macrone "
                    "vowels to plain long vowels (espeak lv marks no tones); "
-                   "0.23% drop vs lv_LV-aivars"},
+                   "0.235% per-word drop vs lv_LV-aivars"},
     "lt": {"kind": "staging", "bcp47": "lt", "name": "Lithuanian",
            "path": "staging/lit/merged.tsv", "wikipron": True,
            "source": "wikipron:lit_latn_broad.tsv",
@@ -222,9 +227,10 @@ EXTRAS: dict[str, dict] = {
            "path": "staging/vie/kaikki.folded.tsv", "kaikki": True,
            "source": "kaikki:Vietnamese (English Wiktionary extraction)",
            "note": "Chao tone letters folded to the espeak tone digits "
-                   "(scripts/fold_vietnamese.py; ngang=7 huyền=2 sắc=3 "
-                   "hỏi=4 ngã=5 nặng=6, verified against espeak-ng's own "
-                   "phonemization); 0.014% drop vs vi_VN-vais1000"},
+                   "(scripts/fold_vietnamese.py; ngang=1 huyền=2 sắc=3 "
+                   "hỏi=4 ngã=5 nặng=6, per espeak's ph_vietnam phoneme "
+                   "definitions — tone 7 is the clause-final ngang "
+                   "variant, not lexical); 0.010% drop vs vi_VN-vais1000"},
     "yue": {"kind": "staging", "bcp47": "yue", "name": "Cantonese (Han script)",
             "path": "staging/yue/merged.tsv", "wikipron": True,
             "source": "wikipron:yue_hani_standard_broad.tsv",
@@ -555,10 +561,11 @@ def main() -> int:
         # how v0.4.0 lost en-cmudict for two releases)
         print(f"\n!! {len(failed)} bundle(s) FAILED to build: {', '.join(failed)}")
         if not args.langs:
-            print("!! full build — previously published bundles are MISSING")
-        if prior:
-            still_ok = [l for l in failed if l not in prior]
-            print(f"!! lost-from-prior: {', '.join(still_ok) or 'none'}")
+            print("!! full build — refusing to write a manifest that "
+                  "silently drops published bundles")
+            for lang in failed:
+                print(f"!! missing from this build: {lang}")
+            return 1
 
     languages = list(prior.values()) if args.langs else entries
     manifest = {
