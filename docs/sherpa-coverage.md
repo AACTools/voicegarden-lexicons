@@ -102,10 +102,10 @@ Clean without folds (audit now guards them): eu 0.017%, lb 0.369%,
 sq 0.452%, kk 1.943% (thin).
 
 **Grapheme/transliteration voices — no lexicon can serve them:** the
-only voices for et, ga, lt, mt are coqui character-token models
+only voices for bg, et, ga, lt, mt are coqui character-token models
 (`a b c … <PAD> <EOS>`), and the only gu voice is a mimic3 ASCII
-transliteration model. Their `et/ga/lt/mt/gu` bundles remain valid
-G2P/P2P dictionary products but provision **no TTS gain** for those
+transliteration model. Their `bg/et/ga/lt/mt/gu` bundles remain valid
+G2P/P2G dictionary products but provision **no TTS gain** for those
 voices; the wrapper should treat those locales as
 `grapheme-voice: no bundle needed` (recorded in the audit table,
 report-only). Every other bundled locale now audits clean against at
