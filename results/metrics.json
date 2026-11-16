@@ -999,17 +999,17 @@
   }
  },
  {
-  "entries": 10002,
+  "entries": 10039,
   "g2p": {
    "coverage": 100.0,
-   "exact": 73.4,
-   "per": 5.7
+   "exact": 75.3,
+   "per": 5.2
   },
   "lang": "isl",
   "p2g": {
-   "cer": 47.4,
-   "coverage": 98.4,
-   "exact": 5.0
+   "cer": 45.4,
+   "coverage": 99.4,
+   "exact": 7.8
   }
  },
  {
