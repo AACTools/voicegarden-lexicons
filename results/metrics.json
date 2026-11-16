@@ -1921,5 +1921,33 @@
    "coverage": 90.4,
    "exact": 7.2
   }
+ },
+ {
+  "entries": 25748,
+  "g2p": {
+   "coverage": 99.9,
+   "exact": 71.2,
+   "per": 6.7
+  },
+  "lang": "lit",
+  "p2g": {
+   "cer": 22.7,
+   "coverage": 99.3,
+   "exact": 46.1
+  }
+ },
+ {
+  "entries": 2259,
+  "g2p": {
+   "coverage": 100.0,
+   "exact": 29.6,
+   "per": 21.4
+  },
+  "lang": "kaz",
+  "p2g": {
+   "cer": 51.9,
+   "coverage": 94.4,
+   "exact": 1.9
+  }
  }
 ]

@@ -73,14 +73,10 @@ LANGUAGES: dict[str, dict] = {
            "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
            "name": "French"},
-    "it": {"pkg": "gruut-lang-it", "bcp47": "it-IT",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
-           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
-           "name": "Italian"},
-    "nl": {"pkg": "gruut-lang-nl", "bcp47": "nl-NL",
-           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
-           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
-           "name": "Dutch"},
+    "it": None,  # moved to EXTRAS: built from the staging union (gruut +
+                # WikiPron fills) — audits 0.004% vs it_IT-dii-high
+    "nl": None,  # moved to EXTRAS: built from the staging union — audits
+                # 0.000% vs nl_NL-alex-medium
     "pt": {"pkg": "gruut-lang-pt", "bcp47": "pt-PT",
            "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
            "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
@@ -116,12 +112,10 @@ EXTRAS: dict[str, dict] = {
         "license": "BSD-2-Clause-like (CMUDict)",
         "name": "English (CMUDict, ARPABET→IPA)",
         "url": "https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict",
-        # ARPABET rows: fst-compile converts them, but Phonetisaurus
-        # training panics ("empty grapheme table") — ships
-        # dictionary-only, as originally intended (see the WFST note
-        # below). Without this flag, full rebuilds silently dropped
-        # the bundle (that is how v0.4.0 lost it).
-        "no_train": True,
+        # the lexicon converts ARPABET→IPA (examples/arpabet) before
+        # training, so the WFST now emits the bundle's own IPA — the
+        # original reason for shipping without one (ARPABET mismatch)
+        # is gone. Trained on the converted rows.
     },
     # WikiPron-harvested locales (issue #5): broad-phonemic scrapes of
     # Wiktionary, CC BY-SA 4.0. Bundles keyed to the piper voice locale
@@ -162,8 +156,11 @@ EXTRAS: dict[str, dict] = {
                    "0.000% drop vs piper-sr_RS-serbski_institut-medium"},
     "kk": {"kind": "staging", "bcp47": "kk", "name": "Kazakh",
            "path": "staging/kaz/merged.tsv", "wikipron": True,
-           "source": "wikipron:kaz_cyrl_broad.tsv",
-           "small": "thin scrape (669 words) — WFST carries most words"},
+           "source": "wikipron:kaz_cyrl_broad.tsv + kaikki fill",
+           "note": "kaikki fill grew the scrape 669 -> 2,259 words; "
+                   "conventions folded (scripts/fold_kazakh.py): glide "
+                   "breves, tongue-position marks, aspiration stripped — "
+                   "the kk voices' inventories carry none"},
     "ko": {"kind": "staging", "bcp47": "ko", "name": "Korean",
            "path": "staging/kor/kaikki.folded.tsv", "kaikki": True,
            "source": "kaikki:Korean (English Wiktionary extraction)",
@@ -185,8 +182,11 @@ EXTRAS: dict[str, dict] = {
                    "0.235% per-word drop vs lv_LV-aivars"},
     "lt": {"kind": "staging", "bcp47": "lt", "name": "Lithuanian",
            "path": "staging/lit/merged.tsv", "wikipron": True,
-           "source": "wikipron:lit_latn_broad.tsv",
-           "small": "thin scrape (437 words) — WFST carries most words"},
+           "source": "wikipron:lit_latn_broad.tsv + kaikki fill",
+           "note": "kaikki fill grew the scrape 437 -> 25,748 words "
+                   "(scripts/fold_lithuanian.py aligns conventions); the "
+                   "only lt voice is a coqui grapheme model — bundle "
+                   "serves G2P/P2G lookup, not TTS provisioning"},
     "ml": {"kind": "staging", "bcp47": "ml", "name": "Malayalam",
            "path": "staging/mal/merged.tsv", "wikipron": True,
            "source": "wikipron:mal_mlym_broad.tsv",
@@ -237,13 +237,38 @@ EXTRAS: dict[str, dict] = {
                    "hỏi=4 ngã=5 nặng=6, per espeak's ph_vietnam phoneme "
                    "definitions — tone 7 is the clause-final ngang "
                    "variant, not lexical); 0.010% drop vs vi_VN-vais1000"},
+    "it": {"kind": "staging", "bcp47": "it-IT",
+           "name": "Italian",
+           "path": "staging/ita/merged.tsv",
+           "source": "gruut-lang-it 2.0.1 (PyPI) + WikiPron fills via staging",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
+           "note": "staging union (91,133 rows: WikiPron primary, gruut "
+                   "fills) — 0.004% drop vs it_IT-dii-high; the gruut-only "
+                   "build measured 52.3% WFST exact, the union trains "
+                   "stronger"},
+    "nl": {"kind": "staging", "bcp47": "nl-NL",
+           "name": "Dutch",
+           "path": "staging/nld/merged.tsv",
+           "source": "gruut-lang-nl 2.0.2 (PyPI) + WikiPron fills via staging",
+           "data_license": "CC-BY-SA-4.0 (Wiktionary-derived, confirmed by inspection 2026-11)",
+           "license": "CC-BY-SA-4.0 (data: Wiktionary) + MIT (package)",
+           "note": "staging union (70,493 rows) — 0.000% drop vs "
+                   "nl_NL-alex-medium"},
     "yue": {"kind": "staging", "bcp47": "yue", "name": "Cantonese (Han script)",
             "path": "staging/yue/merged.tsv", "wikipron": True,
             "source": "wikipron:yue_hani_standard_broad.tsv",
-            "no_train": True,
-            "note": "dictionary-only: the Han WFST was 19 MB at 30% exact / "
-                    "64% coverage — OOV words fall back char-wise to the "
-                    "dictionary (every Han char carries an entry)"},
+            "train_params": {"order": 3, "iters": 6, "gmax": 2, "pmax": 2},
+            "note": "Han WFST needs low n-gram order: order-7 hit 30% "
+                    "exact / 64% coverage at 19 MB; order-3 reaches "
+                    "38.5% exact / 88.4% trainer-coverage at 11 MB. "
+                    "RUNTIME caveat: floravox-g2p caps its search at "
+                    "65,536 pops — measured through the shipped runtime, "
+                    "yue decodes 68% of OOV words, and char-wise "
+                    "dictionary fallback completes the ladder (covers "
+                    "most, not all, chars: e.g. 设 has no standalone "
+                    "entry). Unihan kCantonese is the principled char "
+                    "tier (roadmap)"},
     "sv": {"kind": "staging", "bcp47": "sv-SE",
            "name": "Swedish",
            "path": "staging/swe/merged.tsv",
@@ -258,15 +283,16 @@ EXTRAS: dict[str, dict] = {
     "zh": {"kind": "staging", "bcp47": "zh-CN", "name": "Mandarin Chinese (simplified Han)",
            "path": "staging/cmn/wikipron.folded.tsv", "wikipron": True,
            "source": "wikipron:cmn_hani_standard_broad.tsv",
-           "no_train": True,
-           "note": "Chao tone contours folded to espeak tone digits 1-5 "
-                   "(scripts/fold_mandarin.py), validated against "
-                   "piper-zh_CN-huayan-medium tokens.txt (0.005% corpus "
-                   "drop, digit words excluded). "
-                   "No Phonetisaurus: Han-grapheme alignment yields an 82 MB "
-                   "model at only 33% exact / 68% coverage — OOV words should "
-                   "fall back char-wise to the dictionary (every Han char "
-                   "carries an entry), the standard Chinese front-end move"},
+           "train_params": {"order": 3, "iters": 6, "gmax": 2, "pmax": 2},
+           "note": "Chao tone contours + sandhi folded to espeak tone digits (scripts/fold_mandarin.py); 0.005% drop vs "
+           "piper-zh_CN-huayan-medium (digit words excluded). Han "
+           "WFST needs low order: order-3 reaches 53.8% exact at "
+           "13 MB. RUNTIME caveat: floravox-g2p caps its search "
+           "at 65,536 pops — zh decodes 95% of OOV words through "
+           "the shipped runtime; char-wise dictionary fallback "
+           "completes the ladder (a few common chars lack "
+           "standalone entries — Unihan kMandarin is the "
+           "principled char tier, roadmap)"},
 }
 
 # NOTE: per-language Phonetisaurus WFSTs are a planned addition, to be
@@ -453,8 +479,18 @@ def build_lang(
             and shutil.which("floravox-train-phonetisaurus"):
             model_out = td / "phonetisaurus.fst"
             metrics_out = td / "metrics.json"
-            cmd = ["floravox-train-phonetisaurus", str(tsv), str(model_out),
+            # cmudict trains on the CONVERTED IPA rows, not the raw
+            # ARPABET (training on ARPABET panics: empty grapheme table)
+            train_src = lexicon_txt if extra.get("kind") == "cmudict" else tsv
+            cmd = ["floravox-train-phonetisaurus", str(train_src), str(model_out),
                    "--metrics", str(metrics_out)]
+            # per-locale overrides (e.g. Han scripts need lower n-gram
+            # order: order-7 WFSTs hit 65% coverage at 82 MB, order-3
+            # reaches 88% at 13 MB)
+            for flag, key in (("--order", "order"), ("--iters", "iters"),
+                              ("--gmax", "gmax"), ("--pmax", "pmax")):
+                if key in extra.get("train_params", {}):
+                    cmd += [flag, str(extra["train_params"][key])]
             if train_iters:
                 cmd += ["--iters", str(train_iters)]
             r = subprocess.run(cmd, capture_output=True, text=True)

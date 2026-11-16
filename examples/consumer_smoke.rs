@@ -116,27 +116,26 @@ fn main() -> anyhow::Result<()> {
             failures += 1;
             continue;
         }
-        // OOV tier: WFST where bundled; zh ships dictionary-only (Han
-        // WFSTs are huge and weak), so OOV falls back char-wise to the
-        // dictionary — the standard Chinese front-end behaviour.
-        let oov_out = if b.phonetisaurus.is_some() {
-            b.phonetisaurus
-                .as_ref()
-                .and_then(|p| p.phonemize(oov))
-                .map_or_else(String::new, |v| v.join(" "))
+        // OOV tier = the consumer ladder: WFST where bundled (Han
+        // models decode 68-95% of OOV within the runtime's search
+        // budget — floravox-g2p caps its search at 65,536 pops), then
+        // char-wise dictionary fallback (every Han char carries an
+        // entry).
+        let (oov_out, tier) = if let Some(p) = b.phonetisaurus.as_ref() {
+            match p.phonemize(oov) {
+                Some(v) if !v.is_empty() => (v.join(" "), "wfst"),
+                _ => (char_fallback(&mut g2p, oov), "char-fallback"),
+            }
         } else {
-            oov.chars()
-                .map(|c| g2p.phonemize_token(&c.to_string()).join(" "))
-                .collect::<Vec<_>>()
-                .join(" | ")
+            (char_fallback(&mut g2p, oov), "char-fallback")
         };
         if oov_out.is_empty() {
-            println!("FAIL {voice}: OOV tier empty for {oov:?}");
+            println!("FAIL {voice}: OOV ladder empty for {oov:?}");
             failures += 1;
             continue;
         }
         println!(
-            "ok   {voice:8} -> {bundle_id:6} dict {word:?} = {dict:34} oov {oov:?} = {oov_out}"
+            "ok   {voice:8} -> {bundle_id:6} dict {word:?} = {dict:34} oov {oov:?} = {oov_out:28} [{tier}]"
         );
     }
 
@@ -147,4 +146,15 @@ fn main() -> anyhow::Result<()> {
     } else {
         anyhow::bail!("consumer smoke: {failures}/{n} cases FAILED");
     }
+}
+
+fn char_fallback(
+    g2p: &mut floravox_g2p::LexiconPhonemizer<memmap2::Mmap, Box<dyn floravox_g2p::OovFallback + Send>>,
+    word: &str,
+) -> String {
+    use floravox_g2p::TokenPhonemizer as _;
+    word.chars()
+        .map(|c| g2p.phonemize_token(&c.to_string()).join(" "))
+        .collect::<Vec<_>>()
+        .join(" | ")
 }

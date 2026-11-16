@@ -51,15 +51,17 @@ AUDITS = {
     "staging/eus/merged.tsv": ("piper-eu_ES-antton-medium", 0.017, 0.5),
     "staging/gle/merged.tsv": ("coqui-ga-cv", 99.497, None),  # grapheme voice
     "staging/guj/merged.tsv": ("mimic3-gu_IN-cmu-indic_low", 75.795, None),  # transliteration
-    "staging/kaz/merged.tsv": ("piper-kk_KZ-iseke-x_low", 1.943, 4.0),
+    "staging/kaz/merged.tsv": ("piper-kk_KZ-iseke-x_low", 1.018, 4.0),
     "staging/ltz/merged.tsv": ("piper-lb_LU-marylux-medium", 0.369, 1.0),
-    "staging/lit/merged.tsv": ("coqui-lt-cv", 98.856, None),  # grapheme voice
+    "staging/lit/merged.tsv": ("coqui-lt-cv", 99.977, None),  # grapheme voice
     "staging/mal/merged.tsv": ("piper-ml_IN-arjun-medium", 0.021, 0.5),
     "staging/mlt/merged.tsv": ("coqui-mt-cv", 91.488, None),  # grapheme voice
     "staging/nob/merged.tsv": ("piper-no_NO-talesyntese-medium", 0.000, 0.05),
     "staging/sqi/merged.tsv": ("piper-sq_AL-edon-medium", 0.452, 1.0),
     "staging/swe/merged.tsv": ("piper-sv_SE-alma-medium", 0.114, 0.5),
     "staging/en-GB/lexicon.tsv": ("piper-en_GB-alan-medium", None, 2.0),
+    "staging/ita/merged.tsv": ("piper-it_IT-dii-high", None, 1.0),
+    "staging/nld/merged.tsv": ("piper-nl_NL-alex-medium", None, 1.0),
 }
 
 # expanded-tier artifacts (the tarball lexicons consumers actually

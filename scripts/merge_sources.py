@@ -71,9 +71,11 @@ def main() -> int:
             wiki.setdefault(w, p)
     # kaikki.tsv (Wiktionary extraction, same upstream as WikiPron but
     # retaining inflected forms): fills words the wikipron files lack.
-    # WikiPron's broad conventions win on shared words (~76% identical
-    # on isl; the rest are diacritic-level convention residue).
-    kaikki = load(d / "kaikki.tsv")
+    # A folded variant (kaikki.folded.tsv, produced by the per-language
+    # fold scripts) always wins over the raw harvest.
+    kaikki = load(d / "kaikki.folded.tsv")
+    if not kaikki:
+        kaikki = load(d / "kaikki.tsv")
 
     strategy = args.strategy
     if strategy == "auto":
