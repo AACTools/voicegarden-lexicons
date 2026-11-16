@@ -20,6 +20,7 @@ from `CUNY-CL/wikipron` `data/scrape/summary.tsv` (broad phonemic files,
 | pt_BR | — | `por-BR` | 0% drop (audited vs cadu-medium) |
 | pt_PT | `pt` | `por-PT` | — |
 | ru_RU | `ru` | — | 0% drop |
+| pl_PL | — | `pol` | **audited this pass**: 0.158% drop vs `piper-pl_PL-gosia-medium` tokens (204,409 words, digits excluded); unresolved = `r̝`×323 (WikiPron's notation for graphemic *rz*, ≈ `ʐ` — a one-symbol wrapper fold takes the drop to ~0.003%), ã×4, ‿×1, é×1 |
 | ar_JO, hi_IN, id_ID, tr_TR, ur_PK, fa_IR, pl_PL, ro_RO, sk_SK, sl_SI, sv_SE, nl_NL/BE, ca_ES, cs_CZ, da_DK, el_GR, fi_FI | (base where gruut has a pack) | ara/hin/ind/tur/urd/fas/pol/ron/slk/slv/swe/nld | — |
 
 **pt_BR note (issue #3):** the base `pt` bundle is gruut `pt-PT` data
@@ -72,7 +73,7 @@ Notes:
 | locale | voices | WikiPron status | verdict |
 |---|---|---|---|
 | ne (Nepali) | piper ne_NP (3) + mimic3 (1) | **narrow only** (2,329) | `blocked:conventions` — narrow→broad fold needed before harvest |
-| ko (Korean) | mimic3-ko_KO (1) | **narrow only** (36,146 filtered) | `blocked:conventions` |
+| ko (Korean) | mimic3-ko_KO (1) | **narrow only** (36,146 filtered) | `blocked:conventions` — **measured**: 98.1% corpus drop running kor_hang_narrow phones through the runtime ladder against kss's 50-token `tokens.txt` (a̠, ʌ̹, o̞, k̚, sʰ… do not decompose); a genuine narrow→broad fold table is required, not char-splitting |
 | ka (Georgian) | piper-ka_GE (1×3) | **narrow only** (20,894) | `blocked:conventions` |
 | hu (Hungarian) | piper-hu_HU (2×3) | **narrow only** (64,689) | `blocked:conventions` (bonus locale, not in #5's table) |
 | uk (Ukrainian) | piper-uk_UA (2×3) + coqui | **narrow only** (53,021) | `blocked:conventions` |
@@ -87,7 +88,11 @@ The narrow-only set shares one root cause: WikiPron's broad (phonemic)
 scrape never happened for them (the scrapes that exist are narrow
 allophonic). A narrow→broad fold study (per-language diacritic-stripping
 rules, validated against the voice's `tokens.txt` via the #3 ladder) is
-the single unlock for ne/ko/ka/hu/uk/vi/lv — roughly 60 voices.
+the single unlock for ne/ko/ka/hu/uk/vi/lv — roughly 60 voices. The
+Korean measurement above shows the fold is real work per language
+(narrow diacritics are semantic there: tense vs plain vowels, unreleased
+stops), so these stay blocked until someone writes and validates the
+per-language fold tables.
 
 ## Icelandic number fix detail (issue #5)
 
