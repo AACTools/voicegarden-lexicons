@@ -311,14 +311,20 @@ def gruut_db_to_tsv(db_path: Path, tsv_path: Path) -> int:
 def cmudict_to_tsv(src: Path, tsv_path: Path) -> int:
     """Marker-only conversion: pass through, the fst-compile --format
     cmudict path handles ARPABET→IPA. We emit a `# format: cmudict`
-    hint by relying on auto-detection."""
+    hint by relying on auto-detection. Lines may carry trailing `#`
+    etymology annotations ("aalborg AO1 L B AO0 R G # place, danish") —
+    strip them: ARPABET is A-Z + stress digits only, so `#` can never
+    be a phone."""
     n = 0
     with tsv_path.open("w", encoding="utf-8") as out, src.open(encoding="utf-8", errors="replace") as f:
         for line in f:
             line = line.rstrip("\n")
             if line and not line.startswith(";"):
-                out.write(line + "\n")
-                n += 1
+                if " #" in line:
+                    line = line.split(" #", 1)[0].rstrip()
+                if line:
+                    out.write(line + "\n")
+                    n += 1
     return n
 
 
