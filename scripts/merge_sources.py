@@ -69,10 +69,20 @@ def main() -> int:
     for side in sorted(d.glob("wikipron-*.tsv")):
         for w, p in load(side).items():
             wiki.setdefault(w, p)
+    # kaikki.tsv (Wiktionary extraction, same upstream as WikiPron but
+    # retaining inflected forms): fills words the wikipron files lack.
+    # WikiPron's broad conventions win on shared words (~76% identical
+    # on isl; the rest are diacritic-level convention residue).
+    kaikki = load(d / "kaikki.tsv")
 
     strategy = args.strategy
     if strategy == "auto":
-        strategy = "gruut-only" if len(gruut) >= len(wiki) else "wikipron-only"
+        if gruut and not wiki:
+            strategy = "gruut-only"
+        elif not wiki and kaikki and not gruut:
+            strategy = "kaikki-only"
+        else:
+            strategy = "gruut-only" if len(gruut) >= len(wiki) else "wikipron-only"
 
     if strategy == "variants":
         # primary follows the auto rule (bigger source keeps merged.tsv);
@@ -107,6 +117,9 @@ def main() -> int:
     elif strategy == "wikipron-only":
         source, source_name = wiki, "wikipron"
         new = 0
+    elif strategy == "kaikki-only":
+        source, source_name = kaikki, "kaikki"
+        new = 0
     else:
         source = dict(gruut)
         source_name = "union(gruut+wikipron)"
@@ -122,6 +135,14 @@ def main() -> int:
         if merged.get(w) != p:
             merged[w] = p
             n_manual += 1
+    # kaikki fills: only behind wikipron-primary lexicons (same
+    # upstream source); never override gruut or wikipron rows.
+    n_kaikki = 0
+    if strategy == "wikipron-only" or (strategy == "variants" and not primary_is_gruut):
+        for w, p in kaikki.items():
+            if w not in merged:
+                merged[w] = p
+                n_kaikki += 1
 
     out = d / "merged.tsv"
     with out.open("w", encoding="utf-8") as f:
@@ -130,6 +151,8 @@ def main() -> int:
 
     if n_manual:
         print(f"  manual.tsv: {n_manual} entries applied (overrides + fills)")
+    if n_kaikki:
+        print(f"  kaikki.tsv: {n_kaikki} words filled in")
 
     extra = f"; {strategy_note}" if strategy == "variants" else ""
     print(

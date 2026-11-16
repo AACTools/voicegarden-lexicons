@@ -54,6 +54,48 @@ All WikiPron-scraped (CC BY-SA 4.0), packaged as base bundles in
 | sq | sq | piper-sq_AL (1×3) | sqi_latn_broad | 4,866 |
 | yue | yue | cantonese-yue-xiaomaiiwn (1) | yue_hani_standard_broad | 106,238 |
 
+## Second wave: kaikki harvest + convention folds
+
+`scripts/harvest_kaikki.py` extracts word→IPA from kaikki.org's full
+Wiktionary dumps (CC BY-SA, same chain as WikiPron, but retaining
+inflected forms WikiPron's scrape drops — the P2G direction's missing
+paradigms). Measured effect on Icelandic: +5,768 inflected fills took
+staging P2G exact from 7.8% to 12.0%; the expanded `isl` bundle grew
+to 43,427 entries. Swedish added almost nothing (en.wiktionary is
+IPA-poor there — 5.6k); Finnish (4.4 GB dump) not yet pulled.
+
+| bundle | bcp47 | voices | source | entries | phone audit vs real voice |
+|---|---|---|---|---|---|
+| hu | hu | piper-hu_HU (2×3+4) | kaikki Hungarian | 67,835 | **0.000% drop** vs anna-medium; g2p 96.0%/PER 1.0% |
+| ka | ka | piper-ka_GE (1×3) | kaikki Georgian, folded | 24,647 | **0.004%** vs natia-medium; g2p 99.0%/PER 0.2% |
+| zh | zh-CN | piper-zh_CN (2×3+6) | WikiPron cmn, folded | 147,316 | **0.107%** vs huayan-medium; dictionary tier is the product (heteronym guessing 33%) |
+
+Convention folds (the `blocked:conventions` unlock pattern — per-language
+rules validated against the target voice's `tokens.txt`):
+- **ka** (`scripts/fold_georgian.py`): ä→ɑ, e̞→ɛ, o̞→ɔ, ɾ→r, devoiced
+  spellings (b̥ d̥ ɡ̊)→plain, ʁ→ɣ, labialization stripped; ejectives
+  merged into the plain series because the piper ka voices' espeak-derived
+  inventories carry no ʼ distinction at all.
+- **zh** (`scripts/fold_mandarin.py`): Chao tone contours → espeak tone
+  digits {55:1, 35:2, 214:3, 21:3, 51:4, 53:4, 4:4}; sandhi/optional
+  markers (⁻ ⁽ ⁾) dropped; preglottalized vowels split (ˀa→ʔ a);
+  ä→a, devoicing rings stripped, ASCII g→ɡ.
+- **SIGMORPHON 2020 G2P data** (15 languages incl. geo/hun/kor/lit/vie/
+  ice, Wiktionary-derived) inspected as a fold reference: conventions
+  match kaikki closely (hun 94% exact on shared words after
+  segmentation). **Not ingested** — the repo carries no explicit
+  license file (Wiktionary CC BY-SA chain is asserted only in the task
+  paper); kaikki reaches the same words with an unambiguous grant.
+
+Staged but not yet bundled (fold studies pending):
+- **kor** — kaikki 35k staged, same narrow conventions as WikiPron
+  (ʌ̹ a̠ e̞ sʰ…). The fold target is now known precisely (kss's 50-token
+  inventory); a vowel/diacritic fold table like ka/zh is the remaining work.
+- **vie** — kaikki 28.7k staged, Hanoi tones as ˧˧-style tone-letter
+  units; needs audit vs a vi voice's tokens + dialect choice (Hanoi/Hue/Saigon).
+- **nep** — kaikki 2.1k staged (thin); Devanagari; needs audit.
+- **uk** (53k narrow), **lv** (1.4k narrow) — same narrow-blocked class.
+
 Notes:
 - `sr` / `hr` are one Serbo-Croatian scrape split by script: the Serbian
   piper voice consumes Cyrillic text, the Croatian coqui voice Latin.
@@ -72,17 +114,17 @@ Notes:
 
 | locale | voices | WikiPron status | verdict |
 |---|---|---|---|
-| ne (Nepali) | piper ne_NP (3) + mimic3 (1) | **narrow only** (2,329) | `blocked:conventions` — narrow→broad fold needed before harvest |
-| ko (Korean) | mimic3-ko_KO (1) | **narrow only** (36,146 filtered) | `blocked:conventions` — **measured**: 98.1% corpus drop running kor_hang_narrow phones through the runtime ladder against kss's 50-token `tokens.txt` (a̠, ʌ̹, o̞, k̚, sʰ… do not decompose); a genuine narrow→broad fold table is required, not char-splitting |
-| ka (Georgian) | piper-ka_GE (1×3) | **narrow only** (20,894) | `blocked:conventions` |
-| hu (Hungarian) | piper-hu_HU (2×3) | **narrow only** (64,689) | `blocked:conventions` (bonus locale, not in #5's table) |
-| uk (Ukrainian) | piper-uk_UA (2×3) + coqui | **narrow only** (53,021) | `blocked:conventions` |
-| vi (Vietnamese) | piper-vi_VN (3×3) | narrow only, 3 dialects (27–32k each) | `blocked:conventions` + dialect choice |
+| hu (Hungarian) | piper-hu_HU (2×3) | narrow only (64,689) | **UNBLOCKED via kaikki** → `hu` bundle (0.000% drop, g2p 96%) |
+| ka (Georgian) | piper-ka_GE (1×3) | **narrow only** (20,894) | **UNBLOCKED via kaikki + fold** → `ka` bundle (0.004% drop) |
+| zh_CN (Mandarin) | piper zh_CN (2×3) | cmn_hani_broad 168,655 | **BUNDLED** → `zh` (tone-contour fold, 0.107% drop) |
+| ne (Nepali) | piper ne_NP (3) + mimic3 (1) | **narrow only** (2,329); kaikki 2.1k staged | `blocked:conventions` — fold + audit pending |
+| ko (Korean) | mimic3-ko_KO (1) | **narrow only** (36,146 filtered) | `blocked:conventions` — **measured**: 98.1% corpus drop running kor_hang_narrow phones through the runtime ladder against kss's 50-token `tokens.txt` (a̠, ʌ̹, o̞, k̚, sʰ… do not decompose); kaikki 35k staged, same conventions — needs the ka/zh-style vowel fold table |
+| vi (Vietnamese) | piper-vi_VN (3×3) | narrow only, 3 dialects (27–32k each) | `blocked:conventions` + dialect choice; kaikki 28.7k staged |
+| uk (Ukrainian) | piper-uk_UA (2×3) + coqui | **narrow only** (53,021) | `blocked:conventions` — kaikki pull next |
 | lv (Latvian) | piper-lv_LV (1×3) | **narrow only** (1,437) | `blocked:conventions` |
 | ku (Kurdish) | piper-ku_TR (1×3) | **none** | `blocked:no-data` |
 | tn (Tswana) | mimic3-tn_ZA (1) | **none** | `blocked:no-data` |
-| zh_CN (Mandarin) | piper zh_CN (2×3) | cmn_hani_broad 168,655 (staged, untrained-packaged) | follow-up: cmn bundle |
-| is (Icelandic) | piper is_IS (4×3) | published, numbers were broken | **fixed this pass** — 37 hand-verified number entries (`staging/isl/manual.tsv`), bundle rebuilt |
+| is (Icelandic) | piper is_IS (4×3) | published, numbers were broken | **fixed** — 37 hand-verified number entries (`staging/isl/manual.tsv`) + kaikki inflected fills; expanded bundle 43,427 entries |
 
 The narrow-only set shares one root cause: WikiPron's broad (phonemic)
 scrape never happened for them (the scrapes that exist are narrow

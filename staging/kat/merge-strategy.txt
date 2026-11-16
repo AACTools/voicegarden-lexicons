@@ -1,0 +1,1 @@
+kaikki-only + georgian fold (scripts/fold_georgian.py)

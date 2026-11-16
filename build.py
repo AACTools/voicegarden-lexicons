@@ -168,12 +168,28 @@ EXTRAS: dict[str, dict] = {
            "source": "wikipron:nob_latn_broad_filtered.tsv",
            "note": "Bokmål scrape; the expanded-v2 'nob' bundle (bcp47 nb) "
                    "carries the distilled superset"},
+    "ka": {"kind": "staging", "bcp47": "ka", "name": "Georgian",
+           "path": "staging/kat/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Georgian (English Wiktionary extraction)",
+           "note": "folded to the voices' broad conventions "
+                   "(scripts/fold_georgian.py): vowels ɑ ɛ ɔ, plain stop "
+                   "series (ejectives/labialization merged — the piper ka "
+                   "voices' token inventories do not distinguish them)"},
+    "hu": {"kind": "staging", "bcp47": "hu", "name": "Hungarian",
+           "path": "staging/hun/merged.tsv", "kaikki": True,
+           "source": "kaikki:Hungarian (English Wiktionary extraction)"},
     "sq": {"kind": "staging", "bcp47": "sq", "name": "Albanian",
            "path": "staging/sqi/merged.tsv", "wikipron": True,
            "source": "wikipron:sqi_latn_broad.tsv"},
     "yue": {"kind": "staging", "bcp47": "yue", "name": "Cantonese (Han script)",
             "path": "staging/yue/merged.tsv", "wikipron": True,
             "source": "wikipron:yue_hani_standard_broad.tsv"},
+    "zh": {"kind": "staging", "bcp47": "zh-CN", "name": "Mandarin Chinese (simplified Han)",
+           "path": "staging/cmn/wikipron.folded.tsv", "wikipron": True,
+           "source": "wikipron:cmn_hani_standard_broad.tsv",
+           "note": "Chao tone contours folded to espeak tone digits 1-5 "
+                   "(scripts/fold_mandarin.py), validated against "
+                   "piper-zh_CN-huayan-medium tokens.txt (0.10% corpus drop)"},
 }
 
 # NOTE: per-language Phonetisaurus WFSTs are a planned addition, to be
@@ -295,7 +311,9 @@ def build_lang(
                 license_ = extra.get(
                     "license",
                     "CC-BY-SA-4.0 (data: Wiktionary via WikiPron) + MIT (tooling)"
-                    if extra.get("wikipron") else None,
+                    if extra.get("wikipron") else
+                    "CC-BY-SA-4.0 (data: Wiktionary via kaikki) + MIT (tooling)"
+                    if extra.get("kaikki") else None,
                 )
             else:
                 src = td / "cmudict.dict"
@@ -357,7 +375,18 @@ def build_lang(
                 tar.add(f, arcname=f.name)
             notice = f"voicegarden-lexicons {lang}\nsource: {source}\nlicense: {license_}\n"
             dl = (meta or EXTRAS[lang]).get("data_license", "")
-            if extra.get("wikipron"):
+            if extra.get("kaikki"):
+                notice += (
+                    "data provenance: kaikki.org extraction of the English\n"
+                    "  Wiktionary, CC BY-SA 4.0, (c) Wiktionary contributors.\n"
+                    "  https://creativecommons.org/licenses/by-sa/4.0/\n"
+                    "  Adaptations must carry the same license + attribution.\n"
+                )
+                if extra.get("small"):
+                    notice += f"note: {extra['small']}\n"
+                if extra.get("note"):
+                    notice += f"note: {extra['note']}\n"
+            elif extra.get("wikipron"):
                 notice += (
                     "data provenance: WikiPron scrape of Wiktionary\n"
                     "  (https://github.com/CUNY-CL/wikipron), CC BY-SA 4.0,\n"

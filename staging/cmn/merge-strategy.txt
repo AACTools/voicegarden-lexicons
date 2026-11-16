@@ -1,1 +1,1 @@
-wikipron-only
+wikipron-only + mandarin fold (scripts/fold_mandarin.py)
