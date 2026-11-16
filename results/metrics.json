@@ -159,17 +159,17 @@
   }
  },
  {
-  "entries": 26346,
+  "entries": 49515,
   "g2p": {
-   "coverage": 99.9,
-   "exact": 44.7,
-   "per": 11.5
+   "coverage": 100.0,
+   "exact": 47.2,
+   "per": 10.9
   },
   "lang": "hbs",
   "p2g": {
-   "cer": 39.3,
-   "coverage": 99.6,
-   "exact": 11.2
+   "cer": 11.7,
+   "coverage": 99.7,
+   "exact": 78.1
   }
  },
  {
