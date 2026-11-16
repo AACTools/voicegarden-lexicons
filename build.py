@@ -130,10 +130,14 @@ EXTRAS: dict[str, dict] = {
     # and holdout metrics live in staging/<iso3>/ (harvest_and_train).
     "af": {"kind": "staging", "bcp47": "af", "name": "Afrikaans",
            "path": "staging/afr/merged.tsv", "wikipron": True,
-           "source": "wikipron:afr_latn_broad_filtered.tsv"},
+           "source": "wikipron:afr_latn_broad_filtered.tsv",
+           "note": "folded (scripts/fold_afrikaans.py): chi->x, ɦ->h, "
+                   "ʋ->v, glide breves; 0.386% drop vs the mimic3-af voice"},
     "cy": {"kind": "staging", "bcp47": "cy", "name": "Welsh",
            "path": "staging/cym/merged.tsv", "wikipron": True,
-           "source": "wikipron:cym_latn_broad.tsv"},
+           "source": "wikipron:cym_latn_broad.tsv",
+           "note": "folded (scripts/fold_welsh.py): voiceless sonorants "
+                   "-> plain; 0.014% drop vs cy_GB-bu_tts"},
     "et": {"kind": "staging", "bcp47": "et", "name": "Estonian",
            "path": "staging/est/merged.tsv", "wikipron": True,
            "source": "wikipron:est_latn_broad.tsv"},
@@ -186,15 +190,18 @@ EXTRAS: dict[str, dict] = {
            "small": "thin scrape (437 words) — WFST carries most words"},
     "ml": {"kind": "staging", "bcp47": "ml", "name": "Malayalam",
            "path": "staging/mal/merged.tsv", "wikipron": True,
-           "source": "wikipron:mal_mlym_broad.tsv"},
+           "source": "wikipron:mal_mlym_broad.tsv",
+           "note": "folded (scripts/fold_malayalam.py): ä->aː, ʱ->ʰ, "
+                   "dentals; 0.021% drop vs ml_IN-arjun"},
     "mt": {"kind": "staging", "bcp47": "mt", "name": "Maltese",
            "path": "staging/mlt/merged.tsv", "wikipron": True,
            "source": "wikipron:mlt_latn_broad_filtered.tsv"},
     "no": {"kind": "staging", "bcp47": "no", "name": "Norwegian (Bokmål)",
            "path": "staging/nob/merged.tsv", "wikipron": True,
            "source": "wikipron:nob_latn_broad_filtered.tsv",
-           "note": "Bokmål scrape; the expanded-v2 'nob' bundle (bcp47 nb) "
-                   "carries the distilled superset"},
+           "note": "tonal accents folded (scripts/fold_norwegian.py); "
+                   "0.000% drop vs no_NO-talesyntese; the expanded 'nob' "
+                   "bundle (bcp47 nb) carries the distilled superset"},
     "ka": {"kind": "staging", "bcp47": "ka", "name": "Georgian",
            "path": "staging/kat/kaikki.folded.tsv", "kaikki": True,
            "source": "kaikki:Georgian (English Wiktionary extraction)",
@@ -566,6 +573,9 @@ def main() -> int:
             for lang in failed:
                 print(f"!! missing from this build: {lang}")
             return 1
+        # subset builds continue (incremental workflow), but CI and
+        # humans get a hard-to-miss warning
+        print("::warning::subset build dropped bundles: " + ", ".join(failed))
 
     languages = list(prior.values()) if args.langs else entries
     manifest = {

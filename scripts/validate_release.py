@@ -41,6 +41,7 @@ RESOLUTION = {
     "no_NO": "no", "sq_AL": "sq", "yue": "yue",
     "hu_HU": "hu", "ka_GE": "ka", "zh_CN": "zh", "ko_KO": "ko",
     "uk_UA": "uk", "vi_VN": "vi", "ne_NP": "ne", "lv_LV": "lv",
+    "fi_FI": "fin", "sv_SE": "swe",
     "is_IS": "isl", "pl_PL": "pol", "nb_NO": "nob",
 }
 BLOCKED = {"ku_TR": "no-data", "tn_ZA": "no-data"}
@@ -151,7 +152,7 @@ def resolve(manifest: dict, want: str) -> str | None:
 
 def check_resolution(base: dict, expanded: dict) -> list[str]:
     errs: list[str] = []
-    expanded_only = {"isl", "pol", "nob"}
+    expanded_only = {"isl", "pol", "nob", "fin", "swe"}
     for voice, want in RESOLUTION.items():
         if want in expanded_only:
             got = resolve(expanded, voice)

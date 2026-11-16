@@ -27,8 +27,9 @@ SRC = REPO / "staging/lav/kaikki.tsv"
 DST = REPO / "staging/lav/kaikki.folded.tsv"
 
 # length/pitch marks on Latvian vowels (macron, grave, circumflex,
-# breve, caron, diaeresis, double macron below)
-MARKS = set("̄̀̂̆̌̈̿")
+# caron, diaeresis, double macron below); breve deliberately NOT here —
+# it marks shortness, and lengthening it would be wrong
+MARKS = set("̄̀̂̌̈̿")
 # other marks stripped outright (glide breve, laminal, dental, linking)
 STRIP = set("̯̻̪‿")
 

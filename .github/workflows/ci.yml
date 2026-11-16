@@ -12,6 +12,7 @@ name: Build & Release
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
@@ -87,9 +88,11 @@ jobs:
           jsonschema.validate(json.load(open("dist/lexicons.json")), json.load(open("schema.json")))
           print("manifest OK")
           EOF2
-          python3 scripts/validate_release.py --skip-expanded --baseline \
-            "https://github.com/AACTools/voicegarden-lexicons/releases/download/v0.5.1/lexicons.json" \
-            || echo "::error::expand-only/validation failed — refusing to release" && exit 1
+          if ! python3 scripts/validate_release.py --skip-expanded --baseline \
+            "https://github.com/AACTools/voicegarden-lexicons/releases/download/v0.5.1/lexicons.json"; then
+            echo "::error::expand-only/validation failed — refusing to release"
+            exit 1
+          fi
       - name: Release
         uses: softprops/action-gh-release@v2
         with:

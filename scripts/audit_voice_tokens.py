@@ -29,6 +29,10 @@ REPO = Path(__file__).resolve().parent.parent
 TOKENS = REPO / "audit/voice-tokens"
 
 # staged file -> (voice inventory, documented drop %, per-word threshold %)
+# third element None => report-only. GRAPHEME_* entries: the only voice for
+# the locale is a grapheme/transliteration model (coqui character tokens,
+# mimic3 ASCII transliteration) — no lexicon can serve it; recorded so the
+# wrapper never provisions a bundle for those voices expecting TTS gain.
 AUDITS = {
     "staging/hun/merged.tsv": ("piper-hu_HU-anna-medium", 0.000, 0.01),
     "staging/kat/kaikki.folded.tsv": ("piper-ka_GE-natia-medium", 0.004, 0.05),
@@ -40,6 +44,29 @@ AUDITS = {
     "staging/lav/kaikki.folded.tsv": ("piper-lv_LV-aivars-medium", 0.235, 1.0),
     "staging/hbs/lexicon-sr.tsv": ("piper-sr_RS-serbski_institut-medium", 0.000, 0.05),
     "staging/fin/merged.tsv": ("piper-fi_FI-harri-medium", 0.005, 0.05),
+    # wave-1 WikiPron bundles, first audited 2026-11 (round 2)
+    "staging/afr/merged.tsv": ("mimic3-af_ZA-google-nwu_low", 0.386, 2.0),
+    "staging/cym/merged.tsv": ("piper-cy_GB-bu_tts-medium", 0.014, 0.5),
+    "staging/est/merged.tsv": ("coqui-et-cv", 92.137, None),  # grapheme voice
+    "staging/eus/merged.tsv": ("piper-eu_ES-antton-medium", 0.017, 0.5),
+    "staging/gle/merged.tsv": ("coqui-ga-cv", 99.497, None),  # grapheme voice
+    "staging/guj/merged.tsv": ("mimic3-gu_IN-cmu-indic_low", 75.795, None),  # transliteration
+    "staging/kaz/merged.tsv": ("piper-kk_KZ-iseke-x_low", 1.943, 4.0),
+    "staging/ltz/merged.tsv": ("piper-lb_LU-marylux-medium", 0.369, 1.0),
+    "staging/lit/merged.tsv": ("coqui-lt-cv", 98.856, None),  # grapheme voice
+    "staging/mal/merged.tsv": ("piper-ml_IN-arjun-medium", 0.021, 0.5),
+    "staging/mlt/merged.tsv": ("coqui-mt-cv", 91.488, None),  # grapheme voice
+    "staging/nob/merged.tsv": ("piper-no_NO-talesyntese-medium", 0.000, 0.05),
+    "staging/sqi/merged.tsv": ("piper-sq_AL-edon-medium", 0.452, 1.0),
+}
+
+# expanded-tier artifacts (the tarball lexicons consumers actually
+# fetch — merged + distilled rows): guard the shipped file, not just
+# staging, so a contaminated distill can never publish again
+EXPANDED_AUDITS = {
+    "dist/expanded-v2/fin.tar.gz": ("piper-fi_FI-harri-medium", 0.05),
+    "dist/expanded-v2/swe.tar.gz": ("piper-sv_SE-alma-medium", 1.0),
+    "dist/expanded-v2/nob.tar.gz": ("piper-no_NO-talesyntese-medium", 1.0),
 }
 TIE = "\u0361"
 
@@ -123,6 +150,38 @@ def main() -> int:
             line += f"  !! exceeds threshold {threshold}%"
             failures.append(f"{tsv}: drop {drop:.3f}% > {threshold}%")
         print(line)
+
+    # shipped expanded artifacts (tarball lexicons) against their voices
+    import io
+    import tarfile
+    for tgz, (voice, threshold) in sorted(EXPANDED_AUDITS.items()):
+        path = REPO / tgz
+        if not path.exists():
+            continue  # expanded tier not built locally (CI base-only job)
+        with tarfile.open(path) as tar:
+            lex = tar.extractfile("lexicon.txt")
+            if lex is None:
+                failures.append(f"{tgz}: no lexicon.txt")
+                continue
+            text = io.TextIOWrapper(lex, encoding="utf-8").read()
+        vocab = load_vocab(voice)
+        dropped = total = 0
+        for line in text.splitlines():
+            word, _, pron = line.partition("\t")
+            if any(c.isdigit() for c in word):
+                continue
+            total += 1
+            if any(not covered(ph, vocab) for ph in pron.split()):
+                dropped += 1
+        drop = dropped / total * 100 if total else 0.0
+        results[tgz] = {"voice": voice, "words": total,
+                        "drop_pct": round(drop, 4)}
+        flag = ""
+        if drop > threshold:
+            flag = f"  !! exceeds {threshold}%"
+            failures.append(f"{tgz}: shipped lexicon drop {drop:.3f}% > {threshold}%")
+        print(f"{tgz.split('/')[-1]:<12} shipped vs {voice:<38} "
+              f"{drop:7.3f}% drop ({total} words){flag}")
 
     if args.json:
         Path(args.json).write_text(

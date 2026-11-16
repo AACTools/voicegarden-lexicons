@@ -75,9 +75,38 @@ IPA-poor there — 5.6k); Finnish (4.4 GB dump) not yet pulled.
 | lv | lv | piper-lv_LV (1×3) | kaikki Latvian, folded | 1,704 ⚠ | **0.235%** per-word vs aivars; pitch accents → plain long vowels (espeak marks no tones) |
 | zh | zh-CN | piper-zh_CN (2×3+6) | WikiPron cmn, folded | 147,316 | **0.005%** vs huayan-medium (digit words excluded, the wrapper-audit method); dictionary-only (Han WFSTs are huge and weak — OOV falls back char-wise to the dictionary) |
 
+## Third wave: wave-1 bundles audited against their voices
+
+The voice-token audit (`scripts/audit_voice_tokens.py`, vendored
+inventories in `audit/voice-tokens/`) was extended to every wave-1
+bundle — and caught the sr-class bug in five more places. All folded
+and rebuilt:
+
+| bundle | drop before | fold | drop after |
+|---|---|---|---|
+| sr | 98.7% | pitch accents → plain (`fold_serbian.py`) | 0.000% |
+| hr | 97.9% | same (both scripts) | — |
+| fin (expanded, published) | 15.50% | juncture ˣ stripped (`fold_finnish.py`) | 0.005% |
+| af | 43.8% | χ→x, ɦ→h, ʋ→v, glide breves (`fold_afrikaans.py`) | 0.386% |
+| cy | 4.7% | voiceless sonorants → plain (`fold_welsh.py`) | 0.014% |
+| ml | 6.6% | ä→aː, ʱ→ʰ, dentals (`fold_malayalam.py`) | 0.021% |
+| no/nob | 6.0% | tonal accents → plain (`fold_norwegian.py`) | 0.000% |
+
+Clean without folds (audit now guards them): eu 0.017%, lb 0.369%,
+sq 0.452%, kk 1.943% (thin).
+
+**Grapheme/transliteration voices — no lexicon can serve them:** the
+only voices for et, ga, lt, mt are coqui character-token models
+(`a b c … <PAD> <EOS>`), and the only gu voice is a mimic3 ASCII
+transliteration model. Their `et/ga/lt/mt/gu` bundles remain valid
+G2P/P2P dictionary products but provision **no TTS gain** for those
+voices; the wrapper should treat those locales as
+`grapheme-voice: no bundle needed` (recorded in the audit table,
+report-only). Every other bundled locale now audits clean against at
+least one real voice inventory.
+
 All numbers recomputable: `python3 scripts/audit_voice_tokens.py`
-(vendored inventories in `audit/voice-tokens/`, wired into
-`make check-release`).
+(wired into `make check-release`).
 
 Convention folds (the `blocked:conventions` unlock pattern — per-language
 rules validated against the target voice's `tokens.txt`):
@@ -127,13 +156,12 @@ Staged but not yet bundled:
 Notes:
 - `sr` / `hr` are one Serbo-Croatian scrape split by script: the Serbian
   piper voice consumes Cyrillic text, the Croatian coqui voice Latin.
-  Training + provenance live in `staging/hbs/`.
+  Training + provenance live in `staging/hbs/`; pitch accents folded
+  (`scripts/fold_serbian.py`, 0.000% vs the sr voice).
 - `no` carries Bokmål data under the macrolanguage tag because that is
   what the voice is labelled; the expanded `nob` bundle (bcp47 `nb`) is
   the distilled superset and should be preferred once the wrapper aliases
   `no` → `nb`.
-- hbs phones carry pitch-accent diacritics (ě ôː) from Wiktionary; the
-  wrapper's combining-mark decomposition handles them as it did for ru.
 - ⚠ thin scrapes (kk 669, lt 437): the dictionary tier is nearly empty;
   most words fall through to the per-bundle Phonetisaurus. Usable but
   flagged — NOTICE carries the warning.
@@ -146,10 +174,10 @@ Notes:
 | ka (Georgian) | piper-ka_GE (1×3) | **narrow only** (20,894) | **UNBLOCKED via kaikki + fold** → `ka` bundle (0.004% drop) |
 | ko (Korean) | mimic3-ko_KO (1) | **narrow only** (36,146 filtered) | **UNBLOCKED via kaikki + fold** → `ko` bundle (0.13% drop; laryngeal contrasts merged — the voice inventory distinguishes none) |
 | uk (Ukrainian) | piper-uk_UA (2×3) + coqui | **narrow only** (53,021) | **UNBLOCKED via kaikki + fold** → `uk` bundle (0.004% vs lada; the ukrainian_tts voice is grapheme-based, needs no lexicon) |
-| vi (Vietnamese) | piper-vi_VN (3×3) | narrow only, 3 dialects (27–32k each) | **UNBLOCKED via kaikki + fold** → `vi` bundle (Hanoi; 0.014%; tone digits match espeak's own encoding) |
+| vi (Vietnamese) | piper-vi_VN (3×3) | narrow only, 3 dialects (27–32k each) | **UNBLOCKED via kaikki + fold** → `vi` bundle (Hanoi; 0.010%; tone digits follow espeak's ph_vietnam definitions) |
 | ne (Nepali) | piper ne_NP (3) + mimic3 (1) | **narrow only** (2,329); kaikki 2.1k | **UNBLOCKED via kaikki + fold** → `ne` bundle ⚠ thin (0.05% drop) |
 | lv (Latvian) | piper-lv_LV (1×3) | **narrow only** (1,437) | **UNBLOCKED via kaikki + fold** → `lv` bundle ⚠ thin (0.23% drop) |
-| zh_CN (Mandarin) | piper zh_CN (2×3) | cmn_hani_broad 168,655 | **BUNDLED** → `zh` (tone-contour fold, 0.107% drop) |
+| zh_CN (Mandarin) | piper zh_CN (2×3) | cmn_hani_broad 168,655 | **BUNDLED** → `zh` (tone-contour fold, 0.005% drop, digit words excluded) |
 | ku (Kurdish) | piper-ku_TR (1×3) | **none** | `blocked:no-data` — Common Voice + MFA is the only permissive route |
 | tn (Tswana) | mimic3-tn_ZA (1) | **none** | `blocked:no-data` — same |
 | is (Icelandic) | piper is_IS (4×3) | published, numbers were broken | **fixed** — 37 hand-verified number entries (`staging/isl/manual.tsv`) + kaikki inflected fills; expanded bundle 43,427 entries |

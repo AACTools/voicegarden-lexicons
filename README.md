@@ -15,7 +15,7 @@ Each bundle is a `<lang>.tar.gz` with five files:
 | `lexicon.txt` | the same dictionary as plain text (`word<TAB>phonemes`), in the format sherpa-onnx reads, so Python, C, C++, and Node programs can use it directly |
 | `NOTICE` | where the data came from and its license |
 
-`lexicons.json` lists every bundle with its download URL, SHA-256, size, entry count, and license. Thirty languages are published:
+`lexicons.json` lists every bundle with its download URL, SHA-256, size, entry count, and license. Thirty-nine languages are published:
 
 | Bundle | Entries | | Bundle | Entries |
 |---|---|---|---|---|
@@ -36,7 +36,6 @@ Each bundle is a `<lang>.tar.gz` with five files:
 | no | 2,714 | | kk | 669 * |
 | | | | lt | 437 * |
 | | | | lv | 1,704 * |
-
 Plus the gruut-sourced ca, cs, fa, it, nl, sv, sw. The `af`–`yue` bundles are WikiPron scrapes of Wiktionary (CC BY-SA 4.0), keyed to the locale codes of the piper voices that need them; `hu`, `ka`, and `ko` come from the fuller kaikki.org Wiktionary extraction (with per-language convention folds for Georgian and Korean), and `zh` folds Chao tone contours — including their sandhi realizations — to the tone digits the Mandarin voices expect. `zh` and `yue` ship dictionary-only (Han WFSTs are huge and weak; out-of-vocabulary words fall back char-wise to the dictionary, where every Han character carries an entry). [docs/sherpa-coverage.md](docs/sherpa-coverage.md) maps every sherpa piper voice locale to a bundle (or records why none exists yet: `blocked:no-data`, or `blocked:conventions` where only narrow transcriptions exist), and [docs/data-sources.md](docs/data-sources.md) tracks which untapped sources unlock what. *kk, lt, ne, and lv are thin scrapes; most words fall through to the guesser.
 
 ## Expanded bundles: filling in the missing words
