@@ -154,16 +154,17 @@ def resolve(manifest: dict, want: str) -> str | None:
     return best
 
 
-def check_resolution(base: dict, expanded: dict) -> list[str]:
+def check_resolution(base: dict, expanded: dict | None) -> list[str]:
     errs: list[str] = []
     for voice, want in RESOLUTION.items():
         got = resolve(base, voice)
         if got != want:
             errs.append(f"base: {voice}: resolved to {got!r}, expected {want!r}")
-    for voice, want in EXPANDED_RESOLUTION.items():
-        got = resolve(expanded, voice) if expanded else None
-        if got != want:
-            errs.append(f"expanded: {voice}: resolved to {got!r}, expected {want!r}")
+    if expanded is not None:
+        for voice, want in EXPANDED_RESOLUTION.items():
+            got = resolve(expanded, voice)
+            if got != want:
+                errs.append(f"expanded: {voice}: resolved to {got!r}, expected {want!r}")
     for voice, why in BLOCKED.items():
         got = resolve(base, voice) or (resolve(expanded, voice) if expanded else None)
         if got is not None:

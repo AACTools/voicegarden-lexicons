@@ -604,7 +604,12 @@ def main() -> int:
     dist.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="vgl-build-"))
 
-    langs = args.langs.split(",") if args.langs else list(LANGUAGES) + list(EXTRAS)
+    # dedupe: gruut locales moved to EXTRAS keep a None placeholder in
+    # LANGUAGES for documentation — without deduping they'd build twice
+    # and emit duplicated manifest entries (gzip timestamps make the
+    # second build's sha differ from the first)
+    langs = args.langs.split(",") if args.langs else \
+        list(dict.fromkeys(list(LANGUAGES) + list(EXTRAS)))
 
     # subset builds merge into the existing manifest instead of clobbering
     prior_path = dist / "lexicons.json"
