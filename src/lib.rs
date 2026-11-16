@@ -164,23 +164,36 @@ impl LexiconArchive {
     }
 
     /// Resolve a language code (or BCP-47 prefix) to its entry.
+    ///
+    /// Match order: exact bundle id, then exact bcp47, then the
+    /// same-primary-subtag heuristic (`en-GB` voice → `en-GB` bundle
+    /// before the plain `en` one — the exact passes run to completion
+    /// over the whole manifest before any prefix matching).
     #[must_use]
     pub fn entry(&self, lang: &str) -> Option<&LanguageEntry> {
-        let want = lang.to_ascii_lowercase();
-        let short = want.split(['-', '_']).next().unwrap_or(&want);
+        let want = lang.to_ascii_lowercase().replace('_', "-");
+        let short = want.split('-').next().unwrap_or(&want);
         self.manifest
             .languages
             .iter()
-            .find(|e| {
-                e.lang.eq_ignore_ascii_case(&want)
-                    || e.bcp47.eq_ignore_ascii_case(&want)
-                    || e.bcp47
+            .find(|e| e.lang.eq_ignore_ascii_case(&want))
+            .or_else(|| {
+                self.manifest
+                    .languages
+                    .iter()
+                    .find(|e| e.bcp47.eq_ignore_ascii_case(&want))
+            })
+            .or_else(|| {
+                // "de-DE" -> bundle "de": exact primary-subtag + plain id
+                self.manifest.languages.iter().find(|e| {
+                    e.bcp47
                         .split('-')
                         .next()
                         .is_some_and(|p| p.eq_ignore_ascii_case(short) && e.lang == short)
+                })
             })
             .or_else(|| {
-                // "de-DE" -> bundle "de"; prefer the plain gruut bundle
+                // last resort: primary-subtag prefix anywhere
                 self.manifest.languages.iter().find(|e| {
                     e.bcp47
                         .split('-')
@@ -446,6 +459,41 @@ mod tests {
         let again = archive.fetch("xx").unwrap();
         let mut g2p2 = again.phonemizer().unwrap();
         assert_eq!(g2p2.phonemize_token("guten").len(), 5);
+    }
+
+    /// Resolution order: an exact bcp47 match (`en-GB`) must beat the
+    /// same-primary-subtag heuristic (`en`), and registry underscore
+    /// forms (`en_GB`) normalise. Regression: the merged first pass
+    /// used to hand `en-GB` voices the US `en` bundle because `en`
+    /// sorts first.
+    #[test]
+    fn entry_prefers_exact_bcp47_over_prefix() {
+        let tmp = tempfile::tempdir().unwrap();
+        let serve = tmp.path().join("serve");
+        let cache = tmp.path().join("cache");
+        fs::create_dir_all(&serve).unwrap();
+        let mk = |lang: &str, bcp47: &str| {
+            format!(
+                "{{\"lang\":\"{lang}\",\"name\":\"T\",\"bcp47\":\"{bcp47}\",\"entries\":1,\
+                 \"license\":\"MIT\",\"source\":\"t\",\"phonetisaurus\":null,\
+                 \"file\":\"x.tar.gz\",\"sha256\":\"{}\"}}",
+                "0".repeat(64)
+            )
+        };
+        // alphabetical order mirrors the real manifest ("en" < "en-GB")
+        let manifest = format!(
+            "{{\"version\":\"t\",\"format\":\"voicegarden-lexicons/1\",\"languages\":[{}]}}",
+            [mk("de", "de-DE"), mk("en", "en-US"), mk("en-GB", "en-GB")].join(",")
+        );
+        fs::write(serve.join("lexicons.json"), manifest).unwrap();
+        let archive = LexiconArchive::new(serve.display().to_string(), &cache).unwrap();
+
+        assert_eq!(archive.entry("en-GB").unwrap().lang, "en-GB");
+        assert_eq!(archive.entry("en_GB").unwrap().lang, "en-GB");
+        assert_eq!(archive.entry("en-US").unwrap().lang, "en");
+        assert_eq!(archive.entry("en_US").unwrap().lang, "en");
+        assert_eq!(archive.entry("de-DE").unwrap().lang, "de");
+        assert_eq!(archive.entry("de").unwrap().lang, "de");
     }
 
     #[test]

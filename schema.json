@@ -5,7 +5,7 @@
   "required": ["version", "format", "languages"],
   "properties": {
     "version": {"type": "string"},
-    "format": {"const": "voicegarden-lexicons/1"},
+    "format": {"enum": ["voicegarden-lexicons/1", "voicegarden-lexicons-expanded/1"]},
     "generator": {"type": "string"},
     "languages": {
       "type": "array",

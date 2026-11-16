@@ -150,6 +150,15 @@ EXTRAS: dict[str, dict] = {
            "path": "staging/kaz/merged.tsv", "wikipron": True,
            "source": "wikipron:kaz_cyrl_broad.tsv",
            "small": "thin scrape (669 words) — WFST carries most words"},
+    "ko": {"kind": "staging", "bcp47": "ko", "name": "Korean",
+           "path": "staging/kor/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Korean (English Wiktionary extraction)",
+           "note": "folded to the voice's conventions (scripts/fold_korean.py): "
+                   "narrow vowels to the espeak set, laryngeal contrasts "
+                   "(aspirated/fortis/unreleased) merged to plain — the ko "
+                   "voice family's token inventory distinguishes none of "
+                   "them. Validated against mimic3-ko_KO-kss tokens.txt "
+                   "(0.13% corpus drop)"},
     "lb": {"kind": "staging", "bcp47": "lb", "name": "Luxembourgish",
            "path": "staging/ltz/merged.tsv", "wikipron": True,
            "source": "wikipron:ltz_latn_broad.tsv"},
@@ -183,13 +192,22 @@ EXTRAS: dict[str, dict] = {
            "source": "wikipron:sqi_latn_broad.tsv"},
     "yue": {"kind": "staging", "bcp47": "yue", "name": "Cantonese (Han script)",
             "path": "staging/yue/merged.tsv", "wikipron": True,
-            "source": "wikipron:yue_hani_standard_broad.tsv"},
+            "source": "wikipron:yue_hani_standard_broad.tsv",
+            "no_train": True,
+            "note": "dictionary-only: the Han WFST was 19 MB at 30% exact / "
+                    "64% coverage — OOV words fall back char-wise to the "
+                    "dictionary (every Han char carries an entry)"},
     "zh": {"kind": "staging", "bcp47": "zh-CN", "name": "Mandarin Chinese (simplified Han)",
            "path": "staging/cmn/wikipron.folded.tsv", "wikipron": True,
            "source": "wikipron:cmn_hani_standard_broad.tsv",
+           "no_train": True,
            "note": "Chao tone contours folded to espeak tone digits 1-5 "
                    "(scripts/fold_mandarin.py), validated against "
-                   "piper-zh_CN-huayan-medium tokens.txt (0.10% corpus drop)"},
+                   "piper-zh_CN-huayan-medium tokens.txt (0.10% corpus drop). "
+                   "No Phonetisaurus: Han-grapheme alignment yields an 82 MB "
+                   "model at only 33% exact / 68% coverage — OOV words should "
+                   "fall back char-wise to the dictionary (every Han char "
+                   "carries an entry), the standard Chinese front-end move"},
 }
 
 # NOTE: per-language Phonetisaurus WFSTs are a planned addition, to be
@@ -348,8 +366,13 @@ def build_lang(
 
         # Per-language Phonetisaurus model trained on this lexicon, so
         # OOV output uses the bundle's own alphabet by construction.
+        # Some locales opt out (EXTRAS "no_train") where char-level
+        # alignment makes the WFST large and weak — Han-script zh keeps
+        # a 7 MB dictionary bundle; OOV words fall back char-wise to
+        # the dictionary itself (every Han char carries an entry).
         phonetisaurus_meta = None
-        if train and shutil.which("floravox-train-phonetisaurus"):
+        if train and not extra.get("no_train") \
+            and shutil.which("floravox-train-phonetisaurus"):
             model_out = td / "phonetisaurus.fst"
             metrics_out = td / "metrics.json"
             cmd = ["floravox-train-phonetisaurus", str(tsv), str(model_out),
@@ -364,7 +387,7 @@ def build_lang(
             phonetisaurus_meta = json.loads(metrics_out.read_text())
             print(f"  phonetisaurus: exact {phonetisaurus_meta['exact_match']:.1%}, "
                   f"PER {phonetisaurus_meta['per']:.1%}")
-        elif train:
+        elif train and not extra.get("no_train"):
             print("  !! floravox-train-phonetisaurus not on PATH; skipping WFST")
         ph_license = None
 

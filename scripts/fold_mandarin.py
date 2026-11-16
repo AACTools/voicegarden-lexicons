@@ -28,9 +28,19 @@ SRC = REPO / "staging/cmn/wikipron.tsv"
 DST = REPO / "staging/cmn/wikipron.folded.tsv"
 
 SUP = set("⁰¹²³⁴⁵⁶⁷⁸⁹")
+# superscript parens mark optional contour elements inside a tone run
+# (⁻²¹⁽⁴⁾ = sandhi 21(4)); consumed with the run, stripped from it
+RUNCHARS = SUP | set("⁽⁾")
 TONES = {"55": "1", "35": "2", "214": "3", "21": "3", "51": "4",
          "53": "4", "4": "4", "11": "3", "24": "2", "15": "1"}
 DROP = set("⁻⁽⁾")
+
+
+def contour_of(tokens: list[str]) -> str:
+    digits = "".join(
+        c for p in tokens for c in p if c in SUP
+    ).translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
+    return digits
 
 
 def fold_tokens(phones: list[str]) -> list[str] | None:
@@ -38,13 +48,22 @@ def fold_tokens(phones: list[str]) -> list[str] | None:
     i = 0
     while i < len(phones):
         ph = phones[i]
-        if ph[0] in SUP:
+        if ph[0] in RUNCHARS:
             j = i
-            while j < len(phones) and phones[j][0] in SUP:
+            while j < len(phones) and phones[j][0] in RUNCHARS:
                 j += 1
-            contour = "".join(
-                c for p in phones[i:j] for c in p if c in SUP
-            ).translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
+            contour = contour_of(phones[i:j])
+            # "214 ⁻ 35": WikiPron writes the base contour followed by its
+            # sandhi realization — the ⁻-marked layer is what is actually
+            # spoken, so it replaces the base contour for TTS purposes.
+            if j < len(phones) and phones[j] == "⁻":
+                k = j + 1
+                if k < len(phones) and phones[k][0] in RUNCHARS:
+                    m = k
+                    while m < len(phones) and phones[m][0] in RUNCHARS:
+                        m += 1
+                    contour = contour_of(phones[k:m])
+                    j = m
             tone = TONES.get(contour)
             if tone is None:
                 # unknown contour: fall back to the leading digit as the

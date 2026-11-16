@@ -1,0 +1,1 @@
+kaikki-only + korean fold (scripts/fold_korean.py)

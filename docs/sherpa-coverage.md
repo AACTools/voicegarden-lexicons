@@ -68,7 +68,8 @@ IPA-poor there — 5.6k); Finnish (4.4 GB dump) not yet pulled.
 |---|---|---|---|---|---|
 | hu | hu | piper-hu_HU (2×3+4) | kaikki Hungarian | 67,835 | **0.000% drop** vs anna-medium; g2p 96.0%/PER 1.0% |
 | ka | ka | piper-ka_GE (1×3) | kaikki Georgian, folded | 24,647 | **0.004%** vs natia-medium; g2p 99.0%/PER 0.2% |
-| zh | zh-CN | piper-zh_CN (2×3+6) | WikiPron cmn, folded | 147,316 | **0.107%** vs huayan-medium; dictionary tier is the product (heteronym guessing 33%) |
+| ko | ko | mimic3-ko_KO (1) | kaikki Korean, folded | 35,159 | **0.13%** vs kss tokens; laryngeal contrasts merged (see fold note) |
+| zh | zh-CN | piper-zh_CN (2×3+6) | WikiPron cmn, folded | 147,316 | **0.107%** vs huayan-medium; dictionary-only (Han WFSTs are huge and weak — OOV falls back char-wise to the dictionary) |
 
 Convention folds (the `blocked:conventions` unlock pattern — per-language
 rules validated against the target voice's `tokens.txt`):
@@ -77,9 +78,18 @@ rules validated against the target voice's `tokens.txt`):
   merged into the plain series because the piper ka voices' espeak-derived
   inventories carry no ʼ distinction at all.
 - **zh** (`scripts/fold_mandarin.py`): Chao tone contours → espeak tone
-  digits {55:1, 35:2, 214:3, 21:3, 51:4, 53:4, 4:4}; sandhi/optional
-  markers (⁻ ⁽ ⁾) dropped; preglottalized vowels split (ˀa→ʔ a);
-  ä→a, devoicing rings stripped, ASCII g→ɡ.
+  digits {55:1, 35:2, 214:3, 21:3, 51:4, 53:4, 4:4}; WikiPron writes each
+  syllable as base contour + ⁻-marked sandhi realization — the sandhi
+  layer (what is actually spoken) wins, e.g. 你好 → tones 2 3, not 3 3;
+  preglottalized vowels split (ˀa→ʔ a); ä→a, devoicing rings stripped,
+  ASCII g→ɡ. zh and yue ship dictionary-only (no Phonetisaurus): Han
+  WFSTs weighed 19–25 MB at ~30% exact — OOV falls back char-wise to
+  the dictionary, where every Han char carries an entry.
+- **ko** (`scripts/fold_korean.py`): narrow vowels to the espeak set
+  (a̠→ɐ, ʌ̹→ʌ, o̞→o, e̞→e), h-variants merged, ɲ→n ʲ, and the three-way
+  laryngeal contrast (plain/aspirated/fortis/unreleased) merged to
+  plain — the ko voice family's token inventory distinguishes none of
+  it (validated against kss's 50 tokens, 0.13% drop).
 - **SIGMORPHON 2020 G2P data** (15 languages incl. geo/hun/kor/lit/vie/
   ice, Wiktionary-derived) inspected as a fold reference: conventions
   match kaikki closely (hun 94% exact on shared words after
@@ -88,9 +98,6 @@ rules validated against the target voice's `tokens.txt`):
   paper); kaikki reaches the same words with an unambiguous grant.
 
 Staged but not yet bundled (fold studies pending):
-- **kor** — kaikki 35k staged, same narrow conventions as WikiPron
-  (ʌ̹ a̠ e̞ sʰ…). The fold target is now known precisely (kss's 50-token
-  inventory); a vowel/diacritic fold table like ka/zh is the remaining work.
 - **vie** — kaikki 28.7k staged, Hanoi tones as ˧˧-style tone-letter
   units; needs audit vs a vi voice's tokens + dialect choice (Hanoi/Hue/Saigon).
 - **nep** — kaikki 2.1k staged (thin); Devanagari; needs audit.

@@ -24,17 +24,17 @@ Each bundle is a `<lang>.tar.gz` with five files:
 | en | 124,384 | | sr | 23,169 |
 | en-cmudict | 135,166 | | hr | 26,346 |
 | fr | 90,114 | | pt | 81,219 |
-| yue | 106,238 | | mt | 15,789 |
-| zh | 147,316 | | hu | 67,835 |
-| eu | 11,977 | | cy | 14,579 |
+| zh | 147,316 | | yue | 106,238 |
+| hu | 67,835 | | ko | 35,159 |
+| mt | 15,789 | | cy | 14,579 |
+| eu | 11,977 | | ka | 24,647 |
 | ga | 9,546 | | ml | 9,477 |
-| ka | 24,647 | | sq | 4,866 |
-| gu | 4,086 | | lb | 3,797 |
-| et | 2,747 | | no | 2,714 |
-| af | 2,073 | | kk | 669 * |
-| | | | lt | 437 * |
+| sq | 4,866 | | gu | 4,086 |
+| lb | 3,797 | | et | 2,747 |
+| no | 2,714 | | af | 2,073 |
+| kk | 669 * | | lt | 437 * |
 
-Plus the gruut-sourced ca, cs, fa, it, nl, sv, sw. The `af`–`yue` bundles are WikiPron scrapes of Wiktionary (CC BY-SA 4.0), keyed to the locale codes of the piper voices that need them; `hu` and `ka` come from the fuller kaikki.org Wiktionary extraction (with a convention fold for Georgian), and `zh` folds Chao tone contours to the tone digits the Mandarin voices expect. [docs/sherpa-coverage.md](docs/sherpa-coverage.md) maps every sherpa piper voice locale to a bundle (or records why none exists yet: `blocked:no-data`, or `blocked:conventions` where only narrow transcriptions exist), and [docs/data-sources.md](docs/data-sources.md) tracks which untapped sources unlock what. *kk and lt are very thin scrapes; most words fall through to the guesser.
+Plus the gruut-sourced ca, cs, fa, it, nl, sv, sw. The `af`–`yue` bundles are WikiPron scrapes of Wiktionary (CC BY-SA 4.0), keyed to the locale codes of the piper voices that need them; `hu`, `ka`, and `ko` come from the fuller kaikki.org Wiktionary extraction (with per-language convention folds for Georgian and Korean), and `zh` folds Chao tone contours — including their sandhi realizations — to the tone digits the Mandarin voices expect. `zh` and `yue` ship dictionary-only (Han WFSTs are huge and weak; out-of-vocabulary words fall back char-wise to the dictionary, where every Han character carries an entry). [docs/sherpa-coverage.md](docs/sherpa-coverage.md) maps every sherpa piper voice locale to a bundle (or records why none exists yet: `blocked:no-data`, or `blocked:conventions` where only narrow transcriptions exist), and [docs/data-sources.md](docs/data-sources.md) tracks which untapped sources unlock what. *kk and lt are very thin scrapes; most words fall through to the guesser.
 
 ## Expanded bundles: filling in the missing words
 
@@ -106,7 +106,7 @@ What we have not done: a fair accuracy comparison against espeak on the same tes
 | [gruut](https://pypi.org/project/gruut/) | MIT | ca, cs, de, en, es, fa, fr, it, nl, pt, ru, sv, sw |
 | [CMUDict](https://github.com/cmusphinx/cmudict) | BSD-style | en (alternate `en-cmudict` bundle) |
 | [WikiPron](https://github.com/CUNY-CL/wikipron) (Wiktionary scrape) | CC BY-SA 4.0 | af, cy, et, eu, ga, gu, hr, kk, lb, lt, ml, mt, no, sq, sr, yue, zh |
-| [kaikki.org](https://kaikki.org/) (fuller Wiktionary extraction) | CC BY-SA 4.0 | hu, ka |
+| [kaikki.org](https://kaikki.org/) (fuller Wiktionary extraction) | CC BY-SA 4.0 | hu, ka, ko |
 
 gruut is the phonemizer piper's non-English voices were trained with, so its symbol choices match what those voices expect. As a check, we sampled 236,000 symbols from the German lexicon against piper's `de_DE-thorsten` voice: none failed to resolve.
 
