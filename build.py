@@ -451,11 +451,19 @@ def build_lang(
         if extra.get("kind") == "cmudict":
             # ARPABET rows must convert to spaced IPA (the crate's own
             # notation table, via examples/arpabet) — raw CMUdict lines
-            # are space-separated ARPABET and unusable by sherpa readers
-            subprocess.run(
-                ["cargo", "build", "--release", "--quiet", "--example", "arpabet"],
-                cwd=ROOT, check=True, capture_output=True,
+            # are space-separated ARPABET and unusable by sherpa readers.
+            # -j2: compiling the full dep tree on a small CI runner
+            # alongside the bundle build has OOMed (rustc exit 101).
+            r = subprocess.run(
+                ["cargo", "build", "--release", "--quiet", "--jobs", "2",
+                 "--example", "arpabet"],
+                cwd=ROOT, check=False, capture_output=True, text=True,
             )
+            if r.returncode != 0:
+                raise SystemExit(
+                    "arpabet example failed to build:\n"
+                    f"{r.stdout}\n{r.stderr}"
+                )
             conv = ROOT / "target/release/examples/arpabet"
             with lexicon_txt.open("wb") as lf:
                 with tsv.open("rb") as src:

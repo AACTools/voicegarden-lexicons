@@ -72,8 +72,13 @@ jobs:
       - name: Install floravox tools
         run: |
           cargo install -q --locked --version 0.8.5 floravox-g2p --bin floravox-fst-compile --bin floravox-train-phonetisaurus
-      # Rebuild WITH per-language WFST training (the per-push build job
-      # skips it): ~3 h across all languages, release tags only.
+      # Pre-build the ARPABET converter (and its dep tree) before the
+      # bundle build — compiling it mid-build OOMed on the runner once;
+      # from this step on it is a cache hit.
+      - name: Pre-build ARPABET converter
+        run: cargo build --release --jobs 2 --example arpabet
+      # Build WITH per-language WFST training (~3 h across all
+      # languages, release tags only).
       # BASE TIER ONLY: the expanded tier (distill-v2 data, gitignored)
       # is built locally and its assets uploaded from the release
       # machine — the local `make check-release` gate covers both tiers
