@@ -17,10 +17,22 @@ non-commercial.
 
 ## Next, highest leverage first
 
-1. **kaikki for the remaining blocked locales** — uk (53k narrow), kor
-   (35k), vie (28.7k), nep (2.1k) are downloaded/staged; each needs only
-   its fold table + one voice audit to follow the ka/zh pattern.
-   Finnish (fin) for P2G (4.4 GB pull).
+0. **ByT5 v3 retraining prep (this PR)**: `langs.json` now carries the
+   seven new harvest locales (hun kat kor ukr vie nep lav → 149
+   languages) so `scripts/train_byt5/build_corpus.py` can fold the
+   new staged corpora into the v3 training set. v3 corpus would gain:
+   hu 67.8k, uk 55.2k, ko 35.2k, kat 24.6k, vi 28.7k (plus the kaikki
+   inflected fills for isl/fin and the folded conventions for
+   sr/hr/af/cy/ml/nob — all now single-convention per language, which
+   is exactly what the v2 harmonization was for). Distillation v3 for
+   the new expanded candidates follows the same small+tiny agreement
+   gate; the distill corpus must be built from the FOLDED merged
+   files (clean_distill.py exists because v2's wasn't — see the swe
+   incident).
+1. **kaikki for the remaining blocked locales** — done for uk/kor/vie/
+   nep/lav (this PR). Finnish pulled and merged. Swedish-language
+   wiktionary dump for swe enrichment (en.wiktionary is IPA-poor
+   there).
 2. **Unihan kCantonese / CC-CEDICT** — deterministic jyutping/pinyin →
    IPA per Han char/word. Boosts `yue` heteronym resolution and `zh`
    word coverage; Unihan is permissively licensed (Unicode terms),
@@ -35,7 +47,7 @@ non-commercial.
    small/tiny, and a fold reference for thin scrapes (kk, lt).
 6. **UniMorph (CC BY-SA 4.0)** — inflection tables × our validated G2P
    = synthetic P2G training data at scale for the P2G-weak languages
-   (isl 12%, hun 10%, swe, fin 16%).
+   (isl 12%, hun 10%, swe, fin 10.4%).
 
 ## Per-locale gems (license check before use)
 
