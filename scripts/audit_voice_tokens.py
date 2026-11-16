@@ -59,6 +59,7 @@ AUDITS = {
     "staging/nob/merged.tsv": ("piper-no_NO-talesyntese-medium", 0.000, 0.05),
     "staging/sqi/merged.tsv": ("piper-sq_AL-edon-medium", 0.452, 1.0),
     "staging/swe/merged.tsv": ("piper-sv_SE-alma-medium", 0.114, 0.5),
+    "staging/en-GB/lexicon.tsv": ("piper-en_GB-alan-medium", None, 2.0),
 }
 
 # expanded-tier artifacts (the tarball lexicons consumers actually
