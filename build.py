@@ -117,6 +117,12 @@ EXTRAS: dict[str, dict] = {
         "license": "BSD-2-Clause-like (CMUDict)",
         "name": "English (CMUDict, ARPABET→IPA)",
         "url": "https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict",
+        # ARPABET rows: fst-compile converts them, but Phonetisaurus
+        # training panics ("empty grapheme table") — ships
+        # dictionary-only, as originally intended (see the WFST note
+        # below). Without this flag, full rebuilds silently dropped
+        # the bundle (that is how v0.4.0 lost it).
+        "no_train": True,
     },
     # WikiPron-harvested locales (issue #5): broad-phonemic scrapes of
     # Wiktionary, CC BY-SA 4.0. Bundles keyed to the piper voice locale
@@ -162,6 +168,13 @@ EXTRAS: dict[str, dict] = {
     "lb": {"kind": "staging", "bcp47": "lb", "name": "Luxembourgish",
            "path": "staging/ltz/merged.tsv", "wikipron": True,
            "source": "wikipron:ltz_latn_broad.tsv"},
+    "lv": {"kind": "staging", "bcp47": "lv", "name": "Latvian",
+           "path": "staging/lav/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Latvian (English Wiktionary extraction)",
+           "small": "thin extraction (1,704 words) — WFST carries most words",
+           "note": "folded (scripts/fold_latvian.py): pitch-accented/macrone "
+                   "vowels to plain long vowels (espeak lv marks no tones); "
+                   "0.23% drop vs lv_LV-aivars"},
     "lt": {"kind": "staging", "bcp47": "lt", "name": "Lithuanian",
            "path": "staging/lit/merged.tsv", "wikipron": True,
            "source": "wikipron:lit_latn_broad.tsv",
@@ -190,6 +203,28 @@ EXTRAS: dict[str, dict] = {
     "sq": {"kind": "staging", "bcp47": "sq", "name": "Albanian",
            "path": "staging/sqi/merged.tsv", "wikipron": True,
            "source": "wikipron:sqi_latn_broad.tsv"},
+    "ne": {"kind": "staging", "bcp47": "ne", "name": "Nepali",
+           "path": "staging/nep/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Nepali (English Wiktionary extraction)",
+           "small": "thin extraction (2,135 words) — WFST carries most words",
+           "note": "folded (scripts/fold_nepali.py): aspiration as ʰ "
+                   "tokens, nasal vowels as vowel+̃ — both verified in the "
+                   "ne voices' phoneme inventories; 0.05% drop vs "
+                   "ne_NP-google-medium"},
+    "uk": {"kind": "staging", "bcp47": "uk", "name": "Ukrainian",
+           "path": "staging/ukr/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Ukrainian (English Wiktionary extraction)",
+           "note": "folded (scripts/fold_ukrainian.py): glide breves to "
+                   "j/w per espeak convention; 0.004% drop vs "
+                   "uk_UA-lada — the ukrainian_tts voice is grapheme-based "
+                   "(Cyrillic tokens) and needs no lexicon"},
+    "vi": {"kind": "staging", "bcp47": "vi", "name": "Vietnamese (Hanoi)",
+           "path": "staging/vie/kaikki.folded.tsv", "kaikki": True,
+           "source": "kaikki:Vietnamese (English Wiktionary extraction)",
+           "note": "Chao tone letters folded to the espeak tone digits "
+                   "(scripts/fold_vietnamese.py; ngang=7 huyền=2 sắc=3 "
+                   "hỏi=4 ngã=5 nặng=6, verified against espeak-ng's own "
+                   "phonemization); 0.014% drop vs vi_VN-vais1000"},
     "yue": {"kind": "staging", "bcp47": "yue", "name": "Cantonese (Han script)",
             "path": "staging/yue/merged.tsv", "wikipron": True,
             "source": "wikipron:yue_hani_standard_broad.tsv",
@@ -357,7 +392,20 @@ def build_lang(
         # k2-fsa/sherpa-onnx#3731) — same data, consumable by every
         # sherpa-onnx binding with zero code.
         lexicon_txt = td / "lexicon.txt"
-        shutil.copyfile(tsv, lexicon_txt)
+        if extra.get("kind") == "cmudict":
+            # ARPABET rows must convert to spaced IPA (the crate's own
+            # notation table, via examples/arpabet) — raw CMUdict lines
+            # are space-separated ARPABET and unusable by sherpa readers
+            subprocess.run(
+                ["cargo", "build", "--release", "--quiet", "--example", "arpabet"],
+                cwd=ROOT, check=True, capture_output=True,
+            )
+            conv = ROOT / "target/release/examples/arpabet"
+            with lexicon_txt.open("wb") as lf:
+                with tsv.open("rb") as src:
+                    subprocess.run([str(conv)], stdin=src, stdout=lf, check=True)
+        else:
+            shutil.copyfile(tsv, lexicon_txt)
         bundle_files = [
             stem.with_suffix(".fst"),
             stem.with_suffix(".pho"),
@@ -491,6 +539,7 @@ def main() -> int:
             pass
 
     entries = []
+    failed: list[str] = []
     for lang in langs:
         entry = build_lang(
             lang.strip(), work, dist, args.version,
@@ -499,6 +548,17 @@ def main() -> int:
         if entry:
             entries.append(entry)
             prior[entry["lang"]] = entry
+        else:
+            failed.append(lang.strip())
+    if failed:
+        # a full build must never silently shrink the manifest (that is
+        # how v0.4.0 lost en-cmudict for two releases)
+        print(f"\n!! {len(failed)} bundle(s) FAILED to build: {', '.join(failed)}")
+        if not args.langs:
+            print("!! full build — previously published bundles are MISSING")
+        if prior:
+            still_ok = [l for l in failed if l not in prior]
+            print(f"!! lost-from-prior: {', '.join(still_ok) or 'none'}")
 
     languages = list(prior.values()) if args.langs else entries
     manifest = {

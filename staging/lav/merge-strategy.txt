@@ -1,0 +1,1 @@
+kaikki-only + latvian fold (scripts/fold_latvian.py)

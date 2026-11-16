@@ -165,10 +165,10 @@ impl LexiconArchive {
 
     /// Resolve a language code (or BCP-47 prefix) to its entry.
     ///
-    /// Match order: exact bundle id, then exact bcp47, then the
-    /// same-primary-subtag heuristic (`en-GB` voice → `en-GB` bundle
-    /// before the plain `en` one — the exact passes run to completion
-    /// over the whole manifest before any prefix matching).
+    /// Match order: exact bundle id, then exact bcp47, then — among all
+    /// entries sharing the primary subtag — the one whose bcp47 shares
+    /// the longest prefix with the request (`en-GB-scotland` → `en-GB`,
+    /// not the plain `en`), plain ids first.
     #[must_use]
     pub fn entry(&self, lang: &str) -> Option<&LanguageEntry> {
         let want = lang.to_ascii_lowercase().replace('_', "-");
@@ -183,23 +183,33 @@ impl LexiconArchive {
                     .iter()
                     .find(|e| e.bcp47.eq_ignore_ascii_case(&want))
             })
-            .or_else(|| {
-                // "de-DE" -> bundle "de": exact primary-subtag + plain id
-                self.manifest.languages.iter().find(|e| {
-                    e.bcp47
-                        .split('-')
-                        .next()
-                        .is_some_and(|p| p.eq_ignore_ascii_case(short) && e.lang == short)
-                })
+            .or_else(|| self.best_prefix_match(&want, short))
+    }
+
+    /// Primary-subtag candidates ranked: plain id first, then longest
+    /// shared bcp47 prefix with the request.
+    fn best_prefix_match(&self, want: &str, short: &str) -> Option<&LanguageEntry> {
+        let want_parts: Vec<&str> = want.split('-').collect();
+        self.manifest
+            .languages
+            .iter()
+            .filter(|e| {
+                e.bcp47
+                    .split('-')
+                    .next()
+                    .is_some_and(|p| p.eq_ignore_ascii_case(short))
             })
-            .or_else(|| {
-                // last resort: primary-subtag prefix anywhere
-                self.manifest.languages.iter().find(|e| {
-                    e.bcp47
-                        .split('-')
-                        .next()
-                        .is_some_and(|p| p.eq_ignore_ascii_case(short))
-                })
+            .max_by_key(|e| {
+                let lower = e.bcp47.to_ascii_lowercase();
+                let parts: Vec<&str> = lower.split('-').collect();
+                let shared = want_parts
+                    .iter()
+                    .zip(&parts)
+                    .take_while(|(a, b)| a == b)
+                    .count();
+                let plain = usize::from(e.lang.eq_ignore_ascii_case(short));
+                // shared subtags dominate; plain id breaks ties
+                shared * 2 + plain
             })
     }
 
@@ -494,6 +504,11 @@ mod tests {
         assert_eq!(archive.entry("en_US").unwrap().lang, "en");
         assert_eq!(archive.entry("de-DE").unwrap().lang, "de");
         assert_eq!(archive.entry("de").unwrap().lang, "de");
+        // fine-grained variants resolve to the closest bundle, not the
+        // plain primary (espeak ships en-GB-scotland-style variants)
+        assert_eq!(archive.entry("en-GB-scotland").unwrap().lang, "en-GB");
+        assert_eq!(archive.entry("en-GB-x-rp").unwrap().lang, "en-GB");
+        assert_eq!(archive.entry("en-US-x-gbclan").unwrap().lang, "en");
     }
 
     #[test]

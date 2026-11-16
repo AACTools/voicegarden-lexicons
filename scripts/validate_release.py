@@ -40,10 +40,10 @@ RESOLUTION = {
     "lb_LU": "lb", "lt": "lt", "ml_IN": "ml", "mt": "mt",
     "no_NO": "no", "sq_AL": "sq", "yue": "yue",
     "hu_HU": "hu", "ka_GE": "ka", "zh_CN": "zh", "ko_KO": "ko",
+    "uk_UA": "uk", "vi_VN": "vi", "ne_NP": "ne", "lv_LV": "lv",
     "is_IS": "isl", "pl_PL": "pol", "nb_NO": "nob",
 }
-BLOCKED = {"ku_TR": "no-data", "tn_ZA": "no-data", "ne_NP": "conventions",
-           "vi_VN": "conventions", "uk_UA": "conventions", "lv_LV": "conventions"}
+BLOCKED = {"ku_TR": "no-data", "tn_ZA": "no-data"}
 
 
 def sha256(path: Path) -> str:
@@ -151,10 +151,30 @@ def check_resolution(base: dict, expanded: dict) -> list[str]:
     return errs
 
 
+def check_no_regression(candidate: dict, baseline: dict) -> list[str]:
+    """PR rule: bundles only expand — no language disappears, no
+    per-language entry count decreases. Entry *counts* may legitimately
+    change when a dictionary is rebuilt from a better source; shrinking
+    still flags loudly so it can only ever happen deliberately."""
+    errs: list[str] = []
+    base = {e["lang"]: e for e in baseline["languages"]}
+    cand = {e["lang"]: e for e in candidate["languages"]}
+    for lang, entry in base.items():
+        if lang not in cand:
+            errs.append(f"REGRESSION: bundle {lang!r} in baseline is gone")
+        elif cand[lang]["entries"] < entry["entries"]:
+            errs.append(
+                f"REGRESSION: {lang} shrank {entry['entries']} -> {cand[lang]['entries']}"
+            )
+    return errs
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dist", default="dist")
     ap.add_argument("--expanded", default="dist/expanded-v2")
+    ap.add_argument("--baseline", help="published lexicons.json (path or URL) "
+                    "to assert expand-only changes")
     args = ap.parse_args()
     dist = REPO / args.dist
     exp_dir = REPO / args.expanded
@@ -173,6 +193,22 @@ def main() -> int:
     print(f"expanded manifest: {len(expanded['languages'])} languages, {exp_bundles} bundles verified")
     failures += check_resolution(base, expanded)
     print(f"resolution table: {len(RESOLUTION)} voices, {len(BLOCKED)} blocked")
+
+    if args.baseline:
+        bl = args.baseline
+        if bl.startswith("http"):
+            import urllib.request
+            with urllib.request.urlopen(bl, timeout=60) as r:
+                baseline = json.load(r)
+        else:
+            baseline = json.loads(Path(bl).read_text())
+        failures += check_no_regression(base, baseline)
+        n_base = len(baseline["languages"])
+        new_langs = sorted({e["lang"] for e in base["languages"]}
+                           - {e["lang"] for e in baseline["languages"]})
+        print(f"expand-only check vs baseline: {n_base} -> "
+              f"{len(base['languages'])} languages (+{len(new_langs)}: "
+              f"{', '.join(new_langs) or 'none'})")
 
     if failures:
         print(f"\nFAILURES ({len(failures)}):")

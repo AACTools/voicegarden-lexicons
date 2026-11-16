@@ -57,6 +57,10 @@ const CASES: &[(&str, &str, &str, &str)] = &[
     ("ka_GE", "ka", "გამარჯობა", "კონსტრუქცია"),
     ("zh_CN", "zh", "你好", "建设"),
     ("ko_KO", "ko", "안녕", "건설"),
+    ("uk_UA", "uk", "привіт", "конструктивізму"),
+    ("vi_VN", "vi", "xin chào", "kiến thiết vậy"),
+    ("ne_NP", "ne", "नमस्ते", "निर्माण"),
+    ("lv_LV", "lv", "sveiki", "konstruktīvisms"),
     // expanded tier (dictionary + distilled)
     ("is_IS", "isl", "þrjátíu", "þrjátíuátta"),
     ("pl_PL", "pol", "dzień", "konstruktiwizmem"),
