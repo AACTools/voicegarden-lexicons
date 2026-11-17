@@ -1,7 +1,7 @@
 [package]
 name = "voicegarden-lexicons"
 description = "Fetch permissively-licensed pronunciation lexicons (the espeak-ng replacement) for TTS — MIT/BSD bundles keyed by language"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/AACTools/voicegarden-lexicons"
@@ -12,8 +12,8 @@ exclude = ["staging/", "audit/", "scripts/", "docs/", "distill*/", "expanded*/",
 [dependencies]
 quick-xml = "0.37"
 ipa-translate = "0.2"
-floravox-g2p = "0.8.5"
-memmap2 = "0.9"
+floravox-g2p = { version = "0.8.5", optional = true }
+memmap2 = { version = "0.9", optional = true }
 anyhow = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -21,6 +21,14 @@ ureq = { version = "2", features = ["tls"] }
 sha2 = "0.10"
 flate2 = "1"
 tar = "0.4"
+
+[features]
+default = ["phonemizer"]
+# The phonemizer pulls in floravox-g2p → ort (onnxruntime). Disable with
+# `default-features = false` for fetch-only consumers that don't need
+# G2P (and for targets where ort has no prebuilt binaries, e.g.
+# x86_64-apple-darwin).
+phonemizer = ["dep:floravox-g2p", "dep:memmap2"]
 
 [dev-dependencies]
 tempfile = "3"

@@ -44,6 +44,8 @@ pub const DEFAULT_BASE: &str =
 
 /// Holdout evaluation of a bundled Phonetisaurus model (trained on the
 /// other 95% of the lexicon, decoded through the shipped file).
+/// Requires the `phonemizer` feature.
+#[cfg(feature = "phonemizer")]
 #[derive(Debug, Clone, Deserialize)]
 pub struct PhonetisaurusEval {
     /// Fraction of held-out words phonemized exactly right.
@@ -71,7 +73,9 @@ pub struct LanguageEntry {
     pub license: String,
     /// Provenance string (e.g. `PyPI:gruut-lang-de`).
     pub source: String,
-    /// The bundled Phonetisaurus OOV model and its holdout evaluation.
+    /// The bundled Phonetisaurus OOV model and its holdout evaluation
+    /// (requires the `phonemizer` feature).
+    #[cfg(feature = "phonemizer")]
     pub phonetisaurus: Option<PhonetisaurusEval>,
     /// Bundle file name within the release.
     pub file: String,
@@ -268,20 +272,30 @@ impl LexiconArchive {
     }
 
     fn bundle_from(dir: &Path, entry: &LanguageEntry) -> anyhow::Result<LexiconBundle> {
-        let lexicon = floravox_g2p::MmapLexicon::open(dir.join(format!("{}.fst", entry.lang)))
-            .map_err(|e| anyhow!("opening lexicon: {e}"))?;
-        let phonetisaurus = dir
-            .join("phonetisaurus.fst")
-            .exists()
-            .then(|| floravox_g2p::PhonetisaurusG2p::open(dir.join("phonetisaurus.fst")))
-            .transpose()
-            .map_err(|e| anyhow!("opening phonetisaurus: {e}"))?;
-        Ok(LexiconBundle {
-            entry: entry.clone(),
-            dir: dir.to_path_buf(),
-            lexicon,
-            phonetisaurus,
-        })
+        #[cfg(feature = "phonemizer")]
+        {
+            let lexicon = floravox_g2p::MmapLexicon::open(dir.join(format!("{}.fst", entry.lang)))
+                .map_err(|e| anyhow!("opening lexicon: {e}"))?;
+            let phonetisaurus = dir
+                .join("phonetisaurus.fst")
+                .exists()
+                .then(|| floravox_g2p::PhonetisaurusG2p::open(dir.join("phonetisaurus.fst")))
+                .transpose()
+                .map_err(|e| anyhow!("opening phonetisaurus: {e}"))?;
+            Ok(LexiconBundle {
+                entry: entry.clone(),
+                dir: dir.to_path_buf(),
+                lexicon,
+                phonetisaurus,
+            })
+        }
+        #[cfg(not(feature = "phonemizer"))]
+        {
+            Ok(LexiconBundle {
+                entry: entry.clone(),
+                dir: dir.to_path_buf(),
+            })
+        }
     }
 
     fn fetch_manifest(base: &str, cache: &Path, name: &str) -> anyhow::Result<Manifest> {
@@ -322,19 +336,26 @@ pub struct LexiconBundle {
     pub entry: LanguageEntry,
     /// Where the bundle is unpacked.
     pub dir: PathBuf,
-    /// The mmap'd lexicon.
+    /// The mmap'd lexicon (requires the `phonemizer` feature).
+    #[cfg(feature = "phonemizer")]
     pub lexicon: floravox_g2p::MmapLexicon,
-    /// The bundled Phonetisaurus model, when present.
+    /// The bundled Phonetisaurus model, when present (requires the
+    /// `phonemizer` feature).
+    #[cfg(feature = "phonemizer")]
     pub phonetisaurus: Option<floravox_g2p::PhonetisaurusG2p>,
 }
 
 impl LexiconBundle {
     /// Ready-to-use phonemizer: lexicon → Phonetisaurus (if bundled) →
+    /// letter-name spelling fallback. Requires the `phonemizer` feature
+    /// (default-on; disable with `default-features = false` for a
+    /// fetch-only build without onnxruntime).
     /// letter-name spelling. Wrap in `CachedPhonemizer` for repeated
     /// words.
     /// # Errors
     ///
     /// Never in practice (empty lexicon is pre-validated).
+    #[cfg(feature = "phonemizer")]
     pub fn phonemizer(
         &self,
     ) -> anyhow::Result<
