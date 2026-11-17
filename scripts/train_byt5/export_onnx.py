@@ -177,6 +177,12 @@ def try_manual(model: Path, tmp: Path) -> bool:
             return m.lm_head(out)
 
     dyn = {0: "b", 1: "s"}
+    # dynamo=False forces the legacy TorchScript exporter: it emits model
+    # weights as graph INITIALIZERS (not Constant nodes), which is what
+    # onnxruntime quantize_dynamic needs — the dynamo path produces
+    # unquantizable graphs (quantize_dynamic is a silent no-op on them)
+    # and splits >~800MB models into .onnx.data sidecars.
+    export_kwargs = {"dynamo": False}
     with torch.no_grad():
         torch.onnx.export(
             Enc(), (torch.zeros(1, 8, dtype=torch.long), torch.ones(1, 8, dtype=torch.long)),
@@ -185,6 +191,7 @@ def try_manual(model: Path, tmp: Path) -> bool:
             output_names=["last_hidden_state"],
             dynamic_axes={"input_ids": dyn, "attention_mask": dyn,
                           "last_hidden_state": {0: "b", 1: "s"}},
+            **export_kwargs,
         )
         torch.onnx.export(
             Dec(),
@@ -199,6 +206,7 @@ def try_manual(model: Path, tmp: Path) -> bool:
                           "encoder_hidden_states": {0: "b", 1: "s"},
                           "encoder_attention_mask": {0: "b", 1: "s"},
                           "logits": {0: "b", 1: "t"}},
+            **export_kwargs,
         )
     tok.save_pretrained(str(tmp))
     return True
