@@ -125,7 +125,13 @@ def main() -> int:
                 decoder_start_token_id=0, eos_token_id=1,
             )
             tokenizer = AutoTokenizer.from_pretrained("google/byt5-small")
-            model = AutoModelForSeq2SeqLM.from_config(cfg)
+            if Path(args.base).is_dir():
+                # warm start: --base points at a prior tiny run (fine-tune).
+                # from_pretrained (not from_config) so tied embeddings load.
+                model = AutoModelForSeq2SeqLM.from_pretrained(args.base)
+                print(f"warm start from {args.base}")
+            else:
+                model = AutoModelForSeq2SeqLM.from_config(cfg)
         else:
             tokenizer = AutoTokenizer.from_pretrained(args.base)
             model = AutoModelForSeq2SeqLM.from_pretrained(args.base)
