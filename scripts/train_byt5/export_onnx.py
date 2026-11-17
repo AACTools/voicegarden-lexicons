@@ -117,16 +117,34 @@ def derive_pairs(task: str, base: str = "."):
     if len(pairs) < 3:
         # Fallback: this corpus may not carry the wanted dialect tags
         # (e.g. the fuzzy-decode corpus uses bare 'eng'/'spa'). Gate on
-        # the first three distinct languages actually present, in file
-        # order — a gate pair from a real training row beats no gate.
-        seen = {p[0] for p in pairs}
+        # rows actually present — but prefer LOW-severity pairs: a gate
+        # pair whose input is heavily corrupted (most phones damaged)
+        # is not a fair export check, it is a research problem.
+        def _lev(a: str, b: str) -> int:
+            x, y = a.split(), b.split()
+            prev = list(range(len(y) + 1))
+            for i, ca in enumerate(x, 1):
+                cur = [i]
+                for j, cb in enumerate(y, 1):
+                    cur.append(min(prev[j] + 1, cur[j - 1] + 1,
+                                   prev[j - 1] + (ca != cb)))
+                prev = cur
+            return prev[-1]
+
+        def _sev(pair):
+            text = pair[1].split(": ", 1)[-1]
+            d = _lev(text, pair[2])
+            return (d == 0, d)  # non-identity pairs first, then by damage
+
+        cands = list(pairs)
         for line in open(src, encoding="utf-8"):
             p = line.rstrip("\n").split("\t")
-            if len(p) == 3 and p[0] not in seen:
-                pairs.append((p[0], f"<{p[0]}>: {p[1]}", p[2]))
-                seen.add(p[0])
-            if len(pairs) == 3:
+            if len(p) == 3:
+                cands.append((p[0], f"<{p[0]}>: {p[1]}", p[2]))
+            if len(cands) >= 24:
                 break
+        cands.sort(key=_sev)
+        pairs = cands[:3]
     return pairs
 
 
