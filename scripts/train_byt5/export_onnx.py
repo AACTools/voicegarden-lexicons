@@ -153,7 +153,10 @@ def validate(candidate_dir: Path, task: str, pairs=None) -> tuple[bool, list[str
         good = got == gold  # exact match against corpus truth
         ok += int(good)
         results.append(f"{text!r} -> {got!r} (corpus gold {gold!r}) {'OK' if good else 'FAIL'}")
-    return ok >= 2, results
+    # 3+ pairs: tolerate one flaky pair. Fewer (single-language corpora):
+    # every pair must pass — there is no redundancy left.
+    need = 2 if len(pairs) >= 3 else len(pairs)
+    return ok >= need, results
 
 
 def try_manual(model: Path, tmp: Path) -> bool:
