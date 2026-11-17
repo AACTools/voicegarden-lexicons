@@ -114,6 +114,19 @@ def derive_pairs(task: str, base: str = "."):
             pairs.append((p[0], f"<{p[0]}>: {p[1]}", p[2]))
         if len(pairs) == len(wanted):
             break
+    if len(pairs) < 3:
+        # Fallback: this corpus may not carry the wanted dialect tags
+        # (e.g. the fuzzy-decode corpus uses bare 'eng'/'spa'). Gate on
+        # the first three distinct languages actually present, in file
+        # order — a gate pair from a real training row beats no gate.
+        seen = {p[0] for p in pairs}
+        for line in open(src, encoding="utf-8"):
+            p = line.rstrip("\n").split("\t")
+            if len(p) == 3 and p[0] not in seen:
+                pairs.append((p[0], f"<{p[0]}>: {p[1]}", p[2]))
+                seen.add(p[0])
+            if len(pairs) == 3:
+                break
     return pairs
 
 
