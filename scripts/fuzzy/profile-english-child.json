@@ -1,0 +1,26 @@
+{
+  "name": "english_child_calibrated",
+  "description": "English child phonology calibrated from PhonBank Davis+Providence (3.18M aligned phones)",
+  "language": "en",
+  "population": "children (Providence: 1;0-4;0; Davis: 0;7-2;6)",
+  "severity": 1.0,
+  "source": "Calibrated from PhonBank (TalkBank) CC BY-NC-SA. Process weights are measured facts, not creative content — publishable per the plan §2c licensing strategy. See calibrate_phonbank.py for methodology.",
+  "processes": {
+    "stopping": 0.026,
+    "fronting": 0.004,
+    "gliding": 0.019,
+    "voicing_flip": 0.029,
+    "final_consonant_deletion": 0.143,
+    "cluster_reduction": 0.215,
+    "regressive_place_assimilation": 0.107,
+    "vowel_neutralisation": 0.05,
+    "weak_syllable_deletion": 0.10
+  },
+  "notes": {
+    "caveat": "These are PER-PHONE rates from alignment data; the corruptor uses PER-WORD rates. The conversion assumes ~4 phones/word (see calibrate_phonbank.py). The high insertion rate (42.9%) was excluded — likely alignment convention artifacts.",
+    "measured_at": "2026-11-17",
+    "corpora": ["Providence", "Davis"],
+    "total_aligned_phones": 3179710,
+    "exact_match_rate": 0.372
+  }
+}
