@@ -1,11 +1,13 @@
 # Training the ByT5 multilingual G2P/P2G models
 
+> **Note (2026-11-18):** the `scripts/train_byt5` / `scripts/fuzzy` code referenced below moved to the private [willwade/floravox-training](https://github.com/willwade/floravox-training) repo. This repo keeps the data pipeline.
+
 ## v2: Harmonized retrain (2026-08-30)
 
 In August 2026 the models were retrained on a **harmonized 4.12M-pair
 corpus** (+27% over v1's 3.02M), 142 language tags, with per-language
 IPA conventions unified via a learned many-to-many EM aligner
-([scripts/train_byt5/m2m_align.py](../scripts/train_byt5/m2m_align.py)).
+(scripts/train_byt5/m2m_align.py (now in willwade/floravox-training, private)).
 
 The retrain used the same architecture (byt5-small / tiny config) and
 hyperparameters as v1, but with M2M-converted wikipron fill replacing

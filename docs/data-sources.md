@@ -1,5 +1,7 @@
 # Data sources: what we tapped, what unlocks what
 
+> **Note (2026-11-18):** the `scripts/train_byt5` / `scripts/fuzzy` code referenced below moved to the private [willwade/floravox-training](https://github.com/willwade/floravox-training) repo. This repo keeps the data pipeline.
+
 Roadmap record for the campaign in
 [#5](https://github.com/AACTools/voicegarden-lexicons/issues/5), grouped
 by what each source unlocks. Licensing is the gate: bundles ship

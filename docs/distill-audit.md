@@ -1,5 +1,7 @@
 # Distillation quality audit
 
+> **Note (2026-11-18):** the `scripts/train_byt5` / `scripts/fuzzy` code referenced below moved to the private [willwade/floravox-training](https://github.com/willwade/floravox-training) repo. This repo keeps the data pipeline.
+
 *Measured 2026-08-29 against held-out test words (`corpus/g2p.test.tsv`,
 never seen in training). Method: replicate the exact distill path —
 both published models (small int8 + tiny int8, ONNX), same prompt
