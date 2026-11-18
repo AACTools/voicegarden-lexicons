@@ -267,6 +267,12 @@ def main() -> int:
     ap.add_argument("--model", required=True)
     ap.add_argument("--task", choices=["g2p", "p2g"], required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--no-gate", action="store_true",
+                    help="skip the known-answer gate (for models whose quality "
+                         "contract is the aggregate eval — e.g. the fuzzy decoder, "
+                         "where single repair pairs are legitimately ambiguous). "
+                         "The gate remains the default: it exists to catch "
+                         "structurally broken exports.")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -287,6 +293,15 @@ def main() -> int:
         except Exception as e:  # noqa: BLE001
             print(f"  export failed: {e}")
             continue
+        if args.no_gate:
+            shutil.rmtree(out, ignore_errors=True)
+            tmp.rename(out)
+            print(f"KEPT {variant} -> {out} (gate SKIPPED by --no-gate)")
+            (out / "PROVENANCE.txt").write_text(
+                f"exported from {args.model} (variant: {variant}), "
+                f"gate SKIPPED (--no-gate); quality rests on aggregate eval\n"
+            )
+            return 0
         ok, details = validate(tmp, args.task, pairs)
         for d in details:
             print(f"  {d}")
