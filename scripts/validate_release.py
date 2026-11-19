@@ -42,13 +42,14 @@ RESOLUTION = {
     "no_NO": "no", "sq_AL": "sq", "yue": "yue",
     "hu_HU": "hu", "ka_GE": "ka", "zh_CN": "zh", "ko_KO": "ko",
     "uk_UA": "uk", "vi_VN": "vi", "ne_NP": "ne", "lv_LV": "lv",
+    "ku_TR": "ku",
 }
 # voice locale -> expected bundle in the EXPANDED manifest
 EXPANDED_RESOLUTION = {
     "fi_FI": "fin", "is_IS": "isl", "pl_PL": "pol",
     "nb_NO": "nob", "sv_SE": "swe",
 }
-BLOCKED = {"ku_TR": "no-data", "tn_ZA": "no-data"}
+BLOCKED = {"tn_ZA": "no-data"}
 
 
 def sha256(path: Path) -> str:

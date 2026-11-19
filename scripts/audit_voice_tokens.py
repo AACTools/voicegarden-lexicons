@@ -43,6 +43,9 @@ AUDITS = {
     "staging/ukr/kaikki.folded.tsv": ("piper-uk_UA-lada-x_low", 0.004, 0.05),
     "staging/lav/kaikki.folded.tsv": ("piper-lv_LV-aivars-medium", 0.235, 1.0),
     "staging/hbs/lexicon-sr.tsv": ("piper-sr_RS-serbski_institut-medium", 0.000, 0.05),
+    # ku: raw kmr_latn_broad scrape, no convention fold needed — the one
+    # pron-side fix (stray í) is documented in staging/kur/merge-strategy.txt
+    "staging/kur/merged.tsv": ("piper-ku_TR-berfin_renas-medium", 0.000, 0.05),
     # coqui-hr-cv is a character-token model (Latin + Cyrillic letters +
     # punctuation, zero IPA symbols — vendored 2026-11 for issue #12):
     # like et/ga/lt/mt/gu, no lexicon can serve it. The hr bundle stays

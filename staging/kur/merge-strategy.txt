@@ -1,0 +1,6 @@
+wikipron-only
+
+one pron-side fix applied after harvest: "kurmancí" carried a
+nonstandard acute-i phone (í) — a Wiktionary artifact, not Kurmanji
+phonology; mapped to i. Everything else is raw kmr_latn_broad,
+0.000 0rop vs piper-ku_TR-berfin_renas-medium after the fix.

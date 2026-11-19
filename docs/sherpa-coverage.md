@@ -178,6 +178,20 @@ Notes:
   most words fall through to the per-bundle Phonetisaurus. Usable but
   flagged — NOTICE carries the warning.
 
+## Fourth wave: fold-free WikiPron addition (issue #12)
+
+The issue filed ku as "no phonetic data anywhere" — stale: WikiPron's
+summary carries `kmr_latn_broad` (Northern Kurdish/Kurmanji, Latin —
+matching the piper `ku_TR` voice's script). The raw scrape needed **no
+convention fold**: 0.000% drop against the voice's own inventory.
+Both remaining no-data voices' token inventories are now vendored
+(`piper-ku_TR-berfin_renas-medium`, `mimic3-tn_ZA-google-nwu_low`) —
+both are IPA consumers, i.e. lexicon-servable once data exists.
+
+| bundle | bcp47 | voices it serves | source | entries | phone audit vs real voice |
+|---|---|---|---|---|---|
+| ku | ku | piper-ku_TR (1×3) | wikipron:kmr_latn_broad | 2,132 ⚠ thin | **0.000%** vs berfin_renas-medium; g2p 95.3% exact / PER 1.7%. One pron-side fix (a stray `í` phone in one word, see `staging/kur/merge-strategy.txt`); kaikki Kurmanji is the natural enrichment |
+
 ## Blocked / needs study (issue #5 "honest, not silent")
 
 | locale | voices | WikiPron status | verdict |
@@ -190,8 +204,8 @@ Notes:
 | ne (Nepali) | piper ne_NP (3) + mimic3 (1) | **narrow only** (2,329); kaikki 2.1k | **UNBLOCKED via kaikki + fold** → `ne` bundle ⚠ thin (0.05% drop) |
 | lv (Latvian) | piper-lv_LV (1×3) | **narrow only** (1,437) | **UNBLOCKED via kaikki + fold** → `lv` bundle ⚠ thin (0.23% drop) |
 | zh_CN (Mandarin) | piper zh_CN (2×3) | cmn_hani_broad 168,655 | **BUNDLED** → `zh` (tone-contour fold, 0.005% drop, digit words excluded) |
-| ku (Kurdish) | piper-ku_TR (1×3) | **none** | `blocked:no-data` — Common Voice + MFA is the only permissive route |
-| tn (Tswana) | mimic3-tn_ZA (1) | **none** | `blocked:no-data` — same |
+| ku (Kurdish) | piper-ku_TR (1×3) | kmr_latn_broad exists (2,193) | **UNBLOCKED via WikiPron kmr** → `ku` bundle (fold-free, 0.000% drop) — the original "none" verdict was stale |
+| tn (Tswana) | mimic3-tn_ZA (1) | **none** | `blocked:no-data` — Common Voice + MFA is the only permissive route. Voice inventory vendored (`mimic3-tn_ZA-google-nwu_low`, 46 IPA tokens — lexicon-servable) so the target convention is known before collection starts |
 | mul (multilingual) | omnivoice / mms-patched (2) | n/a | **out-of-scope** — no `espeak_data` (native front-ends, like MMS); a single-language bundle would be wrong for a multilingual voice |
 | is (Icelandic) | piper is_IS (4×3) | published, numbers were broken | **fixed** — 37 hand-verified number entries (`staging/isl/manual.tsv`) + kaikki inflected fills; expanded bundle 43,427 entries |
 

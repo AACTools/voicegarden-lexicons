@@ -154,6 +154,13 @@ EXTRAS: dict[str, dict] = {
            "source": "wikipron:hbs_cyrl_broad_filtered.tsv",
            "note": "pitch accents folded (scripts/fold_serbian.py); "
                    "0.000% drop vs piper-sr_RS-serbski_institut-medium"},
+    "ku": {"kind": "staging", "bcp47": "ku", "name": "Kurdish (Kurmanji, Latin script)",
+           "path": "staging/kur/merged.tsv", "wikipron": True,
+           "source": "wikipron:kmr_latn_broad.tsv",
+           "small": "thin extraction (2,132 words) — WFST carries most words",
+           "note": "raw scrape needed no convention fold — 0.000% drop vs "
+                   "piper-ku_TR-berfin_renas-medium (one pron-side fix: a "
+                   "stray í phone in one word, see merge-strategy.txt)"},
     "kk": {"kind": "staging", "bcp47": "kk", "name": "Kazakh",
            "path": "staging/kaz/merged.tsv", "wikipron": True,
            "source": "wikipron:kaz_cyrl_broad.tsv + kaikki fill",
