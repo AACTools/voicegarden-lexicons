@@ -377,13 +377,21 @@ impl LexiconBundle {
     }
 }
 
-/// `~/.voicegarden/lexicons` (or `VOICEGARDEN_LEXICON_DIR`).
+/// `~/.voicegarden/lexicons` (or `VOICEGARDEN_LEXICON_DIR`; on Windows,
+/// `%USERPROFILE%\.voicegarden\lexicons` when `HOME` is unset).
 #[must_use]
 pub fn default_cache_dir() -> PathBuf {
     if let Some(dir) = std::env::var_os("VOICEGARDEN_LEXICON_DIR") {
         return PathBuf::from(dir);
     }
-    match std::env::var_os("HOME") {
+    cache_dir_from(std::env::var_os("HOME"), std::env::var_os("USERPROFILE"))
+}
+
+/// `HOME`, else `USERPROFILE` (the Windows convention — `HOME` is
+/// typically unset there), else a CWD-relative last resort so a missing
+/// environment never fails. Pure in the env values for testability.
+fn cache_dir_from(home: Option<std::ffi::OsString>, userprofile: Option<std::ffi::OsString>) -> PathBuf {
+    match home.or(userprofile) {
         Some(h) => PathBuf::from(h).join(".voicegarden").join("lexicons"),
         None => PathBuf::from(".voicegarden-lexicons"),
     }
@@ -550,6 +558,40 @@ mod tests {
             Ok(_) => panic!("bad checksum accepted"),
         };
         assert!(err.contains("checksum mismatch"), "{err}");
+    }
+
+    /// The default cache dir must honour `USERPROFILE` when `HOME` is
+    /// unset — the normal Windows situation — instead of falling back to
+    /// a CWD-relative directory. Regression (issue #11): Windows
+    /// consumers silently got `.voicegarden-lexicons` beside whatever
+    /// directory the app happened to run from, and any resolver that
+    /// checked `USERPROFILE` looked somewhere else.
+    #[test]
+    fn cache_dir_respects_userprofile_when_home_unset() {
+        use std::ffi::OsString;
+        // HOME alone (Unix): the classic path
+        assert_eq!(
+            cache_dir_from(Some(OsString::from("/home/u")), None),
+            PathBuf::from("/home/u/.voicegarden/lexicons")
+        );
+        // USERPROFILE alone (Windows): the fix
+        assert_eq!(
+            cache_dir_from(None, Some(OsString::from(r"C:\Users\u"))),
+            PathBuf::from(r"C:\Users\u").join(".voicegarden").join("lexicons")
+        );
+        // both set (Unix-ish shell on Windows): HOME wins, as before
+        assert_eq!(
+            cache_dir_from(
+                Some(OsString::from("/home/u")),
+                Some(OsString::from(r"C:\Users\u"))
+            ),
+            PathBuf::from("/home/u/.voicegarden/lexicons")
+        );
+        // neither: CWD-relative last resort (a missing env never fails)
+        assert_eq!(
+            cache_dir_from(None, None),
+            PathBuf::from(".voicegarden-lexicons")
+        );
     }
 
     /// Same roundtrip as `offline_bundle_roundtrip`, but through the
