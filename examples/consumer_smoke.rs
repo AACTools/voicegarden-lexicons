@@ -18,7 +18,7 @@ use voicegarden_lexicons::LexiconArchive;
 /// (voice locale as the wrapper passes it, bundle we expect, one word
 /// that must be in the dictionary, one OOV word for the WFST tier).
 /// Every locale the sherpa piper/coqui/mimic3 families ship; the old
-/// blocked:no-data set is empty as of the VoxCommunis tn harvest
+/// blocked:no-data set is empty as of the `VoxCommunis` tn harvest
 /// (docs/sherpa-coverage.md).
 const CASES: &[(&str, &str, &str, &str)] = &[
     ("de_DE", "de", "guten", "floravoxisches"),
