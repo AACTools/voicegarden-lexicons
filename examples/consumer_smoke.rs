@@ -17,9 +17,9 @@ use voicegarden_lexicons::LexiconArchive;
 
 /// (voice locale as the wrapper passes it, bundle we expect, one word
 /// that must be in the dictionary, one OOV word for the WFST tier).
-/// Every locale the sherpa piper/coqui/mimic3 families ship, minus the
-/// documented blocked set (tn — no lexical data anywhere; see
-/// docs/sherpa-coverage.md).
+/// Every locale the sherpa piper/coqui/mimic3 families ship; the old
+/// blocked:no-data set is empty as of the VoxCommunis tn harvest
+/// (docs/sherpa-coverage.md).
 const CASES: &[(&str, &str, &str, &str)] = &[
     ("de_DE", "de", "guten", "floravoxisches"),
     ("en_US", "en", "world", "zipzapper"),
@@ -61,8 +61,9 @@ const CASES: &[(&str, &str, &str, &str)] = &[
     ("vi_VN", "vi", "xin chào", "kiến thiết vậy"),
     ("ne_NP", "ne", "नमस्ते", "निर्माण"),
     ("lv_LV", "lv", "sveiki", "konstruktīvisms"),
-    // 2026-11 wave 4 (issue #12): kmr scrape, fold-free
+    // 2026-11 wave 4 (issue #12): kmr scrape, fold-free + VoxCommunis tn
     ("ku_TR", "ku", "adar", "bahar"),
+    ("tn_ZA", "tn", "aforika", "moemotho"),
     ("fi_FI", "fin", "terve", "kiitos"),
     ("sv_SE", "swe", "hej", "konstruktivismen"),
     ("nb_NO", "nob", "hei", "konstruktivisme"),

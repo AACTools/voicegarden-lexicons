@@ -46,6 +46,9 @@ AUDITS = {
     # ku: raw kmr_latn_broad scrape, no convention fold needed — the one
     # pron-side fix (stray í) is documented in staging/kur/merge-strategy.txt
     "staging/kur/merged.tsv": ("piper-ku_TR-berfin_renas-medium", 0.000, 0.05),
+    # tn: VoxCommunis CV20 alignments, vocabulary-filtered and folded —
+    # the first permissive Tswana lexicon (issue #12's last data gap)
+    "staging/tsn/voxcommunis.folded.tsv": ("mimic3-tn_ZA-google-nwu_low", 0.000, 0.05),
     # coqui-hr-cv is a character-token model (Latin + Cyrillic letters +
     # punctuation, zero IPA symbols — vendored 2026-11 for issue #12):
     # like et/ga/lt/mt/gu, no lexicon can serve it. The hr bundle stays

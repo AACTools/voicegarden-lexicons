@@ -1,0 +1,6 @@
+voxcommunis-only
+
+CV20-validated vocabulary filter (min 2 alignments) + fold_tswana.py
+convention fold (aspiration stripped, i-merger, zh->sh). No seed
+dictionary exists for Tswana; agreement check deferred to espeak-ng
+cross-validation at build time if desired.

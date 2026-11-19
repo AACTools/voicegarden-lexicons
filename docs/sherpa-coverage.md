@@ -191,6 +191,7 @@ both are IPA consumers, i.e. lexicon-servable once data exists.
 | bundle | bcp47 | voices it serves | source | entries | phone audit vs real voice |
 |---|---|---|---|---|---|
 | ku | ku | piper-ku_TR (1×3) | wikipron:kmr_latn_broad | 2,132 ⚠ thin | **0.000%** vs berfin_renas-medium; g2p 95.3% exact / PER 1.7%. One pron-side fix (a stray `í` phone in one word, see `staging/kur/merge-strategy.txt`); kaikki Kurmanji is the natural enrichment |
+| tn | tn | mimic3-tn_ZA (1) | voxcommunis:tn_cvu CV20 alignments (CC0) | 1,974 ⚠ thin | **0.000%** vs google-nwu_low after `scripts/fold_tswana.py` (aspiration stripped, i-merger, ʒ→ʃ); g2p 92.9% exact / PER 3.0% — **the first permissive Tswana lexicon** |
 
 ## Blocked / needs study (issue #5 "honest, not silent")
 
@@ -205,7 +206,7 @@ both are IPA consumers, i.e. lexicon-servable once data exists.
 | lv (Latvian) | piper-lv_LV (1×3) | **narrow only** (1,437) | **UNBLOCKED via kaikki + fold** → `lv` bundle ⚠ thin (0.23% drop) |
 | zh_CN (Mandarin) | piper zh_CN (2×3) | cmn_hani_broad 168,655 | **BUNDLED** → `zh` (tone-contour fold, 0.005% drop, digit words excluded) |
 | ku (Kurdish) | piper-ku_TR (1×3) | kmr_latn_broad exists (2,193) | **UNBLOCKED via WikiPron kmr** → `ku` bundle (fold-free, 0.000% drop) — the original "none" verdict was stale |
-| tn (Tswana) | mimic3-tn_ZA (1) | **none** | `blocked:no-data` — Common Voice + MFA is the only permissive route. Voice inventory vendored (`mimic3-tn_ZA-google-nwu_low`, 46 IPA tokens — lexicon-servable) so the target convention is known before collection starts |
+| tn (Tswana) | mimic3-tn_ZA (1) | n/a (no dictionary anywhere) | **UNBLOCKED via VoxCommunis** → `tn` bundle (CV20 alignments, vocabulary-filtered, folded; 0.000% drop) |
 | mul (multilingual) | omnivoice / mms-patched (2) | n/a | **out-of-scope** — no `espeak_data` (native front-ends, like MMS); a single-language bundle would be wrong for a multilingual voice |
 | is (Icelandic) | piper is_IS (4×3) | published, numbers were broken | **fixed** — 37 hand-verified number entries (`staging/isl/manual.tsv`) + kaikki inflected fills; expanded bundle 43,427 entries |
 

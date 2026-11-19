@@ -1,0 +1,6 @@
+VoxCommunis TextGrids (CC0-1.0), pacscilab/VoxCommunis
+tn_cvu_textgrids20_acoustic20.zip — MFA alignments of Common Voice 20
+validated Tswana (4.3 h). Rows = cvu G2P-dictionary pronunciations of
+words attested >= 2 times in validated audio (pronunciations are
+dictionary-driven, not per-clip phonetic evidence; the audio gates
+which words ship). Folded per scripts/fold_tswana.py.

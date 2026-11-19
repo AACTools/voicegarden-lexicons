@@ -161,6 +161,15 @@ EXTRAS: dict[str, dict] = {
            "note": "raw scrape needed no convention fold — 0.000% drop vs "
                    "piper-ku_TR-berfin_renas-medium (one pron-side fix: a "
                    "stray í phone in one word, see merge-strategy.txt)"},
+    "tn": {"kind": "staging", "bcp47": "tn", "name": "Tswana",
+           "path": "staging/tsn/voxcommunis.folded.tsv",
+           "license": "CC0-1.0 (data: VoxCommunis alignments of Common Voice 20) + MIT (tooling)",
+           "source": "voxcommunis:tn_cvu_textgrids20_acoustic20 (CV 20 validated, 4.3 h)",
+           "small": "alignment-harvested vocabulary (1,974 words) — WFST carries most words",
+           "note": "words attested >=2x in CV-validated audio, cvu G2P "
+                   "pronunciations folded to the voice inventory "
+                   "(scripts/fold_tswana.py): aspiration stripped, i-merger, "
+                   "zh->sh — 0.000% drop vs mimic3-tn_ZA-google-nwu_low"},
     "kk": {"kind": "staging", "bcp47": "kk", "name": "Kazakh",
            "path": "staging/kaz/merged.tsv", "wikipron": True,
            "source": "wikipron:kaz_cyrl_broad.tsv + kaikki fill",
