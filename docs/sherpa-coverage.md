@@ -49,7 +49,7 @@ All WikiPron-scraped (CC BY-SA 4.0), packaged as base bundles in
 | eu | eu | piper-eu_ES (2) | eus_latn_broad | 11,977 |
 | ga | ga | coqui-ga-cv (1) | gle_latn_broad | 9,546 |
 | gu | gu | mimic3-gu_IN (1) | guj_gujr_broad | 4,086 |
-| hr | hr | coqui-hr-cv (1) | hbs_latn_broad_filtered | 26,346 |
+| hr | hr | none — coqui-hr-cv is a grapheme model (see below) | hbs_latn_broad_filtered | 26,346 |
 | sr | sr | piper-sr_RS (1×3) | hbs_cyrl_broad_filtered | 23,169 |
 | kk | kk | piper-kk_KZ (3×3) | kaz_cyrl_broad | 669 ⚠ thin |
 | lb | lb | piper-lb_LU (1×3) | ltz_latn_broad | 3,797 |
@@ -91,7 +91,7 @@ and rebuilt:
 | bundle | drop before | fold | drop after |
 |---|---|---|---|
 | sr | 98.7% | pitch accents → plain (`fold_serbian.py`) | 0.000% |
-| hr | 97.9% | same (both scripts) | — |
+| hr | 97.9% | same (both scripts) | 0.000% vs the sr voice; vs its own coqui voice **79.5% — a grapheme model** (see below) |
 | fin (expanded, published) | 15.50% | juncture ˣ stripped (`fold_finnish.py`) | 0.005% |
 | af | 43.8% | χ→x, ɦ→h, ʋ→v, glide breves (`fold_afrikaans.py`) | 0.386% |
 | cy | 4.7% | voiceless sonorants → plain (`fold_welsh.py`) | 0.014% |
@@ -102,11 +102,17 @@ Clean without folds (audit now guards them): eu 0.017%, lb 0.369%,
 sq 0.452%, kk 1.943% (thin).
 
 **Grapheme/transliteration voices — no lexicon can serve them:** the
-only voices for bg, et, ga, lt, mt are coqui character-token models
+only voices for bg, et, ga, hr, lt, mt are coqui character-token models
 (`a b c … <PAD> <EOS>`), and the only gu voice is a mimic3 ASCII
-transliteration model. Their `bg/et/ga/lt/mt/gu` bundles remain valid
-G2P/P2G dictionary products but provision **no TTS gain** for those
-voices; the wrapper should treat those locales as
+transliteration model. hr joined this list late (issue #12): its
+inventory was only vendored in 2026-11, and the folded `hr` bundle
+measures **79.496% drop** vs coqui-hr-cv — the inventory (Latin +
+Cyrillic letters, punctuation) carries zero IPA symbols, so the
+multi-char `<BOS>/<EOS>/<PAD>` tokens are a red herring; a lexicon
+never emits them, and keying on letters would just re-spell what the
+voice already reads natively. Their `bg/hr/et/ga/lt/mt/gu` bundles
+remain valid G2P/P2G dictionary products but provision **no TTS
+gain** for those voices; the wrapper should treat those locales as
 `grapheme-voice: no bundle needed` (recorded in the audit table,
 report-only). Every other bundled locale now audits clean against at
 least one real voice inventory.
@@ -186,6 +192,7 @@ Notes:
 | zh_CN (Mandarin) | piper zh_CN (2×3) | cmn_hani_broad 168,655 | **BUNDLED** → `zh` (tone-contour fold, 0.005% drop, digit words excluded) |
 | ku (Kurdish) | piper-ku_TR (1×3) | **none** | `blocked:no-data` — Common Voice + MFA is the only permissive route |
 | tn (Tswana) | mimic3-tn_ZA (1) | **none** | `blocked:no-data` — same |
+| mul (multilingual) | omnivoice / mms-patched (2) | n/a | **out-of-scope** — no `espeak_data` (native front-ends, like MMS); a single-language bundle would be wrong for a multilingual voice |
 | is (Icelandic) | piper is_IS (4×3) | published, numbers were broken | **fixed** — 37 hand-verified number entries (`staging/isl/manual.tsv`) + kaikki inflected fills; expanded bundle 43,427 entries |
 
 The narrow-only set shares one root cause: WikiPron's broad (phonemic)

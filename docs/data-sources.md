@@ -14,7 +14,7 @@ non-commercial.
 | source | license | unlocked | measured outcome |
 |---|---|---|---|
 | **kaikki.org full dumps** | CC BY-SA 4.0 (Wiktionary) | P2G paradigm coverage everywhere; hu from "narrow-blocked" | isl +5,768 inflected fills → P2G exact 7.8→12.0%, expanded bundle 43,427 entries. **hu**: 68k clean words, 94% convention agreement with SIGMORPHON, 0.000% phone drop vs piper anna — best new bundle. **ko**: 35k after `fold_korean.py` (laryngeal contrasts merged — the voice inventory distinguishes none), 0.13% drop vs kss. kat: 24.6k after fold. Caveat: en.wiktionary IPA density varies wildly by language (Swedish added only 5.6k; Finnish dump is 4.4 GB, not yet pulled). `scripts/harvest_kaikki.py` |
-| **per-language convention folds** (ours) | n/a (transforms) | ka, zh, ko, uk, vi, ne, lv, sr/hr, sv, fin, af, cy, ml, no | validated against each target voice's real `tokens.txt` (recomputable: `scripts/audit_voice_tokens.py`): all ≤0.4% per-word drop. This is the template for any future locale |
+| **per-language convention folds** (ours) | n/a (transforms) | ka, zh, ko, uk, vi, ne, lv, sr/hr, sv, fin, af, cy, ml, no | validated against each target voice's real `tokens.txt` (recomputable: `scripts/audit_voice_tokens.py`): all ≤0.4% per-word drop (hr via the sr voice — coqui-hr-cv turned out to be a grapheme model, see [sherpa-coverage](sherpa-coverage.md)). This is the template for any future locale |
 | **SIGMORPHON 2020 G2P data** | asserted Wiktionary CC BY-SA in the task paper, **no explicit LICENSE in the repo** | fold reference for geo/hun/kor/lit/vie/ice | used as convention validation only (hun 94% exact vs kaikki). **Not ingested** pending an explicit grant; kaikki reaches the same words unambiguously |
 
 ## Next, highest leverage first

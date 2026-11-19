@@ -43,6 +43,11 @@ AUDITS = {
     "staging/ukr/kaikki.folded.tsv": ("piper-uk_UA-lada-x_low", 0.004, 0.05),
     "staging/lav/kaikki.folded.tsv": ("piper-lv_LV-aivars-medium", 0.235, 1.0),
     "staging/hbs/lexicon-sr.tsv": ("piper-sr_RS-serbski_institut-medium", 0.000, 0.05),
+    # coqui-hr-cv is a character-token model (Latin + Cyrillic letters +
+    # punctuation, zero IPA symbols — vendored 2026-11 for issue #12):
+    # like et/ga/lt/mt/gu, no lexicon can serve it. The hr bundle stays
+    # a valid G2P/P2G dictionary product; TTS-wise it is report-only.
+    "staging/hbs/lexicon-hr.tsv": ("coqui-hr-cv", 79.496, None),  # grapheme voice
     "staging/fin/merged.tsv": ("piper-fi_FI-harri-medium", 0.005, 0.05),
     # wave-1 WikiPron bundles, first audited 2026-11 (round 2)
     "staging/afr/merged.tsv": ("mimic3-af_ZA-google-nwu_low", 0.386, 2.0),
