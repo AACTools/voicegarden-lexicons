@@ -57,7 +57,9 @@ non-commercial.
      including ours) → fold to the vendored `aivars` inventory → the
      usual audit/expand-only gates. Scoped value (see the scoping
      table): worst effective coverage in the archive (46%) + 269
-     validated hours.
+     validated hours. MFA install note: the PyPI wheel is unusable
+     without the conda-forge `kalpy` binary — use
+     `conda create -n mfa -c conda-forge montreal-forced-aligner`.
 4. **MFA model-repo dictionaries** (~100 languages) — per-file license
    check needed; many are MIT/CC outputs.
 5. **Epitran (MIT)** — third voter for distillation next to ByT5
