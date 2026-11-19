@@ -190,7 +190,7 @@ both are IPA consumers, i.e. lexicon-servable once data exists.
 
 | bundle | bcp47 | voices it serves | source | entries | phone audit vs real voice |
 |---|---|---|---|---|---|
-| ku | ku | piper-ku_TR (1×3) | wikipron:kmr_latn_broad | 2,132 ⚠ thin | **0.000%** vs berfin_renas-medium; g2p 95.3% exact / PER 1.7%. One pron-side fix (a stray `í` phone in one word, see `staging/kur/merge-strategy.txt`); kaikki Kurmanji is the natural enrichment |
+| ku | ku | piper-ku_TR (1×3) | wikipron:kmr_latn_broad + kaikki fill | 2,559 ⚠ thin | **0.000%** vs berfin_renas-medium; kaikki Northern Kurdish fills 427 words at 97.6% shared agreement; g2p 91.1% exact / PER 2.3% (holdout now includes kaikki's inflected forms) |
 | tn | tn | mimic3-tn_ZA (1) | voxcommunis:tn_cvu CV20 alignments (CC0) | 1,974 ⚠ thin | **0.000%** vs google-nwu_low after `scripts/fold_tswana.py` (aspiration stripped, i-merger, ʒ→ʃ); g2p 92.9% exact / PER 3.0% — **the first permissive Tswana lexicon** |
 
 ## Blocked / needs study (issue #5 "honest, not silent")

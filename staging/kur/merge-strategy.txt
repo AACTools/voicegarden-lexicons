@@ -1,6 +1,7 @@
-wikipron-only
+wikipron primary + kaikki fill
 
-one pron-side fix applied after harvest: "kurmancí" carried a
-nonstandard acute-i phone (í) — a Wiktionary artifact, not Kurmanji
-phonology; mapped to i. Everything else is raw kmr_latn_broad,
-0.000 0rop vs piper-ku_TR-berfin_renas-medium after the fix.
+wikipron.tsv (kmr_latn_broad, 2,132; one pron-side í fix) keeps
+priority; kaikki.tsv (Northern Kurdish dump, 2,489 after dropping one
+multi-word phrase row; same Wiktionary chain — 97.6% agreement on the
+2,062 shared words) fills 427 new words. merged.tsv = wikipron then
+kaikki-new. 0.000% drop vs piper-ku_TR-berfin_renas-medium.

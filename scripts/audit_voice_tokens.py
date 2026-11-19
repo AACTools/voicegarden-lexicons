@@ -47,8 +47,8 @@ AUDITS = {
     "staging/lav/cv-fill.tsv": ("piper-lv_LV-aivars-medium", 0.000, 0.05),
     "staging/lav/merged.tsv": ("piper-lv_LV-aivars-medium", 0.034, 1.0),
     "staging/hbs/lexicon-sr.tsv": ("piper-sr_RS-serbski_institut-medium", 0.000, 0.05),
-    # ku: raw kmr_latn_broad scrape, no convention fold needed — the one
-    # pron-side fix (stray í) is documented in staging/kur/merge-strategy.txt
+    # ku: wikipron kmr primary + kaikki fill — no convention fold needed
+    # (97.6% seed agreement; one pron-side í fix, see merge-strategy.txt)
     "staging/kur/merged.tsv": ("piper-ku_TR-berfin_renas-medium", 0.000, 0.05),
     # tn: VoxCommunis CV20 alignments, vocabulary-filtered and folded —
     # the first permissive Tswana lexicon (issue #12's last data gap)

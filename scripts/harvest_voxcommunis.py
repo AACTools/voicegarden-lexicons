@@ -86,6 +86,9 @@ def harvest(grid_dir: Path) -> tuple[Counter, int]:
             continue
         for w0, w1, wtext in words:
             wtext = unicodedata.normalize("NFC", wtext).strip().casefold()
+            # list/morpheme artifacts from CV texts ("-geelid-") keep
+            # inner hyphens but lose leading/trailing ones
+            wtext = wtext.strip("-'’")
             if not wtext or not WORD_OK.match(wtext) or len(wtext) < 1 \
                     or any(c.isdigit() for c in wtext):
                 continue

@@ -156,11 +156,13 @@ EXTRAS: dict[str, dict] = {
                    "0.000% drop vs piper-sr_RS-serbski_institut-medium"},
     "ku": {"kind": "staging", "bcp47": "ku", "name": "Kurdish (Kurmanji, Latin script)",
            "path": "staging/kur/merged.tsv", "wikipron": True,
-           "source": "wikipron:kmr_latn_broad.tsv",
-           "small": "thin extraction (2,132 words) — WFST carries most words",
+           "source": "wikipron:kmr_latn_broad.tsv + kaikki fill",
+           "small": "thin extraction (2,559 words) — WFST carries most words",
            "note": "raw scrape needed no convention fold — 0.000% drop vs "
                    "piper-ku_TR-berfin_renas-medium (one pron-side fix: a "
-                   "stray í phone in one word, see merge-strategy.txt)"},
+                   "stray í phone in one word, see merge-strategy.txt). "
+                   "kaikki Northern Kurdish fills 427 words (97.6% "
+                   "agreement on shared)"},
     "tn": {"kind": "staging", "bcp47": "tn", "name": "Tswana",
            "path": "staging/tsn/voxcommunis.folded.tsv",
            "license": "CC0-1.0 (data: VoxCommunis alignments of Common Voice 20) + MIT (tooling)",
