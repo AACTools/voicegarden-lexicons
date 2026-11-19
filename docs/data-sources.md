@@ -46,20 +46,21 @@ non-commercial.
    now **two-track**:
    - *VoxCommunis track (done where covered)*: ~80 locales already
      aligned (CC0) — see the source table above. No lv grids exist.
-   - *align-it-ourselves track (lv pilot)*: **CV audio acquisition
-     changed in Oct 2025** — releases are now exclusively on Mozilla
-     Data Collective (datacollective.mozillafoundation.org, account +
-     terms acceptance required); the old S3/HF mirrors are dead. The
-     lv runbook: MDC → `cv-corpus-lv.tar.gz` → corpus prep →
-     `mfa train`+`mfa align` (no pretrained latvian acoustic model:
-     train on the CV audio seeded with the kaikki `lv` dictionary) →
-     `scripts/harvest_voxcommunis.py` (it parses any MFA TextGrids,
-     including ours) → fold to the vendored `aivars` inventory → the
-     usual audit/expand-only gates. Scoped value (see the scoping
-     table): worst effective coverage in the archive (46%) + 269
-     validated hours. MFA install note: the PyPI wheel is unusable
-     without the conda-forge `kalpy` binary — use
-     `conda create -n mfa -c conda-forge montreal-forced-aligner`.
+   - *align-it-ourselves track (lv pilot — **DONE 2026-11-19**)*: CV 27.0
+     lv acquired from MDC (6.34 GB, 199,667 validated clips — the 2026
+     collection dwarfs the stats API's 269 h); 15k-clip pilot slice →
+     `mfa train` (acoustic, seeded dict) → `mfa align` →
+     `scripts/harvest_voxcommunis.py` (min 2 attestations; plausibility
+     guard against G2P word-leak artifacts) →
+     `scripts/fold_latvian_cvfill.py` → **`lv` 1,704 → 11,888 entries**
+     (fill 0.000% voice-drop, 100% agreement on shared words, guesser
+     exact 38.6% → 74.2%). Epitran lav-Latn measured and rejected for
+     the alignment dictionary (3% seed agreement, voicing errors);
+     MFA's Phonetisaurus trained on the seed is the dictionary source,
+     so OOV rows inherit seed conventions by construction. The 184k
+     remaining clips are on disk for the scale-up run. (MFA note: the
+     PyPI wheel is unusable without conda-forge's `kalpy` —
+     `conda create -n mfa -c conda-forge montreal-forced-aligner`.)
 4. **MFA model-repo dictionaries** (~100 languages) — per-file license
    check needed; many are MIT/CC outputs.
 5. **Epitran (MIT)** — third voter for distillation next to ByT5

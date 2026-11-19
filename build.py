@@ -190,12 +190,16 @@ EXTRAS: dict[str, dict] = {
            "path": "staging/ltz/merged.tsv", "wikipron": True,
            "source": "wikipron:ltz_latn_broad.tsv"},
     "lv": {"kind": "staging", "bcp47": "lv", "name": "Latvian",
-           "path": "staging/lav/kaikki.folded.tsv", "kaikki": True,
-           "source": "kaikki:Latvian (English Wiktionary extraction)",
-           "small": "thin extraction (1,704 words) — WFST carries most words",
-           "note": "folded (scripts/fold_latvian.py): pitch-accented/macrone "
-                   "vowels to plain long vowels (espeak lv marks no tones); "
-                   "0.235% per-word drop vs lv_LV-aivars"},
+           "path": "staging/lav/merged.tsv", "kaikki": True,
+           "source": "kaikki:Latvian (English Wiktionary extraction) + CV27 alignment fill (CC0)",
+           "note": "kaikki primary (pitch-accented/macrone vowels folded, "
+                   "scripts/fold_latvian.py) + cv-fill: words attested >=2x "
+                   "in 15k CV-27 validated clips, pronounced by MFA's "
+                   "Phonetisaurus G2P trained on the seed itself (so rows "
+                   "inherit the seed's conventions; 100% agreement on "
+                   "shared words), aligned with an acoustic model trained "
+                   "on those clips, folded per scripts/fold_latvian_cvfill.py; "
+                   "0.000% drop vs lv_LV-aivars on the fill, 0.034% merged"},
     "lt": {"kind": "staging", "bcp47": "lt", "name": "Lithuanian",
            "path": "staging/lit/merged.tsv", "wikipron": True,
            "source": "wikipron:lit_latn_broad.tsv + kaikki fill",

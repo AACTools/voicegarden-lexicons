@@ -42,6 +42,10 @@ AUDITS = {
     "staging/nep/kaikki.folded.tsv": ("piper-ne_NP-google-medium", 0.05, 0.3),
     "staging/ukr/kaikki.folded.tsv": ("piper-uk_UA-lada-x_low", 0.004, 0.05),
     "staging/lav/kaikki.folded.tsv": ("piper-lv_LV-aivars-medium", 0.235, 1.0),
+    # lv cv-fill: CV27 alignment harvest (attestation >=2, G2P-in-seed-
+    # conventions, fold_latvian_cvfill.py) — the pilot the scoping ranked
+    "staging/lav/cv-fill.tsv": ("piper-lv_LV-aivars-medium", 0.000, 0.05),
+    "staging/lav/merged.tsv": ("piper-lv_LV-aivars-medium", 0.034, 1.0),
     "staging/hbs/lexicon-sr.tsv": ("piper-sr_RS-serbski_institut-medium", 0.000, 0.05),
     # ku: raw kmr_latn_broad scrape, no convention fold needed — the one
     # pron-side fix (stray í) is documented in staging/kur/merge-strategy.txt

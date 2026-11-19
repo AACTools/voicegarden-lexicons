@@ -42,6 +42,14 @@ BAD_PHONES = {"spn", "sil", "sp", "<unk>", "laugh", "noise"}
 WORD_OK = re.compile(r"^[\w'’-]+$", re.UNICODE)
 
 
+def phone_plausible(token: str) -> bool:
+    """Phones are short: base letters/digits + combining marks, <=3 base
+    chars. Catches G2P failure artifacts where whole grapheme words leak
+    into the phone stream (e.g. 'cilvēks' as a single 'phone')."""
+    base = [c for c in token if unicodedata.category(c)[0] != "M"]
+    return 0 < len(base) <= 3
+
+
 def parse_textgrid(path: Path) -> list[dict]:
     """Return [{'words': [(t0,t1,txt)...], 'phones': [...]}] per tier."""
     try:
@@ -84,7 +92,8 @@ def harvest(grid_dir: Path) -> tuple[Counter, int]:
             span = [(p0, p1, pt) for p0, p1, pt in phones
                     if (p0 + p1) / 2 >= w0 and (p0 + p1) / 2 <= w1
                     and pt.strip()]
-            if not span or any(pt.strip() in BAD_PHONES for _x, _y, pt in span):
+            if not span or any(pt.strip() in BAD_PHONES for _x, _y, pt in span) \
+                    or any(not phone_plausible(pt.strip()) for _x, _y, pt in span):
                 counts.setdefault(wtext, Counter())["<bad>"] += 1
                 continue
             pron = " ".join(pt.strip() for _x, _y, pt in span)

@@ -78,7 +78,7 @@ IPA-poor there — 5.6k); Finnish (4.4 GB dump) not yet pulled.
 | uk | uk | piper-uk_UA-lada + coqui (lada only — ukrainian_tts is grapheme-based) | kaikki Ukrainian, folded | 55,209 | **0.004%** vs lada; glide breves → j/w; g2p 80.2% |
 | vi | vi | piper-vi_VN (3×3) | kaikki Vietnamese (Hanoi), folded | 28,749 | **0.010%** vs vais1000; Chao tone letters → espeak tone digits (ngang=1 huyền=2 sắc=3 hỏi=4 ngã=5 nặng=6, per espeak's ph_vietnam definitions — tone 7 is espeak's clause-final ngang variant, not a lexical tone) |
 | ne | ne | piper-ne_NP (3) + mimic3 (1) | kaikki Nepali, folded | 2,135 ⚠ | **0.047%** vs ne-google; aspiration as ʰ tokens, nasal vowels as vowel+̃ (both verified in the model inventory) |
-| lv | lv | piper-lv_LV (1×3) | kaikki Latvian, folded | 1,704 ⚠ | **0.235%** per-word vs aivars; pitch accents → plain long vowels (espeak marks no tones) |
+| lv | lv | piper-lv_LV (1×3) | kaikki Latvian folded + **CV27 alignment fill** | 11,888 | **0.034%** vs aivars (fill itself 0.000%); the scoping pilot — words attested ≥2× in 15k CV-27 validated clips, pronounced by MFA G2P trained on the seed (100% agreement on shared words), folded; guesser exact 38.6% → **74.2%** |
 | zh | zh-CN | piper-zh_CN (2×3+6) | WikiPron cmn, folded | 147,316 | **0.005%** vs huayan-medium (digit words excluded, the wrapper-audit method); dictionary-only (Han WFSTs are huge and weak — OOV falls back char-wise to the dictionary) |
 
 ## Third wave: wave-1 bundles audited against their voices
