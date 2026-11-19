@@ -42,9 +42,12 @@ non-commercial.
    word coverage; Unihan is permissively licensed (Unicode terms),
    CC-CEDICT is CC BY-SA 4.0 (chain-compatible).
 3. **Common Voice (CC0) + MFA forced alignment** — the only permissive
-   route for `ku`/`tn` (no lexical data exists anywhere). Labor-heavy;
+   route for `tn` (no lexical data exists anywhere). Labor-heavy;
    produces speech-matched pronunciations rather than transcriber
-   conventions. Scope per locale before committing.
+   conventions. **Scoped 2026-11-19** (see the vocabulary-scoping table
+   below): viable campaigns are `lv` (269 validated h, worst effective
+   coverage) » `et` (63 h) » `ga` (15 h) » `ku`/kmr (82 h) » `tn`
+   (4.3 h, forced); kk/lb/no/ne have no CV audio to align.
 4. **MFA model-repo dictionaries** (~100 languages) — per-file license
    check needed; many are MIT/CC outputs.
 5. **Epitran (MIT)** — third voter for distillation next to ByT5
@@ -57,6 +60,68 @@ non-commercial.
 
 Lexique (fr), NST/Språkbanken (sv/no — check Nordic terms), EKI/Filosoft
 (et), IPhOD/BEEP (en variants).
+
+## Vocabulary scoping: where coverage actually hurts (2026-11-19)
+
+`scripts/scope_vocabulary.py` measures each bundle's dictionary against
+a ~30k-token Wikipedia sample per locale (cached under `runs-cv-scope/`,
+gitignored) plus public Common Voice stats — the scoping step route #3
+demanded before any alignment campaign. Reproduce with
+`python3 scripts/scope_vocabulary.py` (add `--refresh` to resample).
+
+- `tok_cov` — dictionary hit-rate on running text (the zero-risk tier).
+- `est_eff` — plus the per-bundle guesser's holdout exact-match over
+  the misses: `tok_cov + (1−tok_cov)·exact`. An **estimate**: holdout
+  words are dictionary-like, runtime misses (names, inflections) are
+  harder, so weak-guesser rows are optimistic.
+- `cv_val_h` — CV *validated* hours (what MFA can align); `miss_typ` is
+  an upper bound on general-text need, CV's sentence count bounds what
+  alignment can add.
+
+| lang | tok_cov | est_eff | dict | g2p | cv_val_h | cv sent |
+|---|---|---|---|---|---|---|
+| tn | — | — | — | — | 4.3 | 1,767 |
+| kk | 13% | **40%** | 2,259 | 31% | 2.5 | 6,286 |
+| lv | 12% | **46%** | 1,704 | 39% | **269** | 33,913 |
+| lb | 38% | 69% | 3,797 | 51% | ~0 | 7 |
+| no | 35% | 70% | 2,714 | 54% | 2.3 | 4,419 |
+| ne | 14% | 75% | 2,135 | 71% | 1.4 | 1,321 |
+| ga | 63% | 76% | 9,546 | 35% | 15 | 4,730 |
+| sq | 24% | 82% | 4,866 | 76% | 9.1 | 50,009 |
+| af | 47% | 85% | 2,073 | 71% | 1 | 4,826 |
+| et | 17% | 88% | 2,747 | 85% | 63 | 10,874 |
+| ku | 9% | 96% | 2,132 | 95% | 82 | 17,034 |
+| de | 72% | 98% | 277,912 | 94% | 1,399 | 2.0M |
+| hu | 55% | 98% | 67,835 | 96% | 139 | 326,553 |
+| ka | 40% | 99% | 24,647 | 99% | 266 | 137,656 |
+
+**What it settles.** Baselines validate the tiered architecture —
+de/hu/ka sit at 98–99% effective despite 40–72% dictionary coverage,
+because their guessers are strong; **across-the-board CV+MFA would buy
+nothing there**. The archive's real exposure is concentrated:
+
+1. **`lv` is the campaign jackpot** — worst effective coverage in the
+   archive (46%) *and* 269 validated CV hours (33,913 sentences).
+   Alignment there multiplies a 1,704-entry dictionary many times over.
+2. **`kk` is the opposite pole** — equally weak (40%) but 2.5 h of
+   audio: CV cannot save it. Route stays kaikki/Epitran/MFA-dict
+   (routes #4/#5), as already ranked.
+3. **`et` (63 h), `ga` (15 h), `ku`/kmr (82 h), `tn` (4.3 h, forced)**
+   are the remaining viable alignment targets, in that order of
+   expected gain-per-hour; ga's opaque orthography makes dictionary
+   rows the only fix for its 35% guesser.
+4. **Function-word fill first, everywhere thin** — the top misses at
+   et/lv/ku are not long-tail words but `ja/oli/ka`, `no/ar/par/bija`,
+   `li/bi/ji/ye`: the scrapes skipped them, they carry a huge token
+   share, and they hand-verify in minutes. The Icelandic `manual.tsv`
+   pattern (`merge_sources.py` top-priority source) applies directly.
+5. `lb`/`no`/`ne` have almost no CV audio — cheap sources only
+   (kaikki headroom, NST/Språkbanken for no).
+
+Caveats: Wikipedia proxies runtime text, not CV's read-sentence
+distribution; est_eff is optimistic where the guesser is weak; foreign
+intrusions (English `the` in ga text) inflate miss counts slightly
+(script purity per locale is in `audit/vocabulary-scoping.json`).
 
 ## Verifiers only — never ingest
 
