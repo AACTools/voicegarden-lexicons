@@ -15,34 +15,38 @@ Each bundle is a `<lang>.tar.gz` with five files:
 | `lexicon.txt` | the same dictionary as plain text (`word<TAB>phonemes`), in the format sherpa-onnx reads, so Python, C, C++, and Node programs can use it directly |
 | `NOTICE` | where the data came from and its license |
 
-`lexicons.json` lists every bundle with its download URL, SHA-256, size, entry count, and license. Thirty-nine languages are published:
+`lexicons.json` lists every bundle with its download URL, SHA-256, size, entry count, and license. The manifest carries 41 languages (39 published as v0.6.1; `ku` and `tn` land with the next release):
 
 | Bundle | Entries | | Bundle | Entries |
 |---|---|---|---|---|
-| de | 277,912 | | ru | 545,315 |
-| en-GB | 169,484 | | es | 595,857 |
-| en | 124,384 | | sr | 23,169 |
-| en-cmudict | 135,166 | | hr | 26,346 |
-| fr | 90,114 | | pt | 81,219 |
-| zh | 147,316 | | yue | 106,238 |
-| hu | 67,835 | | ko | 35,159 |
-| uk | 55,209 | | ka | 24,647 |
-| mt | 15,789 | | cy | 14,579 |
-| eu | 11,977 | | vi | 28,749 |
-| ga | 9,546 | | ml | 9,477 |
-| sq | 4,866 | | gu | 4,086 |
-| lb | 3,797 | | et | 2,747 |
-| ne | 2,135 * | | af | 2,073 |
-| no | 2,714 | | kk | 669 * |
-| | | | lt | 437 * |
-| | | | lv | 1,704 * |
-Plus the gruut-sourced ca, cs, fa, it, nl, sv, sw. The `af`–`yue` bundles are WikiPron scrapes of Wiktionary (CC BY-SA 4.0), keyed to the locale codes of the piper voices that need them; `hu`, `ka`, and `ko` come from the fuller kaikki.org Wiktionary extraction (with per-language convention folds for Georgian and Korean), and `zh` folds Chao tone contours — including their sandhi realizations — to the tone digits the Mandarin voices expect. `zh` and `yue` ship dictionary-only (Han WFSTs are huge and weak; out-of-vocabulary words fall back char-wise to the dictionary, where every Han character carries an entry). [docs/sherpa-coverage.md](docs/sherpa-coverage.md) maps every sherpa piper voice locale to a bundle (or records why none exists yet: `blocked:no-data`, or `blocked:conventions` where only narrow transcriptions exist), and [docs/data-sources.md](docs/data-sources.md) tracks which untapped sources unlock what. *kk, lt, ne, and lv are thin scrapes; most words fall through to the guesser.
+| es | 595,857 | | lt | 25,748 |
+| ru | 545,315 | | ka | 24,647 |
+| de | 277,912 | | sr | 23,169 |
+| en-GB | 172,495 | | sv | 22,766 |
+| zh | 147,316 | | mt | 15,789 |
+| en-cmudict | 135,166 | | cy | 14,579 |
+| en | 124,384 | | eu | 11,977 |
+| yue | 106,238 | | ga | 9,546 |
+| it | 91,133 | | ml | 9,477 |
+| fr | 90,114 | | ca | 8,633 |
+| sw | 81,219 | | sq | 4,866 |
+| nl | 70,493 | | gu | 4,086 |
+| hu | 67,835 | | lb | 3,797 |
+| pt | 64,757 | | et | 2,747 |
+| uk | 55,209 | | no | 2,714 |
+| fa | 47,143 | | ku | 2,559 * |
+| cs | 43,987 | | kk | 2,259 * |
+| lv | 42,919 | | ne | 2,135 * |
+| ko | 35,159 | | af | 2,073 * |
+| vi | 28,749 | | tn | 1,974 * |
+| hr | 26,346 | | | |
+Plus the gruut-sourced ca, cs, fa, it, nl, sw (sv builds from the folded staging union). The `af`–`yue` bundles are WikiPron scrapes of Wiktionary (CC BY-SA 4.0), keyed to the locale codes of the piper voices that need them; `hu`, `ka`, and `ko` come from the fuller kaikki.org Wiktionary extraction (with per-language convention folds for Georgian and Korean); `ku` adds a kaikki Kurmanji fill; `tn` is alignment-harvested from VoxCommunis' CC0 alignments of Common Voice (words attested at least twice in validated audio); and `lv`'s 41k-entry fill is our own alignment campaign — MFA forced alignment of the full 199,630-clip CV 27.0 corpus, with pronunciations from a Phonetisaurus G2P trained on the bundle's kaikki seed so they inherit its conventions (100% agreement on shared words). `zh` folds Chao tone contours — including their sandhi realizations — to the tone digits the Mandarin voices expect. `zh` and `yue` ship dictionary-only (Han WFSTs are huge and weak; out-of-vocabulary words fall back char-wise to the dictionary, where every Han character carries an entry). [docs/sherpa-coverage.md](docs/sherpa-coverage.md) maps every sherpa piper voice locale to a bundle or a documented verdict (grapheme-model voices need no lexicon; the `blocked:no-data` set is now empty), and [docs/data-sources.md](docs/data-sources.md) tracks which untapped sources unlock what. *af, ku, kk, ne, tn are thin scrapes; most words fall through to the guesser.
 
 ## Expanded bundles: filling in the missing words
 
 Every dictionary has gaps. The words it lacks are often ordinary ones, and each missing word means the speech engine has to guess the pronunciation at runtime, which is slower and more error-prone than a lookup.
 
-For 11 languages we filled those gaps ahead of time. The process had three steps:
+For 28 languages we filled those gaps ahead of time. The process had three steps:
 
 1. We took frequency lists of the most common words in each language and picked out the ones missing from the dictionary.
 2. We asked two neural networks (the [ByT5 G2P models](https://huggingface.co/willwade/byt5-g2p-multilingual), a [small](https://huggingface.co/willwade/byt5-g2p-multilingual) and a [tiny](https://huggingface.co/willwade/byt5-g2p-multilingual-tiny) version, trained independently) to pronounce each missing word. We kept a word only when both networks produced the same pronunciation. The G2P models and their [P2G inverses](https://huggingface.co/willwade/byt5-p2g-multilingual) were retrained in August 2026 on a harmonized 4.12M-pair corpus with per-language IPA conventions unified via a learned EM aligner ([training details](docs/byt5-training-evaluation.md)).

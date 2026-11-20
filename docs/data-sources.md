@@ -108,6 +108,17 @@ demanded before any alignment campaign. Reproduce with
 | hu | 55% | 98% | 67,835 | 96% | 139 | 326,553 |
 | ka | 40% | 99% | 24,647 | 99% | 266 | 137,656 |
 
+**Post-campaign state (2026-11-20, same Wikipedia samples re-scored):**
+the table above records the pre-campaign scoping snapshot. Since then:
+`lv` 1,704 → 42,919 entries — **tok_cov 12% → 67%, est_eff 46% → 94%**
+(guesser 39% → 83.3%; the residual misses are English intrusions,
+numerals, and a handful of function words); `ku` shipped at 2,559
+(+ kaikki fill; est_eff 92% — the dictionary tier doubled but the
+guesser's holdout now includes kaikki's harder inflected forms);
+`tn` shipped at 1,974 (alignment-harvested; est_eff 97% on first
+measurement). kk remains the weakest locale (VoxCommunis parked; thin
+audio).
+
 **What it settles.** Baselines validate the tiered architecture —
 de/hu/ka sit at 98–99% effective despite 40–72% dictionary coverage,
 because their guessers are strong; **across-the-board CV+MFA would buy
