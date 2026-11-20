@@ -196,12 +196,14 @@ EXTRAS: dict[str, dict] = {
            "source": "kaikki:Latvian (English Wiktionary extraction) + CV27 alignment fill (CC0)",
            "note": "kaikki primary (pitch-accented/macrone vowels folded, "
                    "scripts/fold_latvian.py) + cv-fill: words attested >=2x "
-                   "in 15k CV-27 validated clips, pronounced by MFA's "
-                   "Phonetisaurus G2P trained on the seed itself (so rows "
-                   "inherit the seed's conventions; 100% agreement on "
-                   "shared words), aligned with an acoustic model trained "
-                   "on those clips, folded per scripts/fold_latvian_cvfill.py; "
-                   "0.000% drop vs lv_LV-aivars on the fill, 0.034% merged"},
+                   "across the FULL 199,630-clip CV-27 validated corpus "
+                   "(1.28m aligned word instances), pronounced by MFA's "
+                   "Phonetisaurus G2P trained on the seed itself (100% "
+                   "agreement on the 881 shared words), aligned with an "
+                   "acoustic model trained on a 15k-clip slice, folded per "
+                   "scripts/fold_latvian_cvfill.py; 0.015% drop vs "
+                   "lv_LV-aivars on the fill, 0.023% merged; g2p exact "
+                   "38.6% -> 83.3%"),
     "lt": {"kind": "staging", "bcp47": "lt", "name": "Lithuanian",
            "path": "staging/lit/merged.tsv", "wikipron": True,
            "source": "wikipron:lit_latn_broad.tsv + kaikki fill",

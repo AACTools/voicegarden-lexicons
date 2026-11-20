@@ -1,12 +1,14 @@
-kaikki primary + CV27 alignment fill
+kaikki primary + CV27 alignment fill (full corpus)
 
 kaikki.folded.tsv (1,704; fold_latvian.py) keeps priority; cv-fill.tsv
-(10,184; words attested >=2x across 15k CV-27 validated clips, MFA
-Phonetisaurus G2P trained on the seed so pronunciations inherit its
-conventions — 100% agreement on the 525 shared words — acoustic model
-trained on the same clips, fold_latvian_cvfill.py for vʷ/tie/advanced
-artifacts) fills the new-word gap. Disjoint by construction (fill is
-new-words-only). merged.tsv = concatenation, kaikki first.
+(41,215; words attested >=2x across the full 199,630-clip CV-27
+validated corpus — 1.28m aligned word instances — MFA Phonetisaurus
+G2P trained on the seed so pronunciations inherit its conventions:
+100% agreement on the 881 shared words; acoustic model trained on a
+15k-clip slice, alignments over the full corpus; fold_latvian_cvfill.py
+for vʷ/tie/advanced artifacts) fills the new-word gap. Disjoint by
+construction (fill is new-words-only). merged.tsv = concatenation,
+kaikki first.
 
 Provenance: audio CC0 (Common Voice 27.0, MDC download 2026-11-19);
 alignments ours; G2P seed kaikki (CC BY-SA) — bundle data license

@@ -46,20 +46,20 @@ non-commercial.
    now **two-track**:
    - *VoxCommunis track (done where covered)*: ~80 locales already
      aligned (CC0) — see the source table above. No lv grids exist.
-   - *align-it-ourselves track (lv pilot — **DONE 2026-11-19**)*: CV 27.0
-     lv acquired from MDC (6.34 GB, 199,667 validated clips — the 2026
-     collection dwarfs the stats API's 269 h); 15k-clip pilot slice →
-     `mfa train` (acoustic, seeded dict) → `mfa align` →
-     `scripts/harvest_voxcommunis.py` (min 2 attestations; plausibility
-     guard against G2P word-leak artifacts) →
-     `scripts/fold_latvian_cvfill.py` → **`lv` 1,704 → 11,888 entries**
-     (fill 0.000% voice-drop, 100% agreement on shared words, guesser
-     exact 38.6% → 74.2%). Epitran lav-Latn measured and rejected for
-     the alignment dictionary (3% seed agreement, voicing errors);
-     MFA's Phonetisaurus trained on the seed is the dictionary source,
-     so OOV rows inherit seed conventions by construction. The 184k
-     remaining clips are on disk for the scale-up run. (MFA note: the
-     PyPI wheel is unusable without conda-forge's `kalpy` —
+   - *align-it-ourselves track (lv — **DONE at full scale 2026-11-20**)*:
+     CV 27.0 lv acquired from MDC (CC0, 6.34 GB, 199,667 validated
+     clips); **full corpus** → `mfa align` (acoustic model trained on a
+     15k-clip slice, G2P on the seed) → `scripts/harvest_voxcommunis.py`
+     (min 2 attestations; plausibility guard) →
+     `scripts/fold_latvian_cvfill.py` → **`lv` 1,704 → 42,919 entries**
+     (fill 0.015% voice-drop, 100% agreement on 881 shared words,
+     guesser exact 38.6% → **83.3%**). Epitran lav-Latn measured and
+     rejected for the alignment dictionary (3% seed agreement, voicing
+     errors); MFA's Phonetisaurus trained on the seed is the dictionary
+     source, so OOV rows inherit seed conventions by construction.
+     `et` and `ga` are queued on this same recipe (et explicitly: the
+     VoxCommunis park left it as the only route). (MFA note: the PyPI
+     wheel is unusable without conda-forge's `kalpy` —
      `conda create -n mfa -c conda-forge montreal-forced-aligner`.)
 4. **MFA model-repo dictionaries** (~100 languages) — per-file license
    check needed; many are MIT/CC outputs.
