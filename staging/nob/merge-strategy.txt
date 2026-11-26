@@ -1,1 +1,7 @@
-wikipron-only
+wikipron primary + kaikki fill
+
+merged.tsv: WikiPron nob_latn_broad (fold_norwegian.py) keeps
+priority; kaikki Norwegian Bokmaal rows folded through the same fold +
+the narrow cleanup (scripts/fold_kaikki_fill.py; 88.9% agreement on the
+2,605 shared words) fill 7,993 new words. 0.009% drop vs
+piper-no_NO-talesyntese-medium.

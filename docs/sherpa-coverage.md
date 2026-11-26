@@ -43,7 +43,7 @@ All WikiPron-scraped (CC BY-SA 4.0), packaged as base bundles in
 
 | bundle | bcp47 | voices it serves | WikiPron source | entries |
 |---|---|---|---|---|
-| af | af | mimic3-af_ZA (1) | afr_latn_broad_filtered | 2,127 |
+| af | af | mimic3-af_ZA (1) | afr_latn_broad_filtered + kaikki fill | 2,303 |
 | cy | cy | piper-cy_GB (2) | cym_latn_broad | 14,579 |
 | et | et | coqui-et-cv (1) | est_latn_broad | 2,747 |
 | eu | eu | piper-eu_ES (2) | eus_latn_broad | 11,977 |
@@ -56,7 +56,7 @@ All WikiPron-scraped (CC BY-SA 4.0), packaged as base bundles in
 | lt | lt | coqui-lt-cv (1) | lit_latn_broad | 437 ⚠ thin |
 | ml | ml | piper-ml_IN (2×3) | mal_mlym_broad | 9,477 |
 | mt | mt | coqui-mt-cv (1) | mlt_latn_broad_filtered | 15,789 |
-| no | no | piper-no_NO (1×3) | nob_latn_broad_filtered | 2,714 (Bokmål) |
+| no | no | piper-no_NO (1×3) | nob_latn_broad_filtered + kaikki fill | 10,707 (Bokmål) |
 | sq | sq | piper-sq_AL (1×3) | sqi_latn_broad | 4,866 |
 | yue | yue | cantonese-yue-xiaomaiiwn (1) | yue_hani_standard_broad | 106,238 |
 
@@ -93,10 +93,10 @@ and rebuilt:
 | sr | 98.7% | pitch accents → plain (`fold_serbian.py`) | 0.000% |
 | hr | 97.9% | same (both scripts) | 0.000% vs the sr voice; vs its own coqui voice **79.5% — a grapheme model** (see below) |
 | fin (expanded, published) | 15.50% | juncture ˣ stripped (`fold_finnish.py`) | 0.005% |
-| af | 43.8% | χ→x, ɦ→h, ʋ→v, glide breves (`fold_afrikaans.py`) | 0.386% |
+| af | 43.8% | χ→x, ɦ→h, ʋ→v, glide breves (`fold_afrikaans.py`) | 0.386% (0.434% after the kaikki fill) |
 | cy | 4.7% | voiceless sonorants → plain (`fold_welsh.py`) | 0.014% |
 | ml | 6.6% | ä→aː, ʱ→ʰ, dentals (`fold_malayalam.py`) | 0.021% |
-| no/nob | 6.0% | tonal accents → plain (`fold_norwegian.py`) | 0.000% |
+| no/nob | 6.0% | tonal accents → plain (`fold_norwegian.py`) | 0.000% (0.009% after the kaikki fill) |
 
 Clean without folds (audit now guards them): eu 0.017%, lb 0.369%,
 sq 0.452%, kk 1.943% (thin).

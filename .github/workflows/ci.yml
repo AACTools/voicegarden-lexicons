@@ -33,6 +33,16 @@ jobs:
         run: cargo test
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
+      # build.py is not executed on push, so a syntax error can otherwise
+      # sit on main unnoticed (one did, for six days); parsing costs < 1 s
+      - name: Python syntax gate
+        run: |
+          python3 - <<'PY'
+          import ast, glob
+          for f in ['build.py', *glob.glob('scripts/*.py')]:
+              ast.parse(open(f, encoding='utf-8').read(), f)
+          print('python syntax OK')
+          PY
 
   build:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'

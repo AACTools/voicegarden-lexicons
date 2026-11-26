@@ -123,9 +123,11 @@ EXTRAS: dict[str, dict] = {
     # and holdout metrics live in staging/<iso3>/ (harvest_and_train).
     "af": {"kind": "staging", "bcp47": "af", "name": "Afrikaans",
            "path": "staging/afr/merged.tsv", "wikipron": True,
-           "source": "wikipron:afr_latn_broad_filtered.tsv",
+           "source": "wikipron:afr_latn_broad_filtered.tsv + kaikki fill",
            "note": "folded (scripts/fold_afrikaans.py): chi->x, ɦ->h, "
-                   "ʋ->v, glide breves; 0.386% drop vs the mimic3-af voice"},
+                   "ʋ->v, glide breves; kaikki Afrikaans fill (97.1% "
+                   "agreement on shared words, scripts/fold_kaikki_fill.py) "
+                   "adds 230 words; 0.434% drop vs the mimic3-af voice"},
     "cy": {"kind": "staging", "bcp47": "cy", "name": "Welsh",
            "path": "staging/cym/merged.tsv", "wikipron": True,
            "source": "wikipron:cym_latn_broad.tsv",
@@ -203,7 +205,7 @@ EXTRAS: dict[str, dict] = {
                    "acoustic model trained on a 15k-clip slice, folded per "
                    "scripts/fold_latvian_cvfill.py; 0.015% drop vs "
                    "lv_LV-aivars on the fill, 0.023% merged; g2p exact "
-                   "38.6% -> 83.3%"),
+                   "38.6% -> 83.3%"},
     "lt": {"kind": "staging", "bcp47": "lt", "name": "Lithuanian",
            "path": "staging/lit/merged.tsv", "wikipron": True,
            "source": "wikipron:lit_latn_broad.tsv + kaikki fill",
@@ -221,10 +223,12 @@ EXTRAS: dict[str, dict] = {
            "source": "wikipron:mlt_latn_broad_filtered.tsv"},
     "no": {"kind": "staging", "bcp47": "no", "name": "Norwegian (Bokmål)",
            "path": "staging/nob/merged.tsv", "wikipron": True,
-           "source": "wikipron:nob_latn_broad_filtered.tsv",
-           "note": "tonal accents folded (scripts/fold_norwegian.py); "
-                   "0.000% drop vs no_NO-talesyntese; the expanded 'nob' "
-                   "bundle (bcp47 nb) carries the distilled superset"},
+           "source": "wikipron:nob_latn_broad_filtered.tsv + kaikki fill",
+           "note": "tonal accents folded (scripts/fold_norwegian.py); kaikki "
+                   "Norwegian Bokmal fill (88.9% agreement on shared words, "
+                   "scripts/fold_kaikki_fill.py) adds 7,993 words; 0.009% "
+                   "drop vs no_NO-talesyntese; the expanded 'nob' bundle "
+                   "(bcp47 nb) carries the distilled superset"},
     "ka": {"kind": "staging", "bcp47": "ka", "name": "Georgian",
            "path": "staging/kat/kaikki.folded.tsv", "kaikki": True,
            "source": "kaikki:Georgian (English Wiktionary extraction)",

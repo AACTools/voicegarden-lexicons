@@ -117,7 +117,12 @@ numerals, and a handful of function words); `ku` shipped at 2,559
 guesser's holdout now includes kaikki's harder inflected forms);
 `tn` shipped at 1,974 (alignment-harvested; est_eff 97% on first
 measurement). kk remains the weakest locale (VoxCommunis parked; thin
-audio).
+audio). **kaikki fill (2026-11-26):** `no` 2,714 → 10,707 entries
+(guesser 54.4% → 76.1%) and `af` 2,073 → 2,303 (71.2% → 76.4%) —
+kaikki rows folded through each language's existing fold plus a
+narrow-diacritic cleanup (`scripts/fold_kaikki_fill.py`): 88.9% /
+97.1% agreement with the seed on shared words, 0.009% / 0.434%
+voice-drop.
 
 **What it settles.** Baselines validate the tiered architecture —
 de/hu/ka sit at 98–99% effective despite 40–72% dictionary coverage,

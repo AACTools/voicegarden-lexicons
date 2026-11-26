@@ -1,1 +1,7 @@
-wikipron-only
+wikipron primary + kaikki fill
+
+merged.tsv: WikiPron afr_latn_broad (fold_afrikaans.py) keeps
+priority; kaikki Afrikaans rows folded through the same fold + the
+narrow cleanup (scripts/fold_kaikki_fill.py; 97.1% agreement on the
+1,967 shared words) fill 230 new words. 0.434% drop vs
+mimic3-af_ZA-google-nwu_low.
