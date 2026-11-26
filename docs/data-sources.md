@@ -122,7 +122,8 @@ audio). **kaikki fill (2026-11-26):** `no` 2,714 → 10,707 entries
 kaikki rows folded through each language's existing fold plus a
 narrow-diacritic cleanup (`scripts/fold_kaikki_fill.py`): 88.9% /
 97.1% agreement with the seed on shared words, 0.009% / 0.434%
-voice-drop.
+voice-drop. Distilled function words then lifted dictionary hit-rate to
+60.3% (af) and 47.2% (no).
 
 **What it settles.** Baselines validate the tiered architecture —
 de/hu/ka sit at 98–99% effective despite 40–72% dictionary coverage,
@@ -139,11 +140,19 @@ nothing there**. The archive's real exposure is concentrated:
    are the remaining viable alignment targets, in that order of
    expected gain-per-hour; ga's opaque orthography makes dictionary
    rows the only fix for its 35% guesser.
-4. **Function-word fill first, everywhere thin** — the top misses at
-   et/lv/ku are not long-tail words but `ja/oli/ka`, `no/ar/par/bija`,
-   `li/bi/ji/ye`: the scrapes skipped them, they carry a huge token
-   share, and they hand-verify in minutes. The Icelandic `manual.tsv`
-   pattern (`merge_sources.py` top-priority source) applies directly.
+4. **Function-word fill** — the top misses at et/af/no are not long-tail
+   words but `ja/oli/ka`, `op/om/na`, `etter/seg/eller`. Verified in the
+   raw kaikki dump (2026-11-26): Wiktionary has **no IPA** for them
+   (`men`, `da`, `også`: empty `sounds`; `eller`: audio only) — more
+   scraping cannot fix this. **Done for `af` and `no`** by distillation
+   (`scripts/distill_missing.py`): the ByT5 v2 small+tiny models must
+   agree AND every phone must be in the voice inventory — af kept 151 of
+   the top 200 missing words (12.5% of running-text tokens; dictionary
+   hit-rate 47.8% → 60.3%), no kept 104 (7.5%; 39.8% → 47.2%). The rows
+   are model-generated, labelled in the bundle NOTICE, and deliberately
+   kept out of `merged.tsv` so they never feed the v3 trainer. Not yet
+   possible for `ku` (its language tag postdates the v2 corpus) or `et`
+   (its only voice is a grapheme model — no consumer).
 5. `lb`/`no`/`ne` have almost no CV audio — cheap sources only
    (kaikki headroom, NST/Språkbanken for no).
 

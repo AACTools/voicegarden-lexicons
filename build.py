@@ -123,11 +123,18 @@ EXTRAS: dict[str, dict] = {
     # and holdout metrics live in staging/<iso3>/ (harvest_and_train).
     "af": {"kind": "staging", "bcp47": "af", "name": "Afrikaans",
            "path": "staging/afr/merged.tsv", "wikipron": True,
-           "source": "wikipron:afr_latn_broad_filtered.tsv + kaikki fill",
+           "extra_paths": ["staging/afr/function-words.tsv"],
+           "source": "wikipron:afr_latn_broad_filtered.tsv + kaikki fill "
+                     "+ distilled function words",
            "note": "folded (scripts/fold_afrikaans.py): chi->x, ɦ->h, "
                    "ʋ->v, glide breves; kaikki Afrikaans fill (97.1% "
                    "agreement on shared words, scripts/fold_kaikki_fill.py) "
-                   "adds 230 words; 0.434% drop vs the mimic3-af voice"},
+                   "adds 230 words; 0.434% drop vs the mimic3-af voice. "
+                   "PLUS 151 model-distilled function words (willwade/"
+                   "byt5-g2p-multilingual v2 small+tiny agreement, every "
+                   "phone in the voice inventory; scripts/distill_missing.py): "
+                   "Wiktionary carries no IPA for them (op, om, na, ...), "
+                   "yet they are 12.5% of running-text tokens"},
     "cy": {"kind": "staging", "bcp47": "cy", "name": "Welsh",
            "path": "staging/cym/merged.tsv", "wikipron": True,
            "source": "wikipron:cym_latn_broad.tsv",
@@ -223,12 +230,19 @@ EXTRAS: dict[str, dict] = {
            "source": "wikipron:mlt_latn_broad_filtered.tsv"},
     "no": {"kind": "staging", "bcp47": "no", "name": "Norwegian (Bokmål)",
            "path": "staging/nob/merged.tsv", "wikipron": True,
-           "source": "wikipron:nob_latn_broad_filtered.tsv + kaikki fill",
+           "extra_paths": ["staging/nob/function-words.tsv"],
+           "source": "wikipron:nob_latn_broad_filtered.tsv + kaikki fill "
+                     "+ distilled function words",
            "note": "tonal accents folded (scripts/fold_norwegian.py); kaikki "
                    "Norwegian Bokmal fill (88.9% agreement on shared words, "
                    "scripts/fold_kaikki_fill.py) adds 7,993 words; 0.009% "
                    "drop vs no_NO-talesyntese; the expanded 'nob' bundle "
-                   "(bcp47 nb) carries the distilled superset"},
+                   "(bcp47 nb) carries the distilled superset. PLUS 104 "
+                   "model-distilled function words (willwade/byt5-g2p-"
+                   "multilingual v2 small+tiny agreement, every phone in the "
+                   "voice inventory; scripts/distill_missing.py): Wiktionary "
+                   "carries no IPA for them (etter, seg, eller, ...), yet "
+                   "they are 7.5% of running-text tokens"},
     "ka": {"kind": "staging", "bcp47": "ka", "name": "Georgian",
            "path": "staging/kat/kaikki.folded.tsv", "kaikki": True,
            "source": "kaikki:Georgian (English Wiktionary extraction)",
@@ -438,12 +452,28 @@ def build_lang(
                 if not staging_src.is_file():
                     print(f"  !! staging source missing: {staging_src}")
                     return None
-                n = sum(
-                    1
-                    for line in staging_src.read_text(encoding="utf-8").splitlines()
-                    if line.strip() and "\t" in line
-                )
-                shutil.copyfile(staging_src, td / "lex.tsv")
+                # extra_paths (e.g. distilled function words) concatenate
+                # behind the primary source, first spelling wins. They stay
+                # OUT of merged.tsv on purpose: merged.tsv is what the ByT5
+                # training corpus is rebuilt from, and model-generated rows
+                # must never feed their own trainer.
+                seen_words: set[str] = set()
+                n = 0
+                with (td / "lex.tsv").open("w", encoding="utf-8") as out_f:
+                    for src in (staging_src, *(ROOT / p
+                                               for p in extra.get("extra_paths", ()))):
+                        if not src.is_file():
+                            print(f"  !! extra source missing: {src}")
+                            return None
+                        for line in src.read_text(encoding="utf-8").splitlines():
+                            if not line.strip() or "\t" not in line:
+                                continue
+                            word = line.split("\t", 1)[0]
+                            if word in seen_words:
+                                continue
+                            seen_words.add(word)
+                            n += 1
+                            out_f.write(line + "\n")
                 source = extra.get("source", f"staging:{extra['path']}")
                 license_ = extra.get(
                     "license",

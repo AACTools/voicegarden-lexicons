@@ -1,0 +1,260 @@
+{
+ "iso": "afr",
+ "lang": "afr",
+ "voice": "mimic3-af_ZA-google-nwu_low",
+ "missing_types": 200,
+ "missing_token_share": 0.1575,
+ "kept": 151,
+ "kept_token_share": 0.1254,
+ "disagreed": 49,
+ "not_in_voice_inventory": 0,
+ "rule": "willwade/byt5-g2p-multilingual v2 small+tiny agreement + every phone in the target voice inventory",
+ "disagreements": [
+  {
+   "word": "secunda",
+   "small": "s ɪ ə k œ n d a",
+   "tiny": "s ə k œ n d a"
+  },
+  {
+   "word": "amerikaanse",
+   "small": "a m ɪ ə r i k ɑː n s ə",
+   "tiny": "a m ə r i k ɑː n s ə"
+  },
+  {
+   "word": "nasionale",
+   "small": "n a s i ʊ n ɑː l ə",
+   "tiny": "n ɑː s i ɔ n ɑː l ə"
+  },
+  {
+   "word": "tydens",
+   "small": "t ə i d ə n s",
+   "tiny": "t ə i d ɛ n s"
+  },
+  {
+   "word": "pence",
+   "small": "p ɛ n s",
+   "tiny": "p ɛ n s ə"
+  },
+  {
+   "word": "gepubliseer",
+   "small": "x ə p œ b l i s ɪ ə r",
+   "tiny": "x ə p y b l i s ɪ ə r"
+  },
+  {
+   "word": "km",
+   "small": "k ɛ ə m",
+   "tiny": "k ɛ m"
+  },
+  {
+   "word": "verenigde",
+   "small": "f ə r ə n ə x d ə",
+   "tiny": "f ə r ɪ ə n ə x d ə"
+  },
+  {
+   "word": "grootste",
+   "small": "x ʊ ə t s t ə",
+   "tiny": "x r ʊ ə t s t ə"
+  },
+  {
+   "word": "wetenskaplike",
+   "small": "v ɪ ə t ə n s k a p l ə k ə",
+   "tiny": "v ɪ ə t ə n s k ɑː p l ə k ə"
+  },
+  {
+   "word": "state",
+   "small": "s t ɑː t",
+   "tiny": "s t ɑː t ə"
+  },
+  {
+   "word": "ongeveer",
+   "small": "ɔ ŋ x ə f ɪ ə r",
+   "tiny": "ɔ ŋ ə f ɪ ə r"
+  },
+  {
+   "word": "demokratiese",
+   "small": "d ə m ʊ k r ɑː s i s ə",
+   "tiny": "d ə m ʊ ə k r ɑː t i s ə"
+  },
+  {
+   "word": "insluitend",
+   "small": "ə n s l œ i t ə n t",
+   "tiny": "ə n s l œ i t ɛ n t"
+  },
+  {
+   "word": "element",
+   "small": "ɪ ə l ə m ɛ n t",
+   "tiny": "ɪ ə l ɪ ə m ɛ n t"
+  },
+  {
+   "word": "zimbabwe",
+   "small": "z ə m b a p v ə",
+   "tiny": "z ə m b a b v ə"
+  },
+  {
+   "word": "volgens",
+   "small": "f ɔ l x ə n s",
+   "tiny": "f ɔ l x ɛ n s"
+  },
+  {
+   "word": "steytler",
+   "small": "s t ə i t l ə r",
+   "tiny": "s t ɛ i t l ə r"
+  },
+  {
+   "word": "indiana",
+   "small": "ə n d i a n a",
+   "tiny": "ə n d i ɑː n a"
+  },
+  {
+   "word": "kwazulu",
+   "small": "k v ɑː s y l y",
+   "tiny": "k v ɑː z y l y"
+  },
+  {
+   "word": "indeling",
+   "small": "ə n d ə l ə ŋ",
+   "tiny": "ə n d ɪ ə l ə ŋ"
+  },
+  {
+   "word": "televisiereekse",
+   "small": "t ə l ə f i s i r ɪ ə k s ə",
+   "tiny": "t ɪ ə l ə v i s i r ɪ ə k s ə"
+  },
+  {
+   "word": "tedeschi",
+   "small": "t ɪ ə d ə s x i",
+   "tiny": "t ɪ ə d ə ʃ ə"
+  },
+  {
+   "word": "belangrikste",
+   "small": "b ə l a ŋ x r ə k s t ə",
+   "tiny": "b ə l a ŋ r ə k s t ə"
+  },
+  {
+   "word": "meksiko",
+   "small": "m ɛ k s i k ʊ ə",
+   "tiny": "m ɛ k s ə k ʊ ə"
+  },
+  {
+   "word": "politikus",
+   "small": "p ʊ ə l i t i k œ s",
+   "tiny": "p ʊ ə l i t ə k œ s"
+  },
+  {
+   "word": "autshumato",
+   "small": "ɑ u t s h œ m ɑː t ʊ ə",
+   "tiny": "œ u t s h y m ɑː t ʊ ə"
+  },
+  {
+   "word": "navorsing",
+   "small": "n a f ɔ r s ə ŋ",
+   "tiny": "n ɑː v ɔ r s ə ŋ"
+  },
+  {
+   "word": "munisipaliteit",
+   "small": "m y n i s i p a l i t ə i t",
+   "tiny": "m y n i s ə p ɑː l i t ə i t"
+  },
+  {
+   "word": "eswatini",
+   "small": "ɛ s v ɑː t ə n i",
+   "tiny": "ɛ s v ɑː t ə n ə"
+  },
+  {
+   "word": "gereformeerde",
+   "small": "x ə r ə f ɔ r m ɪ ə r d ə",
+   "tiny": "x ə r ɪ ə f ɔ r m ɪ ə r d ə"
+  },
+  {
+   "word": "republikeinse",
+   "small": "r ɪ ə p œ b l ə k ə i n s ə",
+   "tiny": "r ə p y b l i k ə i n s ə"
+  },
+  {
+   "word": "biologie",
+   "small": "b i ʊ l ʊ ə x i",
+   "tiny": "b i ʊ ə l ʊ ə x i"
+  },
+  {
+   "word": "chemiese",
+   "small": "x ɪ ə m i s ə",
+   "tiny": "t ʃ ə m i s ə"
+  },
+  {
+   "word": "demospongiae",
+   "small": "d ə m ɔ s p ɔ ŋ x i ɑː",
+   "tiny": "d ə m ɔ s p ɔ ŋ i ɪ ə"
+  },
+  {
+   "word": "sponginevesels",
+   "small": "s p ɔ ŋ x i n ə f ɪ ə s ə l s",
+   "tiny": "s p ɔ ŋ ə n ɪ ə v ɪ ə s ɛ l s"
+  },
+  {
+   "word": "televisiereeks",
+   "small": "t ə l ə f i s i r ɪ ə k s",
+   "tiny": "t ɪ ə l ə v i s i r ɪ ə k s"
+  },
+  {
+   "word": "bydrae",
+   "small": "b ə i d r ɑː",
+   "tiny": "b ə i d r ɪ ə"
+  },
+  {
+   "word": "donald",
+   "small": "d ɔ n a l t",
+   "tiny": "d ʊ ə n a l t"
+  },
+  {
+   "word": "internasionale",
+   "small": "ə n t ə r n a s i ʊ n ɑː l ə",
+   "tiny": "ə n t ə r n ɑː s i u n ɑː l ə"
+  },
+  {
+   "word": "kenia",
+   "small": "k ɪ ə n i a",
+   "tiny": "k ə n i ɑː"
+  },
+  {
+   "word": "strandstraat",
+   "small": "s t r ɑː t",
+   "tiny": "s t r a n t s t r ɑː t"
+  },
+  {
+   "word": "kompetisie",
+   "small": "k ɔ m p ə t i s i",
+   "tiny": "k ɔ m p ɪ ə t i s i"
+  },
+  {
+   "word": "new",
+   "small": "n ɪ ə v",
+   "tiny": "n ɛ v"
+  },
+  {
+   "word": "john",
+   "small": "j ʊ ə n",
+   "tiny": "j oː n"
+  },
+  {
+   "word": "sowat",
+   "small": "s ʊ ə v ɑː t",
+   "tiny": "s ʊ ə v a t"
+  },
+  {
+   "word": "mpumalanga",
+   "small": "m p y m a l a ŋ ɡ a",
+   "tiny": "m p y m a l a ŋ a"
+  },
+  {
+   "word": "queenstown",
+   "small": "k w ɪ ə n s t ʊ ə n",
+   "tiny": "k v ɪ ə n s t ɔ u n"
+  },
+  {
+   "word": "de",
+   "small": "d ə",
+   "tiny": "d ɪ ə"
+  }
+ ],
+ "uncovered": []
+}

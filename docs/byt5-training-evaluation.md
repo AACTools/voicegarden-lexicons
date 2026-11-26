@@ -224,3 +224,117 @@ tag guards, reference consumers, checkpoint retention).
   tags: nothing else we found. The claim "best open multilingual P2G"
   survives scrutiny on coverage + licence + artefact quality, with the
   homophone caveat noted.
+
+## P2G round-trip baseline (v2 models, 2026-11-26)
+
+The respeller tier (rust-tts-wrapper #109: `<phoneme>` → a spelling an
+orthographic engine can read) is gated on a measurement this archive
+did not have: *does a phoneme string survive the trip through a
+spelling?* `scripts/p2g_roundtrip.py` answers it per language on
+held-out rows of the v2 test split (n = 500 per language, capped by
+availability):
+
+- **same word** — P2G returned the original spelling. A safe no-op: an
+  engine pronounces it natively, whether or not our own G2P happens to
+  transcribe it like the reference row.
+- **verified homophone** — a *different* spelling that our G2P maps back
+  to exactly the reference IPA. This is the respeller's value-add.
+- **broken** — neither: the respeller changed the pronunciation. **This
+  is the gate.**
+- **respell in-charset** — the respelling uses only letters attested in
+  that language's own spellings (whole train split). Guards against
+  phoneme strings in disguise that only our G2P could read back.
+
+Inference follows `onnx_reference.py`'s conventions with batching; a
+`--selftest` proves the batched decoder against the single-sequence
+reference before any number is reported (passes on CPU and CUDA). The
+v2 test split is an **alphabetical head slice** per language, not a
+random sample, so short early-alphabet words are over-represented, and
+101 languages have fewer than 100 clean rows (†) — treat those as
+indicative only. Hungarian has no clean held-out rows at all (its test
+split is entirely suffix entries). Full numbers: `results/p2g-roundtrip-{small,tiny}.json`.
+
+### Bundle languages, small model
+
+| language | n | same word | verified homophone | **broken** | PER (misses) | respell in-charset | tier | tiny broken |
+|---|---|---|---|---|---|---|---|---|
+| Spanish (Latin America) (`spa-LatAm`) | 500 | 20% | 80% | **0%** | 0% | 100% | ship | 0% |
+| Georgian (`kat`) | 170 | 83% | 16% | **1%** | 1% | 100% | ship | 4% |
+| Spanish (`spa`) | 500 | 38% | 61% | **1%** | 0% | 100% | ship | 1% |
+| Spanish (Spain) (`spa-ES`) | 500 | 43% | 56% | **2%** | 0% | 100% | ship | 0% |
+| Portuguese (Portugal) (`por-PT`) | 500 | 62% | 36% | **2%** | 0% | 100% | ship | 4% |
+| Italian (`ita`) | 500 | 95% | 3% | **3%** | 5% | 100% | ship | 3% |
+| Basque (`eus`) | 119 | 15% | 82% | **3%** | 1% | 100% | ship | 6% |
+| Albanian (`sqi`) | 48 † | 88% | 8% | **4%** | 7% | 100% | ship | 8% |
+| Portuguese (Brazil) (`por-BR`) | 500 | 70% | 24% | **6%** | 2% | 100% | usable with care | 10% |
+| Maltese (`mlt`) | 157 | 86% | 8% | **6%** | 3% | 100% | usable with care | 4% |
+| Estonian (`est`) | 27 † | 93% | 0% | **7%** | 5% | 100% | usable with care | 0% |
+| Gujarati (`guj`) | 40 † | 72% | 20% | **8%** | 10% | 100% | usable with care | 15% |
+| French (`fra`) | 500 | 35% | 57% | **8%** | 2% | 100% | usable with care | 12% |
+| German (`deu`) | 500 | 82% | 8% | **10%** | 7% | 100% | usable with care | 11% |
+| Lithuanian (`lit`) | 197 | 77% | 13% | **11%** | 4% | 100% | usable with care | 16% |
+| Vietnamese (`vie`) | 287 | 60% | 29% | **11%** | 3% | 100% | usable with care | 26% |
+| Welsh (`cym`) | 145 | 71% | 16% | **13%** | 12% | 100% | usable with care | 12% |
+| Kazakh (`kaz`) | 15 † | 73% | 13% | **13%** | 12% | 100% | usable with care | 27% |
+| Ukrainian (`ukr`) | 257 | 83% | 3% | **14%** | 9% | 100% | usable with care | 19% |
+| Nepali (`nep`) | 18 † | 56% | 28% | **17%** | 15% | 100% | weak | 22% |
+| Latvian (`lav`) | 16 † | 69% | 6% | **25%** | 14% | 100% | weak | 38% |
+| Luxembourgish (`ltz`) | 37 † | 57% | 16% | **27%** | 18% | 100% | weak | 81% |
+| Swedish (`swe`) | 221 | 57% | 14% | **29%** | 17% | 100% | weak | 47% |
+| Malayalam (`mal`) | 94 † | 59% | 12% | **30%** | 9% | 100% | weak | 26% |
+| Norwegian Bokmål (`nob`) | 27 † | 67% | 0% | **33%** | 23% | 100% | weak | 78% |
+| English (US) (`eng-US`) | 500 | 39% | 24% | **37%** | 14% | 100% | do not ship | 50% |
+| Afrikaans (`afr`) | 20 † | 35% | 25% | **40%** | 7% | 100% | do not ship | 85% |
+| Korean (`kor`) | 9 † | 0% | 56% | **44%** | 8% | 100% | do not ship | 67% |
+| English (UK) (`eng-UK`) | 500 | 24% | 28% | **48%** | 17% | 100% | do not ship | 60% |
+| Irish (`gle`) | 95 † | 36% | 13% | **52%** | 30% | 100% | do not ship | 53% |
+| English (`eng`) | 500 | 31% | 17% | **52%** | 22% | 100% | do not ship | 68% |
+| Mandarin (`cmn`) | 500 | 0% | 39% | **61%** | 33% | 100% | do not ship | 76% |
+| Dutch (`nld`) | 500 | 18% | 20% | **61%** | 13% | 100% | do not ship | 60% |
+| Persian (`fas`) | 500 | 7% | 22% | **71%** | 23% | 100% | do not ship | 93% |
+| Cantonese (`yue`) | 500 | 0% | 28% | **72%** | 38% | 100% | do not ship | 88% |
+
+Tiers: ship ≤ 5% broken, usable with care ≤ 15%, weak ≤ 35%, do not
+ship above. Macro over all 150 languages with rows: 23.3% broken,
+60.0% same word, 16.7% verified homophone (tiny: 30.7% broken).
+
+### Rows the models have never seen
+
+Rows added to the bundles after the v2 training run are held out by
+construction, and they tell a different story from the test split —
+the head slice flatters thin-training locales:
+
+| post-v2 held-out rows | n | same word | verified homophone | **broken** | tiny broken |
+|---|---|---|---|---|---|
+| `lav` (CV-aligned fill) | 500 | 93% | 1% | **6%** | 23% |
+| `afr` (kaikki fill) | 215 | 58% | 16% | **26%** | 44% |
+| `nob` (kaikki fill) | 500 | 63% | 6% | **31%** | 36% |
+| `kur` | 193 | 0% | 1% | **99%** | 96% |
+
+### What this settles for #109
+
+- **Shippable now, per language:** the Spanish and Portuguese varieties,
+  Georgian, Italian, Basque (small model only — the tiny tier is
+  roughly 1.5× worse everywhere and should not back the respeller).
+  Note Italian "ships" almost entirely by returning the same word
+  (95%): safe, but little value-add; Spanish and Basque are where the
+  model genuinely respells (56–82% verified homophones).
+- **Not shippable:** every English variety, Dutch, Persian, Mandarin,
+  Cantonese, Irish — and the tiny model as a whole.
+- **`kur` and `tn` have no P2G at all**: their language tags postdate
+  the v2 corpus. They need the v3 training run.
+- **`same word` hides convention noise in the v2 corpus**: Norwegian's
+  test rows score 0% on raw IPA round-trip while the model returns the
+  right word two times in three — the G2P transcribes it differently
+  from the reference row (`a` vs `ɑ`), the duplicate-unfolded-
+  conventions contamination the v3 corpus builder fixed. Gate on
+  `broken`, not on raw IPA equality.
+
+### Reproducing
+
+CPU is ~0.65 rows/s for the small model (a 13-hour sweep); an RTX 3060
+does ~40 rows/s (the whole table above in ten minutes, about $0.10 on
+Vast.ai). On a `pytorch/pytorch:*-cuda12.4-cudnn9` image,
+`onnxruntime-gpu==1.20.2` falls back to CPU **silently** unless cuDNN
+is on the loader path — check `nvidia-smi`, and export
+`LD_LIBRARY_PATH` over `site-packages/nvidia/*/lib`.
