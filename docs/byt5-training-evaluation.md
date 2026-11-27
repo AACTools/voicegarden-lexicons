@@ -431,3 +431,28 @@ an independent arbiter for every candidate fix (espeak-ng, which is
 what the voices expect anyway). It should precede the v3 training run:
 v3's builder deduplicated symbols across languages, but within-language
 synonymy of this kind survives that.
+
+**What shipped from this investigation (2026-11-27):** only the rewrites
+that are justified by the language rather than by a model, and only for
+Norwegian Bokmål, where it was measured end to end. Rhotic spellings
+(`ɾ ʁ ɹ ɽ`) become `r` (one rhotic phoneme; 454 positions) and
+aspiration marks are stripped (broad inventory; 87 positions), in
+`scripts/fold_norwegian.py`. Guesser holdout exact 76.1% → 77.1%, PER
+9.1% → 8.4%, rime consistency 85.0% → 85.7%, voice-inventory drop
+unchanged. Not shipped, deliberately:
+
+- **gemination fixes** — guards trade one error for another (a stress
+  guard protects `offisiøs` but wrongly blocks `forestilling`);
+- **a broad espeak-anchored rewrite** — lifts the guesser to 80.8% only
+  by copying espeak's mistakes into correct entries (`abakus`,
+  `abandonen`, `abattoir`);
+- **`v`/`ʋ`** — espeak emits `v`, the seed's majority is `ʋ`, and which
+  the voice prefers is unknown;
+- **the same merge in other languages** — Spanish, Portuguese and
+  Albanian contrast a tap `ɾ` with a trill `r`.
+
+Two candidate arbiters were tried for the rest and failed: Azure's
+pronunciation assessment returns phoneme labels for en-US only (empty
+for every other locale tested, including en-GB), and MFA's published
+dictionaries have none for the weak locales (`swedish_mfa`, the one
+sizable overlap, agrees with our seed on 55% of shared words).

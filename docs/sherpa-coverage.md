@@ -96,7 +96,7 @@ and rebuilt:
 | af | 43.8% | χ→x, ɦ→h, ʋ→v, glide breves (`fold_afrikaans.py`) | 0.386% (0.434% after the kaikki fill) |
 | cy | 4.7% | voiceless sonorants → plain (`fold_welsh.py`) | 0.014% |
 | ml | 6.6% | ä→aː, ʱ→ʰ, dentals (`fold_malayalam.py`) | 0.021% |
-| no/nob | 6.0% | tonal accents → plain (`fold_norwegian.py`) | 0.000% (0.009% after the kaikki fill) |
+| no/nob | 6.0% | tonal accents → plain (`fold_norwegian.py`) | 0.000% (0.009% after the kaikki fill; rhotic and aspiration notation synonyms folded 2026-11-27, guesser 76.1% → 77.1%) |
 
 Clean without folds (audit now guards them): eu 0.017%, lb 0.369%,
 sq 0.452%, kk 1.943% (thin).

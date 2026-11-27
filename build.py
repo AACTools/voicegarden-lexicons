@@ -224,7 +224,8 @@ EXTRAS: dict[str, dict] = {
     "no": {"kind": "staging", "bcp47": "no", "name": "Norwegian (Bokmål)",
            "path": "staging/nob/merged.tsv", "wikipron": True,
            "source": "wikipron:nob_latn_broad_filtered.tsv + kaikki fill",
-           "note": "tonal accents folded (scripts/fold_norwegian.py); kaikki "
+           "note": "tonal accents and rhotic/aspiration notation synonyms "
+                   "folded (scripts/fold_norwegian.py); kaikki "
                    "Norwegian Bokmal fill (88.9% agreement on shared words, "
                    "scripts/fold_kaikki_fill.py) adds 7,993 words; 0.009% "
                    "drop vs no_NO-talesyntese; the expanded 'nob' bundle "
