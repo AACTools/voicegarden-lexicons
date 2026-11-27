@@ -61,8 +61,26 @@ non-commercial.
      VoxCommunis park left it as the only route). (MFA note: the PyPI
      wheel is unusable without conda-forge's `kalpy` —
      `conda create -n mfa -c conda-forge montreal-forced-aligner`.)
-4. **MFA model-repo dictionaries** (~100 languages) — per-file license
-   check needed; many are MIT/CC outputs.
+4. **MFA model-repo dictionaries — checked 2026-11-27; no arbiter for the
+   weak locales.** The index is the GitHub Releases of
+   `MontrealCorpusTools/mfa-models` (one release per model, tag
+   `dictionary-<name>-v<ver>`; the release body carries maintainer, phone
+   set, word count and license; human-readable mirror at
+   mfa-models.readthedocs.io). `mfa model list` comes back empty on a
+   fresh install because its unauthenticated GitHub API calls fail
+   silently — read the releases API with a token instead. 143
+   dictionaries; the suffix names the source: `_cv` is Vox Communis with
+   an **Epitran** phone set (kazakh_cv, dutch_cv, …) — the same
+   Epitran-derived material already parked under VoxCommunis, not an
+   independent lexicon; `_mfa` is curated, **CC BY 4.0** (compatible with
+   these bundles). Curated dictionaries overlapping ours: english
+   (US/UK), german, french, russian, spanish, portuguese ×3, mandarin,
+   korean, ukrainian, czech, polish, swedish, croatian, swahili. **None
+   for kk, lb, sq, ne, lv, af, et, ga, lt or no.** Possible enrichment
+   where a bundle is smaller than the MFA dictionary (swedish_mfa 49,655
+   vs `sv` 22,766; croatian_mfa 61,060 vs `hr` 26,346 — but hr's only
+   voice is a grapheme model): same harvest → seed-agreement → fold →
+   audit pipeline as kaikki. Not a route to cleaning the thin locales.
 5. **Epitran (MIT)** — third voter for distillation next to ByT5
    small/tiny, and a fold reference for thin scrapes (kk, lt).
 6. **UniMorph (CC BY-SA 4.0)** — inflection tables × our validated G2P
