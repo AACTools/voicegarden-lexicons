@@ -30,13 +30,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 import time
 import unicodedata
 from collections import Counter
 from pathlib import Path
-from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 REPO = Path(__file__).resolve().parent.parent
@@ -64,8 +62,44 @@ LOCALES = {
     "tn": ("tn", "tn"),
 }
 
-WORD = re.compile(r"[\w'́`’]+", re.UNICODE)
-DIACRITICS = {"Mn", "Mc", "Me"}
+APOSTROPHES = "'`’"
+MARK = "M"  # unicodedata category prefix for combining marks
+
+
+def _word_char(c: str) -> bool:
+    r"""Letters, digits, combining marks, underscores and apostrophes.
+    `\w` alone would split every word in a script that builds words from
+    base + combining marks (Devanagari viramas and vowel signs, Thai,
+    Arabic diacritics) into fragments — which is exactly what happened
+    to the first Nepali scoping run."""
+    return (c.isalnum() or c == "_" or c in APOSTROPHES
+            or unicodedata.category(c).startswith(MARK))
+
+
+def tokenize(text: str) -> Counter:
+    """NFC + casefold word types with frequency. Leading/trailing
+    apostrophes are stripped; tokens with digits and 1-char tokens are
+    dropped (digits are normalised elsewhere; single letters are mostly
+    list markers)."""
+    text = unicodedata.normalize("NFC", text).casefold()
+    counts: Counter = Counter()
+    buf: list[str] = []
+
+    def flush() -> None:
+        tok = "".join(buf).strip(APOSTROPHES)
+        if len(tok) >= 2 and not any(c.isdigit() for c in tok):
+            counts[tok] += 1
+        buf.clear()
+
+    for c in text:
+        if _word_char(c):
+            buf.append(c)
+        else:
+            flush()
+    flush()
+    return counts
+
+
 
 
 def fetch_json(url: str) -> object:
@@ -102,20 +136,6 @@ def wiki_sample(code: str, target_tokens: int, refresh: bool) -> str:
     text = "\n\n".join(parts)
     cached.write_text(text, encoding="utf-8")
     return text
-
-
-def tokenize(text: str) -> Counter:
-    """NFC + casefold word types with frequency. Letters (incl. combining
-    marks and medial apostrophes) only; drops digits/punct and 1-char
-    tokens (both normalised away before the dictionary is built)."""
-    text = unicodedata.normalize("NFC", text).casefold()
-    counts: Counter = Counter()
-    for tok in WORD.findall(text):
-        tok = tok.strip("'`’́")
-        if len(tok) < 2:
-            continue
-        counts[tok] += 1
-    return counts
 
 
 def dominant_script(tok: str) -> str:

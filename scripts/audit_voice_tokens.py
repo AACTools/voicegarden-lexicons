@@ -62,9 +62,6 @@ AUDITS = {
     # wave-1 WikiPron bundles, first audited 2026-11 (round 2)
     "staging/afr/merged.tsv": ("mimic3-af_ZA-google-nwu_low", 0.434, 2.0),
     "staging/afr/kaikki.folded.tsv": ("mimic3-af_ZA-google-nwu_low", 0.273, 2.0),
-    # distilled function words: the rule itself requires every phone to be
-    # in the voice inventory (scripts/distill_missing.py), so the gate is 0
-    "staging/afr/function-words.tsv": ("mimic3-af_ZA-google-nwu_low", 0.000, 0.05),
     "staging/cym/merged.tsv": ("piper-cy_GB-bu_tts-medium", 0.014, 0.5),
     "staging/est/merged.tsv": ("coqui-et-cv", 92.137, None),  # grapheme voice
     "staging/eus/merged.tsv": ("piper-eu_ES-antton-medium", 0.017, 0.5),
@@ -77,7 +74,6 @@ AUDITS = {
     "staging/mlt/merged.tsv": ("coqui-mt-cv", 91.488, None),  # grapheme voice
     "staging/nob/merged.tsv": ("piper-no_NO-talesyntese-medium", 0.009, 0.05),
     "staging/nob/kaikki.folded.tsv": ("piper-no_NO-talesyntese-medium", 0.009, 0.05),
-    "staging/nob/function-words.tsv": ("piper-no_NO-talesyntese-medium", 0.000, 0.05),
     "staging/sqi/merged.tsv": ("piper-sq_AL-edon-medium", 0.452, 1.0),
     "staging/swe/merged.tsv": ("piper-sv_SE-alma-medium", 0.114, 0.5),
     "staging/en-GB/lexicon.tsv": ("piper-en_GB-alan-medium", None, 2.0),

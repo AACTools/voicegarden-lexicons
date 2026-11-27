@@ -338,3 +338,96 @@ Vast.ai). On a `pytorch/pytorch:*-cuda12.4-cudnn9` image,
 `onnxruntime-gpu==1.20.2` falls back to CPU **silently** unless cuDNN
 is on the loader path — check `nvidia-smi`, and export
 `LD_LIBRARY_PATH` over `site-packages/nvidia/*/lib`.
+
+## Distillation precision (v2 models, 2026-11-26)
+
+The expanded tier's rule — keep a model-generated pronunciation only
+when the small and tiny G2P models agree — had never been measured
+against references. `scripts/distill_missing.py --validate LANG=TSV`
+does: on held-out rows with a known pronunciation, how often is an
+agreed output actually right?
+
+| language | held-out rows | small alone | 2-vote agreed | + espeak-ng as 3rd voter | WFST guesser |
+|---|---|---|---|---|---|
+| Norwegian Bokmål (`nob`) | 291 | 18.6% | 33.3% (24–44%) | 47.4% (23–72%, n=19) | 74% |
+| Afrikaans (`afr`) | 234 | 39.3% | 58.7% (50–67%) | 68.3% (57–78%, n=79) | 68% |
+| Albanian (`sqi`) | 48 | 64.6% | 72.5% (56–85%) | 77.3% (54–93%, n=22) | 76% |
+| Luxembourgish (`ltz`) | 37 | 24.3% | 54.5% (19–88%) | 100% (48–100%, n=6) | 51% |
+| Kazakh (`kaz`) | 15 | 53.3% | 70.0% (30–99%) | no espeak voice | 31% |
+| Nepali (`nep`) | 18 | 83.3% | 86.7% (58–100%) | no espeak voice | 71% |
+
+Two readings:
+
+- **The agreement filter works as a filter**: agreed rows beat the
+  single small model in every language (no 19% → 33%, af 39% → 59%,
+  lb 24% → 55%). The espeak voter — an independent rule-based system,
+  its notation mapped onto the seed's by a map learned from the seed —
+  lifts it further.
+- **It is still not good enough to write into a dictionary.** On random
+  held-out words the best rows are correct 68–77% in af/sq, no better
+  than the WFST guesser they would replace, and far below it for
+  Norwegian. These locales had only 2–4k training rows in v2; the
+  models are simply thin there. 2-vote rows were briefly shipped for
+  af/no on inspection alone and reverted the same day.
+
+**Gate for v3:** three-way precision must beat the locale's own guesser
+with margin, measured on at least 100 held-out rows. Note the confound
+in the Norwegian row: its reference transcriptions and the model's
+output use different symbols for the same sounds (`a` vs `ɑ`), which
+depresses "correct" — the label-noise problem the next section covers.
+
+## Label noise in the dictionaries (2026-11-27)
+
+Why is exact accuracy so low everywhere — for the models *and* for the
+WFST guessers trained on the same data? Part of the answer is the
+labels. A model-free test: in a phonemic language, words that share a
+spelled ending should share a pronunciation. Grouping each dictionary's
+words by their last three letters and scoring the last two phones
+against the group's majority:
+
+| dictionary | words | distinct phones | rime groups (≥5 words) | same ending → same pronunciation |
+|---|---|---|---|---|
+| Hungarian | 64,730 | 77 | 1,795 | **99.4%** |
+| Finnish | 170,358 | 76 | 1,129 | **98.9%** |
+| Estonian | 2,747 | 91 | 136 | 96.2% |
+| Italian | 90,748 | 89 | 688 | 95.7% |
+| German | 306,913 | 113 | 1,255 | 93.4% |
+| Afrikaans | 2,276 | 64 | 115 | 94.4% |
+| Latvian | 1,674 | 84 | 78 | 90.0% |
+| Swedish | 22,598 | 83 | 771 | 89.9% |
+| Albanian | 4,861 | 87 | 267 | **87.0%** |
+| Dutch | 68,906 | 144 | 1,098 | 85.4% |
+| Norwegian Bokmål | 9,875 | 102 | 302 | **84.7%** |
+| Luxembourgish | 3,795 | 72 | 165 | **64.1%** |
+
+The disagreements are systematic, not random — the same sound written
+two ways: rhotics `ɹ`/`ɾ`/`r` (Albanian `-tor`: `ɔ ɹ` / `o ɾ` / `ɔ ɾ`),
+gemination as `k` or `kː` (Norwegian `-ikk`: `ɪ k` / `ɪ kː` / `i k`),
+vowel pairs `ɪ`/`i`, `o`/`ɔ`, `ʊ`/`u`, `ə`/`ɛ`, and Afrikaans `a`/`ɑ`
+(`arm → ɑ r m` beside `ander → a n d ə r`). Some is genuine linguistic
+variation; much is transcriber notation. A Norwegian probe: 12.5% of
+double-letter words carry no geminate mark (`abbedissen → ɑ b e d ɪ s n̩`),
+yet the same set holds true exceptions (`abbé`, `aberrant`); 1.4% of
+entries contradict a ≥90%-unanimous rime majority, and espeak-ng sides
+with the majority against the entry in 81 of those 135 cases.
+
+Consequences:
+
+- every exact-match number in this archive is a floor, including the
+  published guesser holdout rates (a guesser cannot learn a rule the
+  labels do not follow);
+- the round-trip gate above undercounts correct rows where the model's
+  symbol differs from the reference's;
+- most importantly for TTS, **the voice receives different phoneme
+  symbols for the same sound depending on which entry it came from**.
+  These voices were trained on espeak-ng's phonemes; today the seed
+  dictionaries agree with espeak's output (skeleton, notation mapped
+  from the seed) only 17–41% of the time.
+
+Cleaning is possible but is not a regular expression: it needs
+orthographic laws per language (double letters are geminates in
+Norwegian — except in loans), within-dictionary majority consensus, and
+an independent arbiter for every candidate fix (espeak-ng, which is
+what the voices expect anyway). It should precede the v3 training run:
+v3's builder deduplicated symbols across languages, but within-language
+synonymy of this kind survives that.

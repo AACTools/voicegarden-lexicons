@@ -33,11 +33,11 @@ Each bundle is a `<lang>.tar.gz` with five files:
 | nl | 70,493 | | gu | 4,086 |
 | hu | 67,835 | | lb | 3,797 |
 | pt | 64,757 | | et | 2,747 |
-| uk | 55,209 | | no | 10,811 |
+| uk | 55,209 | | no | 10,707 |
 | fa | 47,143 | | ku | 2,559 * |
 | cs | 43,987 | | kk | 2,259 * |
 | lv | 42,919 | | ne | 2,135 * |
-| ko | 35,159 | | af | 2,454 * |
+| ko | 35,159 | | af | 2,303 * |
 | vi | 28,749 | | tn | 1,974 * |
 | hr | 26,346 | | | |
 Plus the gruut-sourced ca, cs, fa, it, nl, sw (sv builds from the folded staging union). The `af`–`yue` bundles are WikiPron scrapes of Wiktionary (CC BY-SA 4.0), keyed to the locale codes of the piper voices that need them; `hu`, `ka`, and `ko` come from the fuller kaikki.org Wiktionary extraction (with per-language convention folds for Georgian and Korean); `ku` adds a kaikki Kurmanji fill; `tn` is alignment-harvested from VoxCommunis' CC0 alignments of Common Voice (words attested at least twice in validated audio); and `lv`'s 41k-entry fill is our own alignment campaign — MFA forced alignment of the full 199,630-clip CV 27.0 corpus, with pronunciations from a Phonetisaurus G2P trained on the bundle's kaikki seed so they inherit its conventions (100% agreement on shared words). `zh` folds Chao tone contours — including their sandhi realizations — to the tone digits the Mandarin voices expect. `zh` and `yue` ship dictionary-only (Han WFSTs are huge and weak; out-of-vocabulary words fall back char-wise to the dictionary, where every Han character carries an entry). [docs/sherpa-coverage.md](docs/sherpa-coverage.md) maps every sherpa piper voice locale to a bundle or a documented verdict (grapheme-model voices need no lexicon; the `blocked:no-data` set is now empty), and [docs/data-sources.md](docs/data-sources.md) tracks which untapped sources unlock what. *af, ku, kk, ne, tn are thin scrapes; most words fall through to the guesser.
