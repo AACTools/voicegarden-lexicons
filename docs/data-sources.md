@@ -67,7 +67,33 @@ non-commercial.
    insertions, and those figures should not be quoted.) The v2
    round-trip baseline was measured on the old split and is not
    comparable; v2 must not be re-scored on the new one, since it trained
-   on those rows.
+   on those rows. **Pipeline smoke-tested on this corpus (2026-11-27,
+   CPU, ~10 min):** train 50 steps → export → evaluate all pass, and the
+   harness loads the exported graphs. Facts that cost time to learn:
+
+   - the exporter's quality gate cannot be passed by an undertrained
+     model — a smoke needs `export_onnx.py --no-gate`;
+   - `export_onnx.py` writes flat into `--out` (the published layout),
+     so `eval_onnx.py --onnx <out>`, with no `/g2p`; it also takes a
+     local model directory, not a Hugging Face repo id;
+   - its two `optimum` strategies are inert under the pinned
+     `transformers==5.23.0` (`AutoModelForVision2Seq` no longer
+     exists); the manual `torch.onnx` path is the one that runs;
+   - the manual export is faithful at the logit level (encoder hidden
+     states within 1.4e-06 of PyTorch, decoder logits within 1e-04,
+     identical top-2 ids), and the runtime's length-2 decoder bootstrap
+     matches Hugging Face's real first step within 8e-05. Greedy text
+     from an *untrained* model still diverges between the two — tie-
+     flips on nearly flat logits — so never judge an export by text
+     equality on an untrained model;
+   - "missing keys in the checkpoint model loaded:
+     `encoder.embed_tokens.weight`…" at the end of training is benign:
+     all 172 tensors are present and none moved more than 0.006 from
+     its base value;
+   - open question: trained checkpoints come out with the input
+     embeddings and the output head no longer tied, though the config
+     says tied. The export uses the checkpoint's own head weights, so
+     inference is self-consistent, but this has not been explained.
 1. **kaikki for the remaining blocked locales** — done for uk/kor/vie/
    nep/lav (this PR). Finnish pulled and merged. Swedish-language
    wiktionary dump for swe enrichment (en.wiktionary is IPA-poor
