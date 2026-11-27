@@ -81,6 +81,18 @@ non-commercial.
    vs `sv` 22,766; croatian_mfa 61,060 vs `hr` 26,346 — but hr's only
    voice is a grapheme model): same harvest → seed-agreement → fold →
    audit pipeline as kaikki. Not a route to cleaning the thin locales.
+   **`swedish_mfa` tried the same day and parked** (49,655 words, 37,858
+   beyond our `sv` seed): after folding notation (tone letters → stress
+   mark, dental diacritics and aspiration stripped, ʋ → v) the two
+   dictionaries agree on 55% of the 11,797 shared words with stress
+   ignored and 16.5% with it — a different transcription tradition, not
+   stray symbols: retroflexes written `ɖ ʈ` where the seed has `r d`,
+   `r t`; `ʂ` where the seed has `ɕ`; `'eː` against `'ɛ`; vowel length
+   (`'ɪ`/`'iː`, `'a`/`'ɑː`); reduced unstressed vowels in the seed
+   (`ʊ`) against full ones in MFA (`ɔ`). Only 40% of MFA entries carry a
+   tone, so stress is absent from most of them while the seed marks it on
+   every word. The kaikki fills that shipped agree with their seed at
+   88–97%; this is in the parked VoxCommunis range (42–73%).
 5. **Epitran (MIT)** — third voter for distillation next to ByT5
    small/tiny, and a fold reference for thin scrapes (kk, lt).
 6. **UniMorph (CC BY-SA 4.0)** — inflection tables × our validated G2P
