@@ -1,6 +1,9 @@
 voxcommunis-only
 
+merged.tsv is the build file and the bundle's single source (an identical
+copy of voxcommunis.folded.tsv, kept under the conventional name so the
+ByT5 corpus builder, which reads staging/<lang>/merged.tsv, sees Tswana).
 CV20-validated vocabulary filter (min 2 alignments) + fold_tswana.py
-convention fold (aspiration stripped, i-merger, zh->sh). No seed
-dictionary exists for Tswana; agreement check deferred to espeak-ng
-cross-validation at build time if desired.
+convention fold (aspiration stripped, i-merger, zh->sh). Pronunciations
+are dictionary-driven (the cvu aligner's G2P output); the audio gates
+which words ship. No seed dictionary exists for Tswana.

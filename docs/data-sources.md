@@ -34,6 +34,40 @@ non-commercial.
    ~$18 at v2 cloud rates per docs/byt5-training-evaluation.md), then
    distill-v3 for the 24 base-only locales using the small+tiny
    agreement gate, built from the folded merged files only.
+   **Corpus rebuilt again (2026-11-27)**: 153 languages / 4.45M entries
+   (test 45,020, val 44,174, train 4.36M). Now includes `kur` and `tsn`
+   (which had no `merged.tsv` for the builder to see — so v2 had no P2G
+   for ku or tn at all) and the rows added since the previous build:
+   lav +41,215 (CV alignment fill), nob +7,993 (kaikki), afr +230.
+   **The evaluation split changed.** The old one was an alphabetical
+   head slice — deliberately, to keep near-duplicate spellings together —
+   at the cost of being every language's shortest early-alphabet words
+   (86–100% of test words shared one first letter; Hungarian's test set
+   was suffix entries only). It is now alphabetical word *families*
+   (shared 3-letter key; one Han character; two Hangul syllables)
+   assigned at random, seeded per language, with bound morphemes kept
+   for training only. Measured with the same exact test on all four
+   schemes — share of test words with an edit-distance-1 neighbour in
+   TRAIN, mean over eng/deu/fra/swe/nob/lav/spa/cmn:
+
+   | scheme | neighbour in train | most common first letter |
+   |---|---|---|
+   | per-word random | 74% | 10–16% |
+   | head slice (old) | 40% | 86–100% |
+   | fixed 25-word blocks | 47% | 10–50% |
+   | **word families (new)** | **44%** | **10–39%** |
+
+   Families leak about as much as the old slice while removing its bias.
+   The residue is not mostly morphology — in a 100k-word dictionary most
+   words have *some* one-letter neighbour — so the round-trip harness
+   now scores every language twice, on all test rows and on those
+   without a train neighbour. Usable test rows: Norwegian 27 → 123,
+   Hungarian 0 → 805, Latvian 16 → 388. (An earlier suffix-only
+   heuristic put this leakage at 0–5%; it missed substitutions and
+   insertions, and those figures should not be quoted.) The v2
+   round-trip baseline was measured on the old split and is not
+   comparable; v2 must not be re-scored on the new one, since it trained
+   on those rows.
 1. **kaikki for the remaining blocked locales** — done for uk/kor/vie/
    nep/lav (this PR). Finnish pulled and merged. Swedish-language
    wiktionary dump for swe enrichment (en.wiktionary is IPA-poor

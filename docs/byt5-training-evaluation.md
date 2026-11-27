@@ -294,6 +294,14 @@ split is entirely suffix entries). Full numbers: `results/p2g-roundtrip-{small,t
 | Persian (`fas`) | 500 | 7% | 22% | **71%** | 23% | 100% | do not ship | 93% |
 | Cantonese (`yue`) | 500 | 0% | 28% | **72%** | 38% | 100% | do not ship | 88% |
 
+All numbers in this section were measured on the corpus's original
+test split, an alphabetical head slice per language. That split has
+since been replaced by randomly assigned word families (the trade-off,
+measured exactly, is in `docs/data-sources.md` item 0): v2 must not be
+re-scored on the new split, because v2 trained on those rows, and the
+harness now reports each language with and without test words that have
+a one-letter neighbour in training.
+
 Tiers: ship ≤ 5% broken, usable with care ≤ 15%, weak ≤ 35%, do not
 ship above. Macro over all 150 languages with rows: 23.3% broken,
 60.0% same word, 16.7% verified homophone (tiny: 30.7% broken).

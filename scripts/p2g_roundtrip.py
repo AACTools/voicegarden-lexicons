@@ -26,10 +26,27 @@ corpus's test split (corpus/p2g.test.tsv: lang, IPA, word):
              safe no-op an engine pronounces natively) nor a verified
              homophone — i.e. the respeller changed the pronunciation
 
-Caveat on the v2 test split: it is an alphabetical head slice per
-language (the first ~1% of sorted rows), not a random sample — short,
-early-alphabet words are over-represented. Spellings compare
-case-insensitively (many test rows are capitalised proper nouns).
+Spellings compare case-insensitively (many test rows are capitalised
+proper nouns).
+
+Sibling leakage: the training corpus is split into alphabetical word
+families (families sharing their first letters stay together), yet about
+44% of test words still have an edit-distance-1 neighbour in TRAIN —
+about what the old alphabetical head slice had (40%), against 74% for a
+per-word random split. In a 100k-word dictionary most words have SOME
+one-letter neighbour whatever the split, so this is not mostly
+cat/cats, but such words are easier than isolated ones. With
+--train-split (default: corpus/p2g.train.tsv) every language is scored
+twice — on all its test rows and on those without a train neighbour —
+and both are reported.
+
+Split history: the v2 models' published baseline (results/p2g-roundtrip-
+*.json of 2026-11-26) was measured on the ORIGINAL split, an
+alphabetical head slice per language (97-100% of English/German test
+words began with "a", Hungarian's were suffix entries only). That split
+is no longer in corpus/; the v2 numbers are not comparable with runs on
+the family split, and v2 itself must not be re-scored on it — v2 trained
+on those rows.
 
 Rows for bound morphemes (spelling starts or ends with "-", e.g.
 Hungarian "-edzik") are excluded: they are not words a respeller handles.
@@ -224,6 +241,30 @@ def load_charsets() -> dict[str, set[str]]:
     return out
 
 
+def has_train_sibling(word: str, train: set[str], alphabet: frozenset[str]) -> bool:
+    """True if an edit-distance-1 variant of `word` is in `train`."""
+    if len(word) > 1 and any(word[:i] + word[i + 1:] in train for i in range(len(word))):
+        return True
+    for i in range(len(word) + 1):
+        pre, suf = word[:i], word[i:]
+        if i < len(word) and any(pre + c + suf[1:] in train for c in alphabet):
+            return True
+        if any(pre + c + suf in train for c in alphabet):
+            return True
+    return False
+
+
+def load_train_words(path: Path) -> dict[str, tuple[set[str], frozenset[str]]]:
+    """lang -> (train word set, letter alphabet) for the leak check."""
+    words: dict[str, set[str]] = defaultdict(set)
+    with path.open(encoding="utf-8") as f:
+        for line in f:
+            lang, _ipa, word = line.rstrip("\n").split("\t")[:3]
+            words[lang].add(unicodedata.normalize("NFC", word).casefold())
+    return {k: (v, frozenset(c for w in v for c in w if unicodedata.category(c)[0] == "L"))
+            for k, v in words.items()}
+
+
 def load_split(path: Path) -> dict[str, list[tuple[str, str]]]:
     """lang -> [(word, ipa), ...] from the corpus test split."""
     by_lang: dict[str, list[tuple[str, str]]] = defaultdict(list)
@@ -271,49 +312,76 @@ def selftest(models: Path, size: str, n: int, threads: int, provider: str) -> in
 MIN_N = 100  # below this, a per-language number is too noisy to gate on
 
 
+def summarise(lang: str, n: int, same: list[bool], rt: list[bool], lenient_ok: list[bool],
+              charset_ok: list[bool], per: list[float], source: str | None = None) -> dict:
+    homophone = sum(r and not s_ for r, s_ in zip(rt, same))
+    broken = sum(not r and not s_ for r, s_ in zip(rt, same))
+    res = {
+        "lang": lang, "n": n,
+        "same_word": round(sum(same) / n, 4),
+        "rt_exact": round(sum(rt) / n, 4),             # G2P(P2G(ipa)) == ipa
+        "homophone_ok": round(homophone / n, 4),       # a different spelling, verified
+        "broken": round(broken / n, 4),                # neither the word nor a homophone
+        "rt_lenient": round(sum(lenient_ok) / n, 4),
+        "rt_per": round(sum(per) / n, 4),
+        "respell_in_charset": round(sum(charset_ok) / n, 4),
+    }
+    if source:
+        res["source"] = source
+    return res
+
+
 def score(lang: str, rows: list[tuple[str, str]], charset: set[str],
-          run, p2g: Byt5, g2p: Byt5) -> dict:
+          run, p2g: Byt5, g2p: Byt5, train: tuple[set[str], frozenset[str]] | None = None,
+          source: str | None = None) -> dict:
     resp = [r.strip() for r in run(p2g, [f"<{lang}>: {ipa}" for _w, ipa in rows])]
     back = run(g2p, [f"<{lang}>: {r}" for r in resp])
-    same = homophone = broken = rt = rt_lenient = in_charset = 0
-    per_sum = 0.0
+    same, rt, len_ok, cs_ok, per = [], [], [], [], []
     for (word, ipa), r, b in zip(rows, resp, back):
         is_same = same_word(r, word)
         round_trips = strict(b) == strict(ipa)
-        same += is_same
-        rt += round_trips
-        homophone += round_trips and not is_same
-        broken += not is_same and not round_trips
-        in_charset += letters(r) <= charset
-        if not round_trips:
-            per_sum += edit_distance(strict(b), strict(ipa)) / max(len(strict(ipa)), 1)
-        rt_lenient += lenient(ipa) == lenient(b)
+        same.append(is_same)
+        rt.append(round_trips)
+        len_ok.append(lenient(ipa) == lenient(b))
+        cs_ok.append(letters(r) <= charset)
+        per.append(0.0 if round_trips else
+                   edit_distance(strict(b), strict(ipa)) / max(len(strict(ipa)), 1))
     n = len(rows)
-    res = {
-        "lang": lang, "n": n,
-        "same_word": round(same / n, 4),
-        "rt_exact": round(rt / n, 4),              # G2P(P2G(ipa)) == ipa
-        "homophone_ok": round(homophone / n, 4),   # a different spelling, verified
-        "broken": round(broken / n, 4),            # neither the word nor a homophone
-        "rt_lenient": round(rt_lenient / n, 4),
-        "rt_per": round(per_sum / n, 4),
-        "respell_in_charset": round(in_charset / n, 4),
-    }
-    print(f"  {lang:<12} n={n:<4} same {res['same_word']:6.1%}  homophone "
-          f"{res['homophone_ok']:6.1%}  broken {res['broken']:6.1%}  "
-          f"(rt_exact {res['rt_exact']:6.1%}, lenient {res['rt_lenient']:6.1%})  "
-          f"PER {res['rt_per']:6.1%}  in-charset {res['respell_in_charset']:6.1%}",
-          file=sys.stderr)
+    res = summarise(lang, n, same, rt, len_ok, cs_ok, per, source)
+    label = f"post-v2 {lang}" if source else lang
+    line = (f"  {label:<12} n={n:<4} same {res['same_word']:6.1%}  homophone "
+            f"{res['homophone_ok']:6.1%}  broken {res['broken']:6.1%}  "
+            f"(rt_exact {res['rt_exact']:6.1%}, lenient {res['rt_lenient']:6.1%})  "
+            f"PER {res['rt_per']:6.1%}  in-charset {res['respell_in_charset']:6.1%}")
+    if train is not None:
+        train_words, alphabet = train
+        leak = [has_train_sibling(unicodedata.normalize("NFC", w).casefold(), train_words, alphabet)
+                for w, _ipa in rows]
+        keep = [i for i, leaked in enumerate(leak) if not leaked]
+        res["train_sibling"] = round(sum(leak) / n, 4)
+        if keep:
+            sub = lambda col: [col[i] for i in keep]  # noqa: E731
+            lf = summarise(lang, len(keep), sub(same), sub(rt), sub(len_ok), sub(cs_ok), sub(per))
+            res["leak_free"] = {k: lf[k] for k in ("n", "same_word", "rt_exact", "homophone_ok",
+                                                   "broken", "rt_lenient", "rt_per")}
+            line += (f"  | train-sibling {res['train_sibling']:4.1%}, leak-free n={len(keep)} "
+                     f"broken {lf['broken']:6.1%}")
+    print(line, file=sys.stderr)
     return res
+
+
+MIN_N = 100  # below this, a per-language number is too noisy to gate on
 
 
 def evaluate(models: Path, size: str, langs: list[str] | None, sample: int,
              batch: int, threads: int, out: Path | None, provider: str,
-             extra: dict[str, Path]) -> int:
+             extra: dict[str, Path], train_split: str | None = None) -> int:
     p2g = Byt5(model_dir(models, "p2g", size), threads, provider)
     g2p = Byt5(model_dir(models, "g2p", size), threads, provider)
     split = load_split(REPO / "corpus" / "p2g.test.tsv")
     charsets = load_charsets()
+    train_path = Path(train_split) if train_split else REPO / "corpus" / "p2g.train.tsv"
+    train_words = load_train_words(train_path) if train_path.exists() else {}
     targets = sorted(set(langs) | set(extra) if langs else set(split) | set(extra))
     rng = random.Random(13)
 
@@ -335,7 +403,8 @@ def evaluate(models: Path, size: str, langs: list[str] | None, sample: int,
         if all_rows:
             rows = rng.sample(all_rows, min(sample, len(all_rows)))
             n_rows += len(rows)
-            res = score(lang, rows, charset | charsets.get(lang, set()), run, p2g, g2p)
+            res = score(lang, rows, charset | charsets.get(lang, set()), run, p2g, g2p,
+                        train_words.get(lang))
             res["low_n"] = len(all_rows) < MIN_N
             results.append(res)
         if lang in extra:
@@ -355,8 +424,8 @@ def evaluate(models: Path, size: str, langs: list[str] | None, sample: int,
                 charset |= letters(w)
             held = rng.sample(held, min(sample, len(held)))
             print("  [post-v2 rows]", file=sys.stderr)
-            res = score(lang, held, charset | charsets.get(lang, set()), run, p2g, g2p)
-            res["source"] = str(extra[lang])
+            res = score(lang, held, charset | charsets.get(lang, set()), run, p2g, g2p,
+                        train_words.get(lang), source=str(extra[lang]))
             post_v2.append(res)
 
     keys = ("same_word", "rt_exact", "homophone_ok", "broken", "rt_lenient",
@@ -371,8 +440,11 @@ def evaluate(models: Path, size: str, langs: list[str] | None, sample: int,
     summary = {
         "models": {t: f"willwade/byt5-{t}-multilingual{SUFFIX[size]} (onnx/, fp32 = v2)"
                    for t in ("p2g", "g2p")},
-        "split": "corpus/p2g.test.tsv (alphabetical head slice per language; "
-                 "bound morphemes excluded; spellings compared case-insensitively)",
+        "split": "corpus/p2g.test.tsv (alphabetical word families assigned at "
+                 "random; bound morphemes excluded; spellings compared "
+                 "case-insensitively; leak_free = test rows without an "
+                 "edit-distance-1 sibling in the train split)",
+        "train_split": str(train_path) if train_words else None,
         "sample_per_language": sample,
         "date": dt.date.today().isoformat(),
         "rows": n_rows,
@@ -395,6 +467,13 @@ def evaluate(models: Path, size: str, langs: list[str] | None, sample: int,
 
     line("macro", "macro")
     line("micro", "micro")
+    lf = [r["leak_free"] for r in results if r.get("leak_free")]
+    if lf:
+        print(f"leak-free macro over {len(lf)} languages: same_word "
+              f"{sum(x['same_word'] for x in lf) / len(lf):.1%}  homophone_ok "
+              f"{sum(x['homophone_ok'] for x in lf) / len(lf):.1%}  broken "
+              f"{sum(x['broken'] for x in lf) / len(lf):.1%}  (rt_exact "
+              f"{sum(x['rt_exact'] for x in lf) / len(lf):.1%})")
     for r in summary["post_v2_rows"]:
         print(f"post-v2 {r['lang']:<8} n={r['n']:<4} same {r['same_word']:6.1%}  "
               f"homophone {r['homophone_ok']:6.1%}  broken {r['broken']:6.1%}  "
@@ -425,6 +504,8 @@ def main() -> int:
                     help="extra held-out rows (word<TAB>phones) for LANG, e.g. "
                          "bundle rows added after the v2 models were trained; "
                          "repeatable")
+    ap.add_argument("--train-split", help="train split for the sibling-leak check "
+                    "(default corpus/p2g.train.tsv; pass an empty string to skip)")
     ap.add_argument("--provider", default="cpu", choices=("cpu", "cuda"),
                     help="cuda = CUDAExecutionProvider (rented GPU); the selftest "
                          "guards the batched decoder either way")
@@ -450,7 +531,7 @@ def main() -> int:
     for size in sizes:
         out = Path(args.out) if args.out else REPO / f"results/p2g-roundtrip-{size}.json"
         rc |= evaluate(args.models, size, langs, args.sample, args.batch, threads,
-                        out, args.provider, extra)
+                        out, args.provider, extra, args.train_split or None)
     return rc
 
 

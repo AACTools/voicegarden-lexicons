@@ -166,7 +166,7 @@ EXTRAS: dict[str, dict] = {
                    "kaikki Northern Kurdish fills 427 words (97.6% "
                    "agreement on shared)"},
     "tn": {"kind": "staging", "bcp47": "tn", "name": "Tswana",
-           "path": "staging/tsn/voxcommunis.folded.tsv",
+           "path": "staging/tsn/merged.tsv",
            "license": "CC0-1.0 (data: VoxCommunis alignments of Common Voice 20) + MIT (tooling)",
            "source": "voxcommunis:tn_cvu_textgrids20_acoustic20 (CV 20 validated, 4.3 h)",
            "small": "alignment-harvested vocabulary (1,974 words) — WFST carries most words",
